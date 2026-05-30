@@ -99,3 +99,150 @@ html, body {
 /* Hide scrollbar utility */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ---- Loading Splash Animations ---- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes logoPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.06); opacity: 0.9; }
+}
+@keyframes loadingBar {
+  0% { width: 0%; margin-left: 0%; }
+  50% { width: 60%; margin-left: 20%; }
+  100% { width: 0%; margin-left: 100%; }
+}
+@keyframes pageSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Premium Splash Animations */
+@keyframes splashEntrance {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes splashLogoEntry {
+  0% { opacity: 0; transform: scale(0.5) rotate(-10deg); filter: blur(8px); }
+  60% { opacity: 1; transform: scale(1.08) rotate(2deg); filter: blur(0); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); filter: blur(0); }
+}
+@keyframes splashFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes splashRingSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes splashGlowOuter {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+@keyframes splashGlowMiddle {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.05); }
+}
+@keyframes splashPulseBurst {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+@keyframes splashTextEntry {
+  0% { opacity: 0; transform: translateY(12px); letter-spacing: 0.2em; }
+  100% { opacity: 1; transform: translateY(0); letter-spacing: -0.025em; }
+}
+@keyframes splashBarEntry {
+  from { opacity: 0; width: 0; }
+  to { opacity: 1; width: 13rem; }
+}
+@keyframes splashBarGlow {
+  0% { width: 0%; margin-left: 0%; background-position: 0% 50%; }
+  50% { width: 55%; margin-left: 20%; background-position: 100% 50%; }
+  100% { width: 0%; margin-left: 100%; background-position: 0% 50%; }
+}
+@keyframes splashMsgEntry {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes splashShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes splashOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+  33% { transform: translate(30px, -20px) scale(1.2); opacity: 0.5; }
+  66% { transform: translate(-20px, 15px) scale(0.8); opacity: 0.2; }
+}
+
+/* Splash classes */
+.splash-entrance { animation: splashEntrance 0.3s ease-out forwards; }
+
+.splash-logo-entry { animation: splashLogoEntry 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both; }
+.splash-logo-float { animation: splashFloat 3s ease-in-out infinite 0.8s; }
+
+.splash-ring { animation: splashRingSpin 8s linear infinite; }
+.splash-glow-outer { animation: splashGlowOuter 2s ease-in-out infinite; }
+.splash-glow-middle { animation: splashGlowMiddle 2s ease-in-out infinite 0.3s; }
+.splash-pulse-burst { animation: splashPulseBurst 2s ease-out infinite; }
+
+.splash-text-entry { animation: splashTextEntry 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both; }
+.splash-bar-entry { animation: splashBarEntry 0.5s ease-out 0.6s both; }
+.splash-msg-entry { animation: splashMsgEntry 0.4s ease-out 0.8s both; }
+
+.splash-loading-bar {
+  background: linear-gradient(90deg, #00A884, #00C896, #00E5A0, #00C896, #00A884);
+  background-size: 200% 100%;
+  animation: splashBarGlow 1.5s ease-in-out infinite;
+}
+
+.splash-shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.4) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: splashShimmer 2s linear infinite;
+}
+
+.splash-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  animation: splashOrb 6s ease-in-out infinite;
+}
+.splash-orb-1 {
+  width: 200px; height: 200px;
+  top: 20%; left: 10%;
+  background: radial-gradient(circle, #00A884 0%, transparent 70%);
+  animation-delay: 0s;
+}
+.splash-orb-2 {
+  width: 150px; height: 150px;
+  top: 60%; right: 15%;
+  background: radial-gradient(circle, #00C896 0%, transparent 70%);
+  animation-delay: 2s;
+}
+.splash-orb-3 {
+  width: 100px; height: 100px;
+  bottom: 20%; left: 40%;
+  background: radial-gradient(circle, #00E5A0 0%, transparent 70%);
+  animation-delay: 4s;
+}
+
+.animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
+.animate-logoPulse { animation: logoPulse 1.5s ease-in-out infinite; }
+.animate-loadingBar { animation: loadingBar 1.2s ease-in-out infinite; }
+.animate-pageSlideIn { animation: pageSlideIn 0.3s ease-out forwards; }
+
+/* Logo zoom: makes the green brain part appear larger within the same container */
+.logo-zoom {
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.logo-zoom img {
+  transform: scale(2);
+}

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "lib/auth";
 import { LanguageProvider } from "lib/i18n";
 import { SonnerToaster } from "components/ui/sonner";
+import LoadingSplash from "components/LoadingSplash";
 import "./App.css";
 
 import Landing from "pages/Landing";
@@ -29,19 +30,14 @@ import Settings from "pages/Settings";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading)
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin h-8 w-8 border-4 border-brand-500 border-t-transparent rounded-full"></div>
-      </div>
-    );
+  if (loading) return <LoadingSplash message="Loading your business..." />;
   if (!user) return <Navigate to="/login" replace />;
   return children;
 }
 
 function PublicOnlyRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <LoadingSplash message="Loading..." />;
   if (user) return <Navigate to="/app" replace />;
   return children;
 }

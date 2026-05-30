@@ -42,7 +42,7 @@ function Header() {
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#090E17]/85 border-b border-white/10">
       <div className="max-w-7xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5">
-          <img src="/vyaparmind-logo.png" alt="VyaparMind" className="w-10 h-10 rounded" />
+          <div className="w-10 h-10 rounded logo-zoom"><img src="/vyaparmind-logo.png" alt="VyaparMind" className="w-10 h-10" /></div>
           <span className="text-white font-display font-black tracking-tighter text-xl">VyaparMind</span>
         </Link>
         <nav className="hidden md:flex items-center gap-8 text-sm text-white/75">
@@ -469,7 +469,7 @@ function Footer() {
       <div className="max-w-7xl mx-auto px-5 sm:px-8 py-16 grid md:grid-cols-4 gap-10">
         <div className="md:col-span-2">
           <div className="flex items-center gap-2.5 mb-4">
-            <img src="/vyaparmind-logo.png" alt="VyaparMind" className="w-10 h-10 rounded" />
+            <div className="w-10 h-10 rounded logo-zoom"><img src="/vyaparmind-logo.png" alt="VyaparMind" className="w-10 h-10" /></div>
             <span className="font-display font-black text-xl tracking-tighter">VyaparMind</span>
           </div>
           <p className="text-white/55 max-w-md leading-relaxed">An AI operating system for India's 64 million micro-businesses. Built in Bengaluru with love.</p>

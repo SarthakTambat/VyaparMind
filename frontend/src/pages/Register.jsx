@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import ReactDOM from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { Lightning, ArrowRight, Storefront, Stethoscope, Truck, Plant, Scissors, Wrench } from "@phosphor-icons/react";
 import { useAuth } from "lib/auth";
 import { toast } from "sonner";
+import LoadingSplash from "components/LoadingSplash";
 
 const TYPES = [
   { id: "kirana", label: "Kirana / Retail", Icon: Storefront },
@@ -19,24 +21,40 @@ export default function Register() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ name: "", email: "", password: "", business_name: "", business_type: "kirana", language: "en" });
   const [busy, setBusy] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
+  const formDataRef = useRef(null);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
-  const finish = async () => {
+  const finish = () => {
     setBusy(true);
-    try {
-      await register(form);
-      toast.success("Welcome to VyaparMind!");
-      nav("/app");
-    } catch (e) {
-      toast.error(e?.response?.data?.detail || "Could not create account");
-    } finally { setBusy(false); }
+    formDataRef.current = { ...form };
+    setShowSplash(true);
+
+    // Show splash for exactly 10 seconds, THEN register
+    setTimeout(async () => {
+      try {
+        await register(formDataRef.current);
+        toast.success("Welcome to VyaparMind!");
+        nav("/app");
+      } catch (e) {
+        toast.error(e?.response?.data?.detail || "Could not create account");
+        setShowSplash(false);
+        setBusy(false);
+      }
+    }, 10000);
   };
 
+  const splashPortal = showSplash
+    ? ReactDOM.createPortal(<LoadingSplash message="Setting up your business..." />, document.body)
+    : null;
+
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-[#F9FAFB]">
-      <div className="hidden lg:flex relative bg-[#090E17] text-white p-12 flex-col justify-between overflow-hidden">
-        <div className="absolute inset-0 grid-bg opacity-50" />
+    <>
+      {splashPortal}
+      <div className="min-h-screen grid lg:grid-cols-2 bg-[#F9FAFB]">
+        <div className="hidden lg:flex relative bg-[#090E17] text-white p-12 flex-col justify-between overflow-hidden">
+          <div className="absolute inset-0 grid-bg opacity-50" />
         <Link to="/" className="relative flex items-center gap-2.5">
           <div className="w-7 h-7 bg-signal grid place-items-center" style={{borderRadius:4}}>
             <Lightning weight="fill" size={16} color="#090E17" />
@@ -129,6 +147,7 @@ export default function Register() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 

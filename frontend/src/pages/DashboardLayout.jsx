@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "lib/auth";
 import { useLanguage, LANGUAGES } from "lib/i18n";
 import {
@@ -28,6 +28,7 @@ export default function DashboardLayout() {
   const { user, logout } = useAuth();
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef(null);
 
@@ -49,7 +50,7 @@ export default function DashboardLayout() {
       {/* Sidebar */}
       <aside className="hidden lg:flex w-[260px] bg-white border-r border-slate-200 flex-col">
         <div className="px-5 py-5 border-b border-slate-200 flex items-center gap-2.5">
-          <img src="/vyaparmind-logo.png" alt="VyaparMind" className="w-10 h-10 rounded" />
+          <div className="w-10 h-10 rounded logo-zoom"><img src="/vyaparmind-logo.png" alt="VyaparMind" className="w-10 h-10" /></div>
           <span className="font-display font-black tracking-tighter text-xl text-slate-900">VyaparMind</span>
         </div>
 
@@ -148,7 +149,9 @@ export default function DashboardLayout() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        <Outlet />
+        <div key={location.pathname} className="animate-pageSlideIn">
+          <Outlet />
+        </div>
       </main>
     </div>
   );
