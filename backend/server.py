@@ -35,8 +35,11 @@ JWT_SECRET = os.environ.get('JWT_SECRET', 'dev-secret')
 JWT_ALG = "HS256"
 JWT_EXPIRE_DAYS = 30
 
-# Use lightweight file-based database (no MongoDB required)
-from filedb import db
+# Smart database selection: Supabase if configured, else local JSON files
+if os.environ.get("SUPABASE_URL") and os.environ.get("SUPABASE_KEY"):
+    from supabase_db import db
+else:
+    from filedb import db
 
 app = FastAPI(title="VyaparMind API")
 api = APIRouter(prefix="/api")
