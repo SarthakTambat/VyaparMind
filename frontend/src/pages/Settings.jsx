@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useAuth } from "lib/auth";
+import { useLanguage, LANGUAGES } from "lib/i18n";
 import { api } from "lib/api";
 import { toast } from "sonner";
 
 export default function Settings() {
   const { user, setUser, logout } = useAuth();
+  const { t, language, setLanguage } = useLanguage();
   const [form, setForm] = useState({
     business_name: user?.business_name || "",
     business_type: user?.business_type || "",
@@ -18,36 +20,36 @@ export default function Settings() {
     try {
       const { data } = await api.patch("/api/auth/business", form);
       setUser(data);
-      toast.success("Settings saved");
-    } catch { toast.error("Could not save"); }
+      toast.success(t("settings.saved"));
+    } catch { toast.error(t("settings.error")); }
     finally { setBusy(false); }
   };
 
   return (
     <div className="p-6 max-w-2xl">
       <div className="mb-5">
-        <div className="label-tiny mb-1">Settings</div>
-        <h1 className="font-display font-black text-3xl tracking-tighter">Your account.</h1>
+        <div className="label-tiny mb-1">{t("settings.title")}</div>
+        <h1 className="font-display font-black text-3xl tracking-tighter">{t("settings.heading")}</h1>
       </div>
 
       <form onSubmit={save} className="card-flat p-6 space-y-4">
-        <Field label="Name" value={user?.name || ""} disabled />
-        <Field label="Email" value={user?.email || ""} disabled />
-        <Field label="Business name" value={form.business_name} onChange={(v) => setForm({ ...form, business_name: v })} />
+        <Field label={t("settings.name")} value={user?.name || ""} disabled />
+        <Field label={t("settings.email")} value={user?.email || ""} disabled />
+        <Field label={t("settings.businessName")} value={form.business_name} onChange={(v) => setForm({ ...form, business_name: v })} />
         <div>
-          <label className="label-tiny block mb-1.5">Business type</label>
+          <label className="label-tiny block mb-1.5">{t("settings.businessType")}</label>
           <select value={form.business_type} onChange={(e) => setForm({ ...form, business_type: e.target.value })} className="w-full px-3.5 py-3 bg-white border border-slate-300 focus:ring-1 focus:ring-signal focus:border-signal outline-none text-sm" style={{ borderRadius: 4 }}>
-            <option value="kirana">Kirana / Retail</option>
-            <option value="clinic">Clinic / Pharmacy</option>
-            <option value="transport">Transport / Logistics</option>
-            <option value="farm">Farm / Agri</option>
-            <option value="salon">Salon / Beauty</option>
-            <option value="workshop">Workshop / Service</option>
-            <option value="other">Other</option>
+            <option value="kirana">{t("settings.kirana")}</option>
+            <option value="clinic">{t("settings.clinic")}</option>
+            <option value="transport">{t("settings.transport")}</option>
+            <option value="farm">{t("settings.farm")}</option>
+            <option value="salon">{t("settings.salon")}</option>
+            <option value="workshop">{t("settings.workshop")}</option>
+            <option value="other">{t("settings.other")}</option>
           </select>
         </div>
         <div>
-          <label className="label-tiny block mb-1.5">Preferred language</label>
+          <label className="label-tiny block mb-1.5">{t("settings.language")}</label>
           <select value={form.language} onChange={(e) => setForm({ ...form, language: e.target.value })} className="w-full px-3.5 py-3 bg-white border border-slate-300 focus:ring-1 focus:ring-signal focus:border-signal outline-none text-sm" style={{ borderRadius: 4 }}>
             <option value="en">English</option>
             <option value="hi">{"\u0939\u093f\u0928\u094d\u0926\u0940"}</option>
@@ -60,9 +62,17 @@ export default function Settings() {
             <option value="ml">{"\u0d2e\u0d32\u0d2f\u0d3e\u0d33\u0d02"}</option>
           </select>
         </div>
+        <div>
+          <label className="label-tiny block mb-1.5">{t("settings.appLanguage")}</label>
+          <select value={language} onChange={(e) => setLanguage(e.target.value)} className="w-full px-3.5 py-3 bg-white border border-slate-300 focus:ring-1 focus:ring-signal focus:border-signal outline-none text-sm" style={{ borderRadius: 4 }}>
+            {LANGUAGES.map((lang) => (
+              <option key={lang.code} value={lang.code}>{lang.native} — {lang.name}</option>
+            ))}
+          </select>
+        </div>
         <div className="flex justify-between items-center pt-4 border-t border-slate-100">
-          <button type="button" onClick={logout} className="text-sm text-rose-600 hover:underline">Sign out</button>
-          <button disabled={busy} type="submit" className="btn-signal text-sm disabled:opacity-60">{busy ? "Saving\u2026" : "Save changes"}</button>
+          <button type="button" onClick={logout} className="text-sm text-rose-600 hover:underline">{t("nav.signOut")}</button>
+          <button disabled={busy} type="submit" className="btn-signal text-sm disabled:opacity-60">{busy ? t("settings.saving") : t("settings.save")}</button>
         </div>
       </form>
     </div>

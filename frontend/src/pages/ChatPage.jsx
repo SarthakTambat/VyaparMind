@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { api } from "lib/api";
+import { useLanguage } from "lib/i18n";
 import { Microphone, Camera, PaperPlaneTilt, Lightning, Stop, Robot, ClockCounterClockwise, CaretDown, CaretUp, SpeakerHigh } from "@phosphor-icons/react";
 import { toast } from "sonner";
 
@@ -15,6 +16,7 @@ export default function ChatPage() {
   const chunksRef = useRef([]);
   const scrollRef = useRef(null);
   const fileRef = useRef(null);
+  const { t } = useLanguage();
 
   // Text-to-Speech helper — speaks AI reply aloud
   const speakReply = (text) => {
@@ -160,8 +162,8 @@ export default function ChatPage() {
       <div className="px-6 py-4 border-b border-slate-200 bg-white">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-display font-black text-xl tracking-tight text-slate-900">AI Business Chat</h1>
-            <p className="text-sm text-slate-500">Tell me about sales, expenses, inventory {"\u2014"} in any language</p>
+            <h1 className="font-display font-black text-xl tracking-tight text-slate-900">{t("chat.title")}</h1>
+            <p className="text-sm text-slate-500">{t("chat.placeholder")}</p>
           </div>
           <button onClick={toggleHistory} className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold tracking-widest uppercase text-signal hover:bg-emerald-50 transition-colors" style={{ borderRadius: 4 }}>
             <ClockCounterClockwise size={16} /> History {showHistory ? <CaretUp size={12} /> : <CaretDown size={12} />}
@@ -238,7 +240,7 @@ export default function ChatPage() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-            placeholder="Type a message..."
+            placeholder={t("chat.placeholder")}
             className="flex-1 px-4 py-2.5 border border-slate-200 bg-slate-50 text-sm outline-none focus:ring-1 focus:ring-signal focus:border-signal"
             style={{ borderRadius: 4 }}
             disabled={busy}

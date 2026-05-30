@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { api } from "lib/api";
+import { useLanguage } from "lib/i18n";
 import { Users } from "@phosphor-icons/react";
 
 export default function Contacts() {
+  const { t } = useLanguage();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -14,7 +16,7 @@ export default function Contacts() {
     <div className="p-6">
       <div className="mb-5">
         <div className="label-tiny mb-1">CRM</div>
-        <h1 className="font-display font-black text-3xl tracking-tighter">Contacts</h1>
+        <h1 className="font-display font-black text-3xl tracking-tighter">{t("contacts.title")}</h1>
         <p className="text-slate-600 text-sm mt-1">Names you mention in your chat become contacts automatically.</p>
       </div>
 

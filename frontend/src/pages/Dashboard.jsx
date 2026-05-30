@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "lib/api";
+import { useLanguage } from "lib/i18n";
 import { ArrowUp, ArrowDown, Sparkle, Warning, Receipt, ChatCircleDots, Camera, Microphone, ArrowRight, Package } from "@phosphor-icons/react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     api.get("/api/dashboard").then(r => setData(r.data)).finally(() => setLoading(false));
   }, []);
 
   if (loading) return <Skeleton />;
-  if (!data) return <div className="text-slate-500 p-8">Failed to load dashboard.</div>;
+  if (!data) return <div className="text-slate-500 p-8">{t("common.error")}</div>;
 
   const today = data.today || {};
   const score = data.score ?? 0;
@@ -22,21 +24,21 @@ export default function Dashboard() {
     <div className="p-6 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         <div>
-          <div className="label-tiny mb-1">Today</div>
-          <h1 className="font-display font-black text-3xl tracking-tighter">Good day, {data.user?.name?.split(" ")[0] || "boss"}.</h1>
-          <p className="text-slate-600 text-sm mt-1">Here's how your business is moving right now.</p>
+          <div className="label-tiny mb-1">{t("dash.today")}</div>
+          <h1 className="font-display font-black text-3xl tracking-tighter">{t("dash.greeting", { name: data.user?.name?.split(" ")[0] || "boss" })}</h1>
+          <p className="text-slate-600 text-sm mt-1">{t("dash.subtitle")}</p>
         </div>
         <Link to="/app/chat" className="btn-signal inline-flex items-center gap-2 self-start sm:self-auto">
-          <ChatCircleDots weight="fill" size={16} /> Tell AI something
+          <ChatCircleDots weight="fill" size={16} /> {t("dash.tellAI")}
         </Link>
       </div>
 
       {/* KPI strip */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Kpi label="Income today" value={fmt(today.income)} accent="text-emerald-600" Icon={ArrowUp} />
-        <Kpi label="Expense today" value={fmt(today.expense)} accent="text-rose-600" Icon={ArrowDown} />
-        <Kpi label="Profit today" value={fmt(today.profit)} accent={today.profit >= 0 ? "text-slate-900" : "text-rose-600"} Icon={Receipt} />
-        <Kpi label="Health score" value={`${score}/100`} accent="text-signal" Icon={Sparkle} desc="Based on daily activity, revenue consistency, stock health & customer diversity." />
+        <Kpi label={t("dash.incomeToday")} value={fmt(today.income)} accent="text-emerald-600" Icon={ArrowUp} />
+        <Kpi label={t("dash.expenseToday")} value={fmt(today.expense)} accent="text-rose-600" Icon={ArrowDown} />
+        <Kpi label={t("dash.profitToday")} value={fmt(today.profit)} accent={today.profit >= 0 ? "text-slate-900" : "text-rose-600"} Icon={Receipt} />
+        <Kpi label={t("dash.healthScore")} value={`${score}/100`} accent="text-signal" Icon={Sparkle} desc={t("dash.healthDesc")} />
       </div>
 
       {/* Chart */}
@@ -44,12 +46,12 @@ export default function Dashboard() {
         <div className="lg:col-span-2 card-flat p-5">
           <div className="flex items-center justify-between mb-1">
             <div>
-              <div className="label-tiny text-slate-500">Last 7 days</div>
-              <h3 className="font-display font-bold text-lg tracking-tight">Cash flow</h3>
+              <div className="label-tiny text-slate-500">{t("dash.last7days")}</div>
+              <h3 className="font-display font-bold text-lg tracking-tight">{t("dash.cashFlow")}</h3>
             </div>
             <div className="flex gap-3 text-xs">
-              <Legend color="#00A884" label="Income" />
-              <Legend color="#EF4444" label="Expense" />
+              <Legend color="#00A884" label={t("dash.income")} />
+              <Legend color="#EF4444" label={t("dash.expense")} />
             </div>
           </div>
           <div className="h-64 mt-3">
@@ -70,11 +72,11 @@ export default function Dashboard() {
         <div className="card-flat p-5 bg-[#090E17] text-white border-[#090E17] relative overflow-hidden">
           <div className="absolute inset-0 grid-bg opacity-30" />
           <div className="relative">
-            <div className="label-tiny text-white/50">Business health</div>
-            <h3 className="font-display font-bold text-lg tracking-tight">This week</h3>
+            <div className="label-tiny text-white/50">{t("dash.businessHealth")}</div>
+            <h3 className="font-display font-bold text-lg tracking-tight">{t("dash.thisWeek")}</h3>
             <Gauge value={score} />
             <p className="text-xs text-white/65 leading-relaxed mt-2">
-              {score >= 70 ? "Strong momentum. Keep the discipline going." : score >= 40 ? "Healthy. Watch the watchouts below." : "Just getting started \u2014 start sending sales to grow the score."}
+              {score >= 70 ? t("dash.healthGood") : score >= 40 ? t("dash.healthMid") : t("dash.healthLow")}
             </p>
           </div>
         </div>
@@ -85,17 +87,17 @@ export default function Dashboard() {
         <div className="card-flat p-5">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <div className="label-tiny text-slate-500">Smart alerts</div>
-              <h3 className="font-display font-bold text-lg tracking-tight">Watch outs</h3>
+              <div className="label-tiny text-slate-500">{t("dash.smartAlerts")}</div>
+              <h3 className="font-display font-bold text-lg tracking-tight">{t("dash.watchOuts")}</h3>
             </div>
-            <Link to="/app/insights" className="text-xs text-signal font-semibold tracking-widest uppercase hover:underline">All</Link>
+            <Link to="/app/insights" className="text-xs text-signal font-semibold tracking-widest uppercase hover:underline">{t("dash.all")}</Link>
           </div>
           {(data.low_stock?.length > 0 || data.insights?.length > 0) ? (
             <ul className="space-y-2">
               {data.low_stock?.slice(0, 3).map((s) => (
                 <li key={s.id || s.name} className="flex items-start gap-2.5 p-2.5 bg-amber-50 border border-amber-200" style={{ borderRadius: 4 }}>
                   <Warning weight="fill" className="text-amber-600 mt-0.5" size={16} />
-                  <div className="text-sm"><b className="capitalize">{s.name}</b> running low {"\u2014"} only {s.quantity}{s.unit || ""} left.</div>
+                  <div className="text-sm"><b className="capitalize">{s.name}</b> {t("dash.runningLow", { name: "", qty: s.quantity, unit: s.unit || "" }).trim()}</div>
                 </li>
               ))}
               {data.insights?.slice(0, 3).map((s) => (
@@ -106,17 +108,17 @@ export default function Dashboard() {
               ))}
             </ul>
           ) : (
-            <Empty msg="No alerts yet. Send your first sale via AI chat to begin." />
+            <Empty msg={t("dash.noAlerts")} />
           )}
         </div>
 
         <div className="card-flat p-5">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <div className="label-tiny text-slate-500">AI activity</div>
-              <h3 className="font-display font-bold text-lg tracking-tight">Recent auto-actions</h3>
+              <div className="label-tiny text-slate-500">{t("dash.aiActivity")}</div>
+              <h3 className="font-display font-bold text-lg tracking-tight">{t("dash.recentActions")}</h3>
             </div>
-            <Link to="/app/chat" className="text-xs text-signal font-semibold tracking-widest uppercase hover:underline">Open chat</Link>
+            <Link to="/app/chat" className="text-xs text-signal font-semibold tracking-widest uppercase hover:underline">{t("dash.openChat")}</Link>
           </div>
           {data.recent?.length ? (
             <ul className="space-y-2">
@@ -127,13 +129,13 @@ export default function Dashboard() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="truncate text-slate-700">{c.raw_input}</div>
-                    <div className="text-[11px] text-slate-500 tracking-wider uppercase mt-0.5">{c.actions_count} action{c.actions_count === 1 ? "" : "s"} recorded</div>
+                    <div className="text-[11px] text-slate-500 tracking-wider uppercase mt-0.5">{c.actions_count} {c.actions_count === 1 ? t("dash.action") : t("dash.actions")} {t("common.recorded")}</div>
                   </div>
                 </li>
               ))}
             </ul>
           ) : (
-            <Empty msg="No conversations yet \u2014 head to AI Chat and try 'sold 5kg rice 500rs'." />
+            <Empty msg={t("dash.noConversations")} />
           )}
         </div>
       </div>
@@ -143,10 +145,10 @@ export default function Dashboard() {
         <div className="card-flat p-5 lg:col-span-2">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <div className="label-tiny text-slate-500">Top customers</div>
-              <h3 className="font-display font-bold text-lg tracking-tight">Who's keeping you in business</h3>
+              <div className="label-tiny text-slate-500">{t("dash.topCustomers")}</div>
+              <h3 className="font-display font-bold text-lg tracking-tight">{t("dash.whoKeeping")}</h3>
             </div>
-            <Link to="/app/contacts" className="text-xs text-signal font-semibold tracking-widest uppercase hover:underline">View all</Link>
+            <Link to="/app/contacts" className="text-xs text-signal font-semibold tracking-widest uppercase hover:underline">{t("dash.viewAll")}</Link>
           </div>
           {data.top_contacts?.length ? (
             <div className="grid sm:grid-cols-2 gap-2">
@@ -158,7 +160,7 @@ export default function Dashboard() {
                     </div>
                     <div className="min-w-0">
                       <div className="font-semibold text-sm truncate">{c.name}</div>
-                      <div className="text-[11px] text-slate-500 tracking-wider uppercase">{c.count} tx</div>
+                      <div className="text-[11px] text-slate-500 tracking-wider uppercase">{c.count} {t("dash.tx")}</div>
                     </div>
                   </div>
                   <div className="font-display font-bold text-sm text-signal">{fmt(c.total)}</div>
@@ -166,28 +168,28 @@ export default function Dashboard() {
               ))}
             </div>
           ) : (
-            <Empty msg="No customers yet \u2014 tag party names in your messages." />
+            <Empty msg={t("dash.noCustomers")} />
           )}
         </div>
 
         <div className="card-flat p-5 bg-[#090E17] text-white border-[#090E17]">
-          <div className="label-tiny text-white/50">Quick actions</div>
-          <h3 className="font-display font-bold text-lg tracking-tight mb-3">Talk to VyaparMind</h3>
+          <div className="label-tiny text-white/50">{t("dash.quickActions")}</div>
+          <h3 className="font-display font-bold text-lg tracking-tight mb-3">{t("dash.talkToAI")}</h3>
           <div className="space-y-2">
             <Link to="/app/chat" className="flex items-center justify-between w-full px-3 py-2.5 bg-white/5 hover:bg-white/10 transition-colors" style={{ borderRadius: 4 }}>
-              <span className="flex items-center gap-2 text-sm"><ChatCircleDots size={16} /> Text a sale or expense</span>
+              <span className="flex items-center gap-2 text-sm"><ChatCircleDots size={16} /> {t("dash.textSale")}</span>
               <ArrowRight size={14} />
             </Link>
             <Link to="/app/chat" className="flex items-center justify-between w-full px-3 py-2.5 bg-white/5 hover:bg-white/10 transition-colors" style={{ borderRadius: 4 }}>
-              <span className="flex items-center gap-2 text-sm"><Microphone size={16} /> Send a voice note</span>
+              <span className="flex items-center gap-2 text-sm"><Microphone size={16} /> {t("dash.sendVoice")}</span>
               <ArrowRight size={14} />
             </Link>
             <Link to="/app/chat" className="flex items-center justify-between w-full px-3 py-2.5 bg-white/5 hover:bg-white/10 transition-colors" style={{ borderRadius: 4 }}>
-              <span className="flex items-center gap-2 text-sm"><Camera size={16} /> Snap a bill</span>
+              <span className="flex items-center gap-2 text-sm"><Camera size={16} /> {t("dash.snapBill")}</span>
               <ArrowRight size={14} />
             </Link>
             <Link to="/app/inventory" className="flex items-center justify-between w-full px-3 py-2.5 bg-white/5 hover:bg-white/10 transition-colors" style={{ borderRadius: 4 }}>
-              <span className="flex items-center gap-2 text-sm"><Package size={16} /> View inventory</span>
+              <span className="flex items-center gap-2 text-sm"><Package size={16} /> {t("dash.viewInventory")}</span>
               <ArrowRight size={14} />
             </Link>
           </div>

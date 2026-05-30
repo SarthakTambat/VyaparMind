@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { api } from "lib/api";
+import { useLanguage } from "lib/i18n";
 import { toast } from "sonner";
 import { Plus, Trash, ArrowUp, ArrowDown } from "@phosphor-icons/react";
 
 export default function Transactions() {
+  const { t } = useLanguage();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ type: "income", amount: "", category: "", party_name: "", description: "" });
@@ -39,8 +41,8 @@ export default function Transactions() {
     <div className="p-6">
       <div className="flex items-end justify-between mb-5">
         <div>
-          <div className="label-tiny mb-1">Ledger</div>
-          <h1 className="font-display font-black text-3xl tracking-tighter">Transactions</h1>
+          <div className="label-tiny mb-1">{t("txn.title")}</div>
+          <h1 className="font-display font-black text-3xl tracking-tighter">{t("txn.title")}</h1>
         </div>
         <button onClick={() => setShowForm(!showForm)} className="btn-signal inline-flex items-center gap-2">
           <Plus weight="bold" size={16} /> Add manual

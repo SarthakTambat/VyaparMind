@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "lib/auth";
+import { LanguageProvider } from "lib/i18n";
 import { SonnerToaster } from "components/ui/sonner";
 import "./App.css";
 
@@ -47,6 +48,7 @@ function PublicOnlyRoute({ children }) {
 
 function App() {
   return (
+    <LanguageProvider>
     <AuthProvider>
       <BrowserRouter>
         <SonnerToaster />
@@ -98,6 +100,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </LanguageProvider>
   );
 }
 

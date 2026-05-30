@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { api } from "lib/api";
+import { useLanguage } from "lib/i18n";
 import {
   HandCoins, ArrowUp, ArrowDown, Check, Trash, Plus, X, 
   MagnifyingGlass, FunnelSimple, Phone,
 } from "@phosphor-icons/react";
 
 export default function UdharBook() {
+  const { t } = useLanguage();
   const [entries, setEntries] = useState([]);
   const [totalGiven, setTotalGiven] = useState(0);
   const [totalTaken, setTotalTaken] = useState(0);
@@ -78,7 +80,7 @@ export default function UdharBook() {
         <div>
           <h1 className="text-2xl font-display font-bold text-slate-900 flex items-center gap-2">
             <HandCoins weight="duotone" size={28} className="text-[#00A884]" />
-            Udhar Book
+            {t("udhar.title")}
           </h1>
           <p className="text-sm text-slate-500 mt-1">Track credit given & taken — your digital khata</p>
         </div>

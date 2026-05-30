@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useLanguage, LANGUAGES } from "lib/i18n";
 import {
   ChatCircleDots, Lightning, Camera, Microphone, ChartLineUp,
   Bell, Translate, ShieldCheck, ArrowRight, Check, WhatsappLogo,
@@ -34,6 +35,9 @@ export default function Landing() {
 }
 
 function Header() {
+  const { t, language, setLanguage } = useLanguage();
+  const [langOpen, setLangOpen] = React.useState(false);
+  const currentLang = LANGUAGES.find((l) => l.code === language);
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#090E17]/85 border-b border-white/10">
       <div className="max-w-7xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
@@ -42,14 +46,46 @@ function Header() {
           <span className="text-white font-display font-black tracking-tighter text-xl">VyaparMind</span>
         </Link>
         <nav className="hidden md:flex items-center gap-8 text-sm text-white/75">
-          <a href="#how" className="hover:text-white transition-colors">How it works</a>
-          <a href="#features" className="hover:text-white transition-colors">Features</a>
-          <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-          <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
+          <a href="#how" className="hover:text-white transition-colors">{t("landing.howItWorks")}</a>
+          <a href="#features" className="hover:text-white transition-colors">{t("landing.features")}</a>
+          <a href="#pricing" className="hover:text-white transition-colors">{t("landing.pricing")}</a>
+          <a href="#faq" className="hover:text-white transition-colors">{t("landing.faq")}</a>
         </nav>
         <div className="flex items-center gap-2">
-          <Link to="/login" className="text-white/80 hover:text-white text-sm px-3 py-2">Sign in</Link>
-          <Link to="/register" className="btn-signal text-sm">Start free</Link>
+          {/* Language Selector */}
+          <div className="relative">
+            <button
+              onClick={() => setLangOpen(!langOpen)}
+              className="flex items-center gap-1.5 px-2.5 py-2 text-white/70 hover:text-white transition-colors text-sm"
+            >
+              <Translate size={18} />
+              <span className="hidden sm:inline">{currentLang?.native}</span>
+            </button>
+            {langOpen && (
+              <div className="absolute top-full right-0 mt-2 w-64 bg-white border border-slate-200 shadow-2xl max-h-80 overflow-y-auto z-50" style={{ borderRadius: 8 }}>
+                <div className="p-2 border-b border-slate-100 sticky top-0 bg-white">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("lang.select")}</span>
+                </div>
+                <div className="p-1">
+                  {LANGUAGES.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => { setLanguage(lang.code); setLangOpen(false); }}
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
+                        language === lang.code ? "bg-[#00A884]/10 text-[#00A884] font-semibold" : "text-slate-700 hover:bg-slate-50"
+                      }`}
+                      style={{ borderRadius: 4 }}
+                    >
+                      <span className="flex-1 text-left">{lang.native}</span>
+                      <span className="text-xs text-slate-400">{lang.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          <Link to="/login" className="text-white/80 hover:text-white text-sm px-3 py-2">{t("landing.login")}</Link>
+          <Link to="/register" className="btn-signal text-sm">{t("landing.getStarted")}</Link>
         </div>
       </div>
     </header>

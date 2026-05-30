@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { api } from "lib/api";
+import { useLanguage } from "lib/i18n";
 import { toast } from "sonner";
 import { Package, Warning, Plus, Trash, PencilSimple } from "@phosphor-icons/react";
 
 export default function Inventory() {
+  const { t } = useLanguage();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
@@ -62,8 +64,8 @@ export default function Inventory() {
     <div className="p-6">
       <div className="flex items-start justify-between mb-5">
         <div>
-          <div className="label-tiny mb-1">Stock</div>
-          <h1 className="font-display font-black text-3xl tracking-tighter">Inventory</h1>
+          <div className="label-tiny mb-1">{t("inv.title")}</div>
+          <h1 className="font-display font-black text-3xl tracking-tighter">{t("inv.title")}</h1>
           <p className="text-slate-600 text-sm mt-1">Auto-updated from AI Chat. You can also add/edit items manually below.</p>
         </div>
         <button onClick={() => { setShowAdd(!showAdd); setEditing(null); }} className="btn-signal text-sm inline-flex items-center gap-1.5">
