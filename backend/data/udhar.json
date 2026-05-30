@@ -1,0 +1,38 @@
+[
+  {
+    "id": "65ce4667-7163-4a7b-b968-b74e20025178",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "party_name": "Harsh",
+    "phone": "",
+    "type": "given",
+    "amount": 500.0,
+    "description": "harsh ne 500 udhar liye",
+    "status": "settled",
+    "created_at": "2026-05-29T11:09:33.522704+00:00",
+    "settled_at": "2026-05-29T11:11:40.463866+00:00"
+  },
+  {
+    "id": "4f136c85-36fb-4c0c-a970-8921643e0469",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "party_name": "Nivesh",
+    "phone": "",
+    "type": "taken",
+    "amount": 360.0,
+    "description": "aaj Nivesh ne 360 ka chawal udhar liya",
+    "status": "settled",
+    "created_at": "2026-05-29T11:10:21.697831+00:00",
+    "settled_at": "2026-05-29T11:11:48.343724+00:00"
+  },
+  {
+    "id": "ee5b6c20-8d31-4cec-815b-4421eeae2693",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "party_name": "\u091c\u0940\u0928\u0942",
+    "phone": "",
+    "type": "taken",
+    "amount": 100.0,
+    "description": "\u091c\u0940\u0928\u0942 \u0928\u0947 \u20b9100 \u0915\u093e\u0964 \u0926\u0942\u0927 \u0909\u0927\u093e\u0930 \u0932\u093f\u092f\u093e\u0964",
+    "status": "pending",
+    "created_at": "2026-05-30T09:12:27.802375+00:00",
+    "settled_at": null
+  }
+]

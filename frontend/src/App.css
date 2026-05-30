@@ -1,0 +1,10 @@
+/* Custom app styles */
+.gradient-brand {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}

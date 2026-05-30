@@ -1,0 +1,232 @@
+[
+  {
+    "id": "7b35b89e-4daf-4b20-8230-1e2a6ce3f6ed",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "filename": "7b35b89e-4daf-4b20-8230-1e2a6ce3f6ed.png",
+    "original_name": "issue.png",
+    "content_type": "image/png",
+    "size": 2998,
+    "note": "",
+    "created_at": "2026-05-28T06:07:59.094128+00:00"
+  },
+  {
+    "id": "9ae0b193-f289-406e-abb4-909c7d3d1962",
+    "user_id": "2d55bc0d-5801-42c2-a1d3-a23c2705be23",
+    "title": "AI-extracted bill (2026-05-30)",
+    "items": [
+      {
+        "name": "Aer Godrej Pocket",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 52.0
+      },
+      {
+        "name": "Air Freshner 300 MI spray",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 72.0
+      },
+      {
+        "name": "Room Freshner Godrej",
+        "quantity": 1.0,
+        "unit": "Bottle",
+        "price": 1050.0
+      },
+      {
+        "name": "Arom Oil Citrus 1 Ltr",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 215.0
+      },
+      {
+        "name": "Ambi Pur Air Freshner 275ml",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 1300.0
+      }
+    ],
+    "total": 2689.0,
+    "source": "chat-photo",
+    "created_at": "2026-05-30T08:06:20.253526+00:00"
+  },
+  {
+    "id": "3a15b94f-6bac-416f-8328-7784465ca7f6",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "title": "AI-extracted bill (2026-05-30)",
+    "items": [
+      {
+        "name": "Garba eBa Bio De radable Bi",
+        "quantity": 40.0,
+        "unit": "pcs",
+        "price": 50.0
+      },
+      {
+        "name": "Garbage Bag Bio Degradable Big",
+        "quantity": 29.0,
+        "unit": "pcs",
+        "price": 39.0
+      },
+      {
+        "name": "Garba eBa Bio De radable Small",
+        "quantity": 19.0,
+        "unit": "pcs",
+        "price": 21.0
+      }
+    ],
+    "total": 110.0,
+    "source": "chat-photo",
+    "created_at": "2026-05-30T09:06:07.239260+00:00"
+  },
+  {
+    "id": "f7d6e069-32bf-47d6-aea1-03047d331170",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "filename": "f7d6e069-32bf-47d6-aea1-03047d331170.png",
+    "original_name": "issue.png",
+    "content_type": "image/png",
+    "size": 2998,
+    "note": "",
+    "created_at": "2026-05-30T09:13:03.477680+00:00"
+  },
+  {
+    "id": "4ab04a72-d9e2-4e19-aad0-71894ef41a38",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "title": "AI-extracted bill (2026-05-30)",
+    "items": [
+      {
+        "name": "Aer Godrej Pocket",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 52.0
+      },
+      {
+        "name": "Air Freshner 300 MI spray",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 72.0
+      },
+      {
+        "name": "Room Freshener Godre\u0007",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 140.0
+      },
+      {
+        "name": "Arom Oil Citrus 1 Ltr",
+        "quantity": 1.0,
+        "unit": "Bottle",
+        "price": 1050.0
+      },
+      {
+        "name": "Ambi Pur Air Freshener Spray",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 225.0
+      },
+      {
+        "name": "Air Purifier Dispenser",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 1200.0
+      },
+      {
+        "name": "HCL Acid 5 Ltr",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 350.0
+      },
+      {
+        "name": "Ala Bleach 500ML 275 mi",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 85.0
+      },
+      {
+        "name": "Automatic Room Fresheners Godrej Matic Refill 225 ml",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 280.0
+      },
+      {
+        "name": "Check Duster Cloth Blue -2 & Red -2",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 15.0
+      },
+      {
+        "name": "Castic Soda",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 110.0
+      },
+      {
+        "name": "Chock Pump",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 45.0
+      },
+      {
+        "name": "Cotteon Hand Gloves",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 32.0
+      },
+      {
+        "name": "Dettol Liquid Soap 900 ml",
+        "quantity": 1.0,
+        "unit": "Bottle",
+        "price": 145.0
+      },
+      {
+        "name": "Dettol Liquid Soap 5 Ltr",
+        "quantity": 1.0,
+        "unit": "Can",
+        "price": 750.0
+      },
+      {
+        "name": "Drainex Cleaner 50 Gm",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 25.0
+      },
+      {
+        "name": "Dry Mop Refill Blue 24\"",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 325.0
+      },
+      {
+        "name": "Feather Brush Bi",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 90.0
+      },
+      {
+        "name": "Feather Brush Medium",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 55.0
+      },
+      {
+        "name": "Garba eBa Bio De radable Bi 40x50",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 115.0
+      },
+      {
+        "name": "Garbage Bag Bio Degradable Big 29x39",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 65.0
+      },
+      {
+        "name": "Garba eBa Bio De radable Small 19x21",
+        "quantity": 1.0,
+        "unit": "Nos",
+        "price": 45.0
+      }
+    ],
+    "total": 5271.0,
+    "source": "chat-photo",
+    "created_at": "2026-05-30T09:21:17.532687+00:00"
+  }
+]

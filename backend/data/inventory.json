@@ -1,0 +1,560 @@
+[
+  {
+    "id": "e395fd26-48c6-410b-a5c2-6ececd126b34",
+    "user_id": "9cc768cf-4418-49d7-931a-abc5d1cdc053",
+    "name": "rice",
+    "quantity": -5.0,
+    "unit": "kg",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T10:05:53.489007+00:00"
+  },
+  {
+    "id": "c2861e95-df46-48a4-a225-4e07aca91981",
+    "user_id": "9cc768cf-4418-49d7-931a-abc5d1cdc053",
+    "name": "milk",
+    "quantity": 10.0,
+    "unit": "ltr",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T10:05:56.252395+00:00"
+  },
+  {
+    "id": "2bbe782b-2fb9-4a63-9fac-2874ae3974d4",
+    "user_id": "e3ce6e72-0e80-43e5-bc62-938a604f587f",
+    "name": "chawal",
+    "quantity": -10.0,
+    "unit": "kg",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T10:19:11.969791+00:00"
+  },
+  {
+    "id": "dbee04cb-0870-4c9a-8447-d14f96f66443",
+    "user_id": "e3ce6e72-0e80-43e5-bc62-938a604f587f",
+    "name": "\u0906\u091f\u093e",
+    "quantity": 5.0,
+    "unit": "kg",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T10:19:14.029993+00:00"
+  },
+  {
+    "id": "826c082a-188c-461a-b0e3-dfbee08e95fc",
+    "user_id": "fa2cfc6a-ad45-4b80-aaf9-bf7b4e0189e2",
+    "name": "dal",
+    "quantity": 50.0,
+    "unit": "kg",
+    "reorder_level": 10.0,
+    "updated_at": "2026-05-27T10:21:12.145601+00:00"
+  },
+  {
+    "id": "34d38ee5-b276-4ddc-970e-e43ecad3ce80",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "sugar",
+    "quantity": -15.0,
+    "unit": "kg",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T15:59:27.731313+00:00"
+  },
+  {
+    "id": "9d6b55a6-81ed-4024-ae36-194e7fb67c43",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "atta",
+    "quantity": 9.0,
+    "unit": "kg",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T17:19:19.585598+00:00"
+  },
+  {
+    "id": "c4e1582f-6058-4329-bdd1-a4ab2a925a4d",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "rice",
+    "quantity": -10.0,
+    "unit": "kg",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T15:01:26.012264+00:00"
+  },
+  {
+    "id": "9a74f82c-63e2-438d-b5ea-136089f74f6b",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "dal",
+    "quantity": -6.0,
+    "unit": "kilo",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T17:37:19.752309+00:00"
+  },
+  {
+    "id": "f5e89785-fd9e-4a23-8102-6fda3a11d7e8",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "tea",
+    "quantity": -1.0,
+    "unit": "kg",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T15:01:30.203865+00:00"
+  },
+  {
+    "id": "d8db5309-8bb7-4785-8cf4-26859e61ce6c",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "tomato",
+    "quantity": -10.0,
+    "unit": "kg",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T17:37:23.771836+00:00"
+  },
+  {
+    "id": "63209049-d4ac-46f9-b271-435b2ca72f39",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "doodh",
+    "quantity": -5.0,
+    "unit": "ltr",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T15:02:05.856259+00:00"
+  },
+  {
+    "id": "3d040a3a-3ec4-4fa8-b3fa-f89ae892f039",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "cement",
+    "quantity": 20.0,
+    "unit": "kg",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T15:02:07.854311+00:00"
+  },
+  {
+    "id": "c0f34396-8a14-481a-bd09-033d31750e25",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "paneer",
+    "quantity": -2.0,
+    "unit": "kg",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T15:02:09.917076+00:00"
+  },
+  {
+    "id": "5c99affc-d4d5-4d40-bb9e-b5d140edb8a6",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "chips",
+    "quantity": -3.0,
+    "unit": "packet",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T15:02:12.104072+00:00"
+  },
+  {
+    "id": "26b83996-853a-4617-9b64-4308d3594b4b",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "ghee",
+    "quantity": -2.0,
+    "unit": "kg",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T17:19:23.880710+00:00"
+  },
+  {
+    "id": "ad04ec97-4d98-44c3-9754-9dfbffa6ca32",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "chawal",
+    "quantity": -112.0,
+    "unit": "kilo",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T17:37:27.890142+00:00"
+  },
+  {
+    "id": "7ecadf46-e55e-4e2f-9873-788059188a03",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "milk",
+    "quantity": -35.0,
+    "unit": "ltr",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T15:59:23.063309+00:00"
+  },
+  {
+    "id": "6c54f00f-d5dc-4f45-a710-394d92e67b94",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "sarson tel",
+    "quantity": 2.0,
+    "unit": "ltr",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T15:31:41.928363+00:00"
+  },
+  {
+    "id": "860ccace-ee8c-4ed0-9a57-28499e6bb0cd",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "mustard oil",
+    "quantity": 6.0,
+    "unit": "ltr",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T17:37:25.802102+00:00"
+  },
+  {
+    "id": "fa5158d2-5a11-4610-b433-a9036af4c0dc",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "potato",
+    "quantity": 20.0,
+    "unit": "kg",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T17:37:29.994689+00:00"
+  },
+  {
+    "id": "955df086-0640-46e9-a43c-ad1411862987",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "eggs",
+    "quantity": -5.0,
+    "unit": "dozen",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T17:19:28.235269+00:00"
+  },
+  {
+    "id": "f8cf73f4-cf7b-46ca-b9de-e04d3cc7d04f",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "chawal",
+    "quantity": -300.0,
+    "unit": "\u0915\u093f\u0932\u094b",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T15:38:48.387403+00:00"
+  },
+  {
+    "id": "beb62784-bdad-448c-a255-a22f942c6b99",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "cold drink",
+    "quantity": 10.0,
+    "unit": "can",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T17:37:21.808623+00:00"
+  },
+  {
+    "id": "d30aadab-a666-43cd-bd27-372f21304867",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "cold drink",
+    "quantity": 0.0,
+    "unit": "pcs",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:11:49.827001+00:00"
+  },
+  {
+    "id": "16cb9fa9-c8b2-4b02-8fae-b9969edcf9a2",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "coriander",
+    "quantity": 1.0,
+    "unit": "pcs",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T17:22:52.261596+00:00"
+  },
+  {
+    "id": "6fa5b60d-9eb7-4dc4-a97a-761a8188c04f",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "\u092a\u0949\u0928\u094d\u0921\u094d\u0938 \u092a\u093e\u0909\u0921\u0930",
+    "quantity": -50.0,
+    "unit": "pc",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T17:44:35.022868+00:00"
+  },
+  {
+    "id": "aec8b3e6-458f-41ee-9d9c-0f4cde162a56",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "gehun",
+    "quantity": -10.0,
+    "unit": "\u0915\u093f\u0932\u094b",
+    "reorder_level": 5,
+    "updated_at": "2026-05-29T21:34:21.841330+00:00"
+  },
+  {
+    "id": "3f89b069-195f-4c6a-a2d0-7bf611358b89",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "milk",
+    "quantity": 5.0,
+    "unit": "\u0932\u0940\u091f\u0930",
+    "reorder_level": 5,
+    "updated_at": "2026-05-27T17:50:58.024079+00:00"
+  },
+  {
+    "id": "93347491-280e-48d3-8699-fc7ed6f84f8f",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "sev",
+    "quantity": 1.0,
+    "unit": "pcs",
+    "reorder_level": 5,
+    "updated_at": "2026-05-28T05:54:52.075250+00:00"
+  },
+  {
+    "id": "411054ed-51e5-49ed-938e-d6c903e10370",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "dal",
+    "quantity": 1.0,
+    "unit": "pcs",
+    "reorder_level": 5,
+    "updated_at": "2026-05-29T06:49:03.191955+00:00"
+  },
+  {
+    "id": "ba52d2b3-e1e9-419a-b058-610fdea28aa1",
+    "user_id": "2d55bc0d-5801-42c2-a1d3-a23c2705be23",
+    "name": "chawal",
+    "quantity": -5.0,
+    "unit": "kg",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T07:25:42.832911+00:00"
+  },
+  {
+    "id": "4c79b456-24be-485f-b054-bb4ce1b1b8f9",
+    "user_id": "2d55bc0d-5801-42c2-a1d3-a23c2705be23",
+    "name": "aer godrej pocket",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T08:06:20.142413+00:00"
+  },
+  {
+    "id": "072e0126-b5bf-437a-830e-b79c01e0f8fc",
+    "user_id": "2d55bc0d-5801-42c2-a1d3-a23c2705be23",
+    "name": "air freshner 300 mi spray",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T08:06:20.175309+00:00"
+  },
+  {
+    "id": "26bf3230-23db-48b2-b6b5-527b027fee44",
+    "user_id": "2d55bc0d-5801-42c2-a1d3-a23c2705be23",
+    "name": "room freshner godrej",
+    "quantity": 0.0,
+    "unit": "Bottle",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T08:06:20.189464+00:00"
+  },
+  {
+    "id": "d6031259-6045-4972-9a62-421cbd0ad0f5",
+    "user_id": "2d55bc0d-5801-42c2-a1d3-a23c2705be23",
+    "name": "arom oil citrus 1 ltr",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T08:06:20.221881+00:00"
+  },
+  {
+    "id": "585c3d2f-2fc3-458f-906c-0f17e81b6d9a",
+    "user_id": "2d55bc0d-5801-42c2-a1d3-a23c2705be23",
+    "name": "ambi pur air freshner 275ml",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T08:06:20.250800+00:00"
+  },
+  {
+    "id": "2f0eba15-e621-41f2-9dca-2fcad9082939",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "garba eba bio de radable bi",
+    "quantity": 0.0,
+    "unit": "pcs",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:06:07.177161+00:00"
+  },
+  {
+    "id": "21bf1099-97cf-4066-b053-05e26f08d0dc",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "garbage bag bio degradable big",
+    "quantity": 0.0,
+    "unit": "pcs",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:06:07.200421+00:00"
+  },
+  {
+    "id": "484c9ed6-5bca-4889-92c1-34d2ed3342e8",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "garba eba bio de radable small",
+    "quantity": 0.0,
+    "unit": "pcs",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:06:07.234569+00:00"
+  },
+  {
+    "id": "cc2895b7-3408-434d-9ca2-ec52ea007694",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "aer godrej pocket",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.052864+00:00"
+  },
+  {
+    "id": "ae7e901f-8216-48e6-ae70-faef9dd5b567",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "air freshner 300 mi spray",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.082145+00:00"
+  },
+  {
+    "id": "fde0182f-d8d3-4b96-a0dc-ae20e8557f0e",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "room freshener godre\u0007",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.105119+00:00"
+  },
+  {
+    "id": "bb1769f6-f602-4f29-ae18-34000c6d76fe",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "arom oil citrus 1 ltr",
+    "quantity": 0.0,
+    "unit": "Bottle",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.136062+00:00"
+  },
+  {
+    "id": "fd8b65a7-e421-4c7d-b84d-3b76a9bc497e",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "ambi pur air freshener spray",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.167439+00:00"
+  },
+  {
+    "id": "4a191bc8-3c7b-427a-b22e-9eacdb4a67c5",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "air purifier dispenser",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.190107+00:00"
+  },
+  {
+    "id": "04b1add4-ca07-4bb7-8e91-573368621e7f",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "hcl acid 5 ltr",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.225290+00:00"
+  },
+  {
+    "id": "962771c0-e481-4fd6-8941-d702b78b98c2",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "ala bleach 500ml 275 mi",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.240978+00:00"
+  },
+  {
+    "id": "9beff09b-fbd7-4a47-ab47-c20dee14002d",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "automatic room fresheners godrej matic refill 225 ml",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.258104+00:00"
+  },
+  {
+    "id": "9c94aced-aafa-4397-bb56-72c450b2ac58",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "check duster cloth blue -2 & red -2",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.274550+00:00"
+  },
+  {
+    "id": "2d190251-1ac2-4e87-a9c4-f15884daa5be",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "castic soda",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.292213+00:00"
+  },
+  {
+    "id": "0d6df9d3-71e8-47b2-87a6-0e4de909ac80",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "chock pump",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.309127+00:00"
+  },
+  {
+    "id": "febaa812-09a8-4e67-8654-88e4466d2252",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "cotteon hand gloves",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.324514+00:00"
+  },
+  {
+    "id": "8cf974f2-5d8d-4902-a266-ccde977933f0",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "dettol liquid soap 900 ml",
+    "quantity": 0.0,
+    "unit": "Bottle",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.342002+00:00"
+  },
+  {
+    "id": "8fdd63c1-dd1d-4384-ac19-125f6ea1c676",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "dettol liquid soap 5 ltr",
+    "quantity": 0.0,
+    "unit": "Can",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.357418+00:00"
+  },
+  {
+    "id": "ecae4db2-5100-4486-a45e-10ff8ec0393c",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "drainex cleaner 50 gm",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.375284+00:00"
+  },
+  {
+    "id": "c0d10e80-0828-4426-8a8e-40d31b6d33b5",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "dry mop refill blue 24\"",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.391740+00:00"
+  },
+  {
+    "id": "f251d8e8-3f29-4264-9ea4-d85004fc414c",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "feather brush bi",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.426123+00:00"
+  },
+  {
+    "id": "4fc66170-927e-445f-968f-857226b435a8",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "feather brush medium",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.458498+00:00"
+  },
+  {
+    "id": "d8992f0a-4b86-4b8b-bb57-31f0e0921332",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "garba eba bio de radable bi 40x50",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.475675+00:00"
+  },
+  {
+    "id": "b1539362-92e3-452f-8647-741527f797a5",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "garbage bag bio degradable big 29x39",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.491142+00:00"
+  },
+  {
+    "id": "de156be3-5e1a-4c14-a051-a3ec1078ac6d",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "garba eba bio de radable small 19x21",
+    "quantity": 0.0,
+    "unit": "Nos",
+    "reorder_level": 5,
+    "updated_at": "2026-05-30T09:21:17.526269+00:00"
+  }
+]

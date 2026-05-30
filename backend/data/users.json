@@ -1,0 +1,94 @@
+[
+  {
+    "id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "name": "Sarthak T",
+    "email": "snt7777tambat11@gmail.com",
+    "password_hash": "$2b$12$LC19QErAqpGf0ljBvzlVDuc/cppv4qCroHHVnRNAieAehSa7OY7I6",
+    "business_name": "Shivam Super Shopee",
+    "business_type": "kirana",
+    "language": "en",
+    "score": 78,
+    "created_at": "2026-05-27T09:26:15.057821+00:00",
+    "plan": "vikas",
+    "plan_activated_at": "2026-05-30T09:14:10.939715+00:00",
+    "plan_expires_at": "2026-06-29T09:14:10.939666+00:00",
+    "plan_payment_id": "pay_SvWR0tu9767Jiz"
+  },
+  {
+    "id": "ae816b60-4413-4942-9641-1e666ee2c09a",
+    "name": "Test User",
+    "email": "chattest@example.com",
+    "password_hash": "$2b$12$FQ7/MBl4shsONWVW4u2HJeU6UxRRwW/kWz0FV.dazWG186AYpTf6m",
+    "business_name": "My Shop",
+    "business_type": "retail",
+    "language": "en",
+    "score": 12,
+    "created_at": "2026-05-27T10:03:04.538142+00:00"
+  },
+  {
+    "id": "bb836ef0-02dd-49e4-9bb6-0be6a3592eab",
+    "name": "AI Test",
+    "email": "aitest@example.com",
+    "password_hash": "$2b$12$1U7ACeVFL1ZXw7wBddlH3OmoOfrUMSKn6YyXjYd74qD6cQBqdrQBO",
+    "business_name": "Shop",
+    "business_type": "kirana",
+    "language": "en",
+    "score": 14,
+    "created_at": "2026-05-27T10:04:42.824510+00:00"
+  },
+  {
+    "id": "9cc768cf-4418-49d7-931a-abc5d1cdc053",
+    "name": "AI Test2",
+    "email": "aitest2@example.com",
+    "password_hash": "$2b$12$zkAK2ZwBh5w3bdhYgcHtKuG8DJR46WqIdudvVhruT3OjEmXHcNL0e",
+    "business_name": "Shop",
+    "business_type": "kirana",
+    "language": "en",
+    "score": 16,
+    "created_at": "2026-05-27T10:05:48.390941+00:00"
+  },
+  {
+    "id": "e3ce6e72-0e80-43e5-bc62-938a604f587f",
+    "name": "Hindi User",
+    "email": "hindi@example.com",
+    "password_hash": "$2b$12$FgD9nO.zqyQFebfypAVHRuJ.kbySD4FRgWIrQqSPrXLKtTcmMouw2",
+    "business_name": "Dukaan",
+    "business_type": "kirana",
+    "language": "hi",
+    "score": 17,
+    "created_at": "2026-05-27T10:19:08.150030+00:00"
+  },
+  {
+    "id": "fa2cfc6a-ad45-4b80-aaf9-bf7b4e0189e2",
+    "name": "Final Test",
+    "email": "final@example.com",
+    "password_hash": "$2b$12$jsBarGII7iavHxOXEI20cuQXV0GGjtUwbb6HDsRQcQMFDPkAoO0oK",
+    "business_name": "Shop",
+    "business_type": "kirana",
+    "language": "en",
+    "score": 14,
+    "created_at": "2026-05-27T10:21:08.627919+00:00"
+  },
+  {
+    "id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "name": "Fix Test",
+    "email": "fix@example.com",
+    "password_hash": "$2b$12$ZrGCaCZ3QVmRjO4mXv78Ge8uicuvGVDi1Z1pRWICk6niRxjUpdzi.",
+    "business_name": "Shop",
+    "business_type": "kirana",
+    "language": "en",
+    "score": 137,
+    "created_at": "2026-05-27T10:22:00.002610+00:00"
+  },
+  {
+    "id": "2d55bc0d-5801-42c2-a1d3-a23c2705be23",
+    "name": "Test",
+    "email": "test@test.com",
+    "password_hash": "$2b$12$DX/bWKdFNoO8wx/M3j8nneFAe1QZK5tzlEBUsZcLUs2EQVi67mVri",
+    "business_name": "TestBiz",
+    "business_type": "",
+    "language": "en",
+    "score": 17,
+    "created_at": "2026-05-30T07:23:38.068779+00:00"
+  }
+]

@@ -1,0 +1,4212 @@
+[
+  {
+    "id": "883e6c5c-2bab-4f55-ac90-fe39d4f0d514",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "hi",
+    "parsed": {
+      "intent": "other",
+      "reply": "AI not available (key or library missing).",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T09:45:13.680150+00:00"
+  },
+  {
+    "id": "9be1edbd-9c6e-4b2a-90b9-a3d02a84ff1d",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "hi",
+    "parsed": {
+      "intent": "other",
+      "reply": "AI not available (key or library missing).",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T09:51:36.190978+00:00"
+  },
+  {
+    "id": "160e92f2-de84-4409-a55c-edfe92d48f1a",
+    "user_id": "ae816b60-4413-4942-9641-1e666ee2c09a",
+    "channel": "chat-text",
+    "raw_input": "sold 5kg rice for 500 rupees to Ramesh",
+    "parsed": {
+      "intent": "other",
+      "reply": "AI error: Connection error.",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T10:03:11.700879+00:00"
+  },
+  {
+    "id": "9f9fafbf-ae31-4e2e-a2b2-020191c70a56",
+    "user_id": "bb836ef0-02dd-49e4-9bb6-0be6a3592eab",
+    "channel": "chat-text",
+    "raw_input": "sold 5kg rice for 500 rupees to Ramesh",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9500 from Ramesh.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 500.0,
+          "category": "sales",
+          "party_name": "Ramesh",
+          "description": "sold 5kg rice for 500 rupees to Ramesh"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T10:04:48.599580+00:00"
+  },
+  {
+    "id": "aaf9b44d-f0c4-49de-8a83-cd85e034497c",
+    "user_id": "bb836ef0-02dd-49e4-9bb6-0be6a3592eab",
+    "channel": "chat-text",
+    "raw_input": "bought 10 ltr milk for 600",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9600.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 600.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "bought 10 ltr milk for 600"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T10:04:51.413333+00:00"
+  },
+  {
+    "id": "308ebec0-722a-424f-a24c-0c602e075222",
+    "user_id": "bb836ef0-02dd-49e4-9bb6-0be6a3592eab",
+    "channel": "chat-text",
+    "raw_input": "how much did I earn today?",
+    "parsed": {
+      "intent": "question",
+      "reply": "Check your Dashboard for up-to-date numbers! I've noted your question.",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T10:04:54.724095+00:00"
+  },
+  {
+    "id": "c8933c4b-a1db-4a6f-941f-fc9428dfc46e",
+    "user_id": "9cc768cf-4418-49d7-931a-abc5d1cdc053",
+    "channel": "chat-text",
+    "raw_input": "sold 5kg rice for 500 rupees to Ramesh",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9500 from Ramesh. Stock: -5.0kg rice.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 500.0,
+          "category": "sales",
+          "party_name": "Ramesh",
+          "description": "sold 5kg rice for 500 rupees to Ramesh"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "rice",
+          "quantity_delta": -5.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T10:05:53.497124+00:00"
+  },
+  {
+    "id": "b1cadaa7-60c4-4599-b9d5-f87a3efa1f1c",
+    "user_id": "9cc768cf-4418-49d7-931a-abc5d1cdc053",
+    "channel": "chat-text",
+    "raw_input": "bought 10 ltr milk for 600",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9600. Stock: +10.0ltr milk.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 600.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "bought 10 ltr milk for 600"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "milk",
+          "quantity_delta": 10.0,
+          "unit": "ltr"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T10:05:56.257962+00:00"
+  },
+  {
+    "id": "4d2527c5-ac14-459a-a25a-cc7400e47524",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "hi",
+    "parsed": {
+      "intent": "other",
+      "reply": "Got it! I've noted that down. Try saying something like 'sold 5kg rice for \u20b9500 to Ramesh'.",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T10:06:41.102719+00:00"
+  },
+  {
+    "id": "f1879781-10bb-4585-af7d-34a8981f39ed",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "Ajj ka kharcha kitna hua ?",
+    "parsed": {
+      "intent": "question",
+      "reply": "Check your Dashboard for up-to-date numbers! I've noted your question.",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T10:07:01.257324+00:00"
+  },
+  {
+    "id": "c50fcd0b-2f65-4252-a480-b666748bd909",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "Maine aajj 300 rupaye me 20 kg Kaju beche",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Noted \u20b9300. (Assumed income \u2014 say 'expense' to change.)",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 300.0,
+          "category": "general",
+          "party_name": "",
+          "description": "Maine aajj 300 rupaye me 20 kg Kaju beche"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T10:07:47.293998+00:00"
+  },
+  {
+    "id": "20e440d8-2463-47e1-a0ce-5a03921f2b81",
+    "user_id": "e3ce6e72-0e80-43e5-bc62-938a604f587f",
+    "channel": "chat-text",
+    "raw_input": "maine 10kg chawal becha 800rs Suresh ko",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9800. Stock: -10.0kg chawal.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 800.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "maine 10kg chawal becha 800rs Suresh ko"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "chawal",
+          "quantity_delta": -10.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T10:19:11.973208+00:00"
+  },
+  {
+    "id": "bfba0c8f-59c7-42bc-8f23-03430e43ec4d",
+    "user_id": "e3ce6e72-0e80-43e5-bc62-938a604f587f",
+    "channel": "chat-text",
+    "raw_input": "\u092e\u0948\u0902\u0928\u0947 5kg \u0906\u091f\u093e \u0916\u0930\u0940\u0926\u093e \u20b9200",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0916\u0930\u094d\u091a \u20b9200 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0906\u0964 Stock: +5.0kg \u0906\u091f\u093e.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 200.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "\u092e\u0948\u0902\u0928\u0947 5kg \u0906\u091f\u093e \u0916\u0930\u0940\u0926\u093e \u20b9200"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "\u0906\u091f\u093e",
+          "quantity_delta": 5.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T10:19:14.032782+00:00"
+  },
+  {
+    "id": "a0af4020-cc8b-4fc7-9bb1-26d339139680",
+    "user_id": "e3ce6e72-0e80-43e5-bc62-938a604f587f",
+    "channel": "chat-text",
+    "raw_input": "aaj 2kg sugar sell kiya 150 rupees",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Noted \u20b9150. (Assumed income \u2014 say 'expense'/'kharcha' to change.)",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 150.0,
+          "category": "general",
+          "party_name": "",
+          "description": "aaj 2kg sugar sell kiya 150 rupees"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T10:19:16.495757+00:00"
+  },
+  {
+    "id": "0e810d34-6b52-4727-94e1-30e2e7f24013",
+    "user_id": "fa2cfc6a-ad45-4b80-aaf9-bf7b4e0189e2",
+    "channel": "chat-text",
+    "raw_input": "aaj 2kg sugar sell kiya 150 rupees",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9150. Stock: -2.0kg aaj.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 150.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "aaj 2kg sugar sell kiya 150 rupees"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "aaj",
+          "quantity_delta": -2.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T10:21:12.078342+00:00"
+  },
+  {
+    "id": "c64e57d6-d1e9-4750-998d-f720113b4890",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "aaj 2kg sugar sell kiya 150 rupees",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9150. Stock: -2.0kg sugar.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 150.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "aaj 2kg sugar sell kiya 150 rupees"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "sugar",
+          "quantity_delta": -2.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T10:22:04.013474+00:00"
+  },
+  {
+    "id": "313fd5d7-7a43-493a-9887-de510a5f3f04",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "becha 3kg atta 250rs Mohan ko",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9250. Stock: -3.0kg atta.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 250.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "becha 3kg atta 250rs Mohan ko"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "atta",
+          "quantity_delta": -3.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T10:22:06.298007+00:00"
+  },
+  {
+    "id": "c76c4011-5b0e-4783-825b-4418dc6f0767",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "hi",
+    "parsed": {
+      "intent": "other",
+      "reply": "Got it! Try: 'sold 5kg rice \u20b9500 to Ramesh' or '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500'",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T10:22:45.660775+00:00"
+  },
+  {
+    "id": "b7dd670d-c018-4a5e-b0b7-11c572e71b06",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "ajj maine 2 kilo  dal bechi 800 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9800. Stock: -2.0kilo ajj maine.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 800.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "ajj maine 2 kilo  dal bechi 800 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "ajj maine",
+          "quantity_delta": -2.0,
+          "unit": "kilo"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T10:23:18.517142+00:00"
+  },
+  {
+    "id": "79c54fa0-c5c5-4af4-8a39-a92cfe67fa7f",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "hi",
+    "parsed": {
+      "intent": "other",
+      "reply": "Got it! Try: 'sold 5kg rice \u20b9500 to Ramesh' or '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500'",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T10:36:29.328149+00:00"
+  },
+  {
+    "id": "f3f54052-7693-4dd2-a224-2acf8c84d0b5",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "how are u ?",
+    "parsed": {
+      "intent": "question",
+      "reply": "Check your Dashboard for up-to-date numbers!",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T10:36:38.397956+00:00"
+  },
+  {
+    "id": "315d9204-b450-4dcf-b883-56072eff8d36",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "Are u okay ?",
+    "parsed": {
+      "intent": "question",
+      "reply": "Check your Dashboard for up-to-date numbers!",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T10:36:48.747334+00:00"
+  },
+  {
+    "id": "820a5d65-0f72-4577-8479-22ccd21cec0c",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-photo",
+    "raw_input": "Extract transactions from this bill/receipt.",
+    "parsed": {
+      "intent": "other",
+      "reply": "Got it! Try: 'sold 5kg rice \u20b9500 to Ramesh' or '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500'",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T10:37:10.621975+00:00"
+  },
+  {
+    "id": "809a25a9-3283-4673-a7a1-6b2460b433bc",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "aaj maine 2kg sugar sell kiya 150 rupees",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9150. Stock: -2.0kg sugar.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 150.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "aaj maine 2kg sugar sell kiya 150 rupees"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "sugar",
+          "quantity_delta": -2.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T14:59:44.025998+00:00"
+  },
+  {
+    "id": "0ea9dcbd-1f5a-4c89-9942-acb3261f6899",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "becha 3kg atta 250rs Mohan ko",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9250. Stock: -3.0kg atta 250rs.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 250.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "becha 3kg atta 250rs Mohan ko"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "atta 250rs",
+          "quantity_delta": -3.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T14:59:46.301064+00:00"
+  },
+  {
+    "id": "adae1782-381c-4ef0-b6d3-118e1c5f48d3",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "maine aaj subah 5kg rice becha 400 rupees",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9400. Stock: -5.0kg rice.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 400.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "maine aaj subah 5kg rice becha 400 rupees"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "rice",
+          "quantity_delta": -5.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T14:59:48.498799+00:00"
+  },
+  {
+    "id": "83f5c753-d113-4374-a882-1246530502cd",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "aaj maine 2kg sugar sell kiya 150 rupees",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9150. Stock: -2.0kg sugar.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 150.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "aaj maine 2kg sugar sell kiya 150 rupees"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "sugar",
+          "quantity_delta": -2.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:01:21.585789+00:00"
+  },
+  {
+    "id": "590b0473-4a1f-4d63-8d29-f709d0b3f409",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "becha 3kg atta 250rs Mohan ko",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9250. Stock: -3.0kg atta.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 250.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "becha 3kg atta 250rs Mohan ko"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "atta",
+          "quantity_delta": -3.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:01:23.710734+00:00"
+  },
+  {
+    "id": "d68d92ac-00a0-48f9-8000-e16c26bff2e0",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "maine aaj subah 5kg rice becha 400 rupees",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9400. Stock: -5.0kg rice.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 400.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "maine aaj subah 5kg rice becha 400 rupees"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "rice",
+          "quantity_delta": -5.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:01:26.016919+00:00"
+  },
+  {
+    "id": "bd436e65-9b61-4417-a0bf-1e02c91927d1",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "ajj humne 10kg dal kharida 900 rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9900. Stock: +10.0kg dal.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 900.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "ajj humne 10kg dal kharida 900 rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "dal",
+          "quantity_delta": 10.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:01:28.169776+00:00"
+  },
+  {
+    "id": "ace83ffa-9116-42df-b5f2-dd63a89c6bad",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "maine 1kg tea becha 500",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9500. Stock: -1.0kg tea.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 500.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "maine 1kg tea becha 500"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "tea",
+          "quantity_delta": -1.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:01:30.210791+00:00"
+  },
+  {
+    "id": "ec23c5be-033a-42db-b867-17950c3dd906",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "sold 2kg tomato 80rs to Ramesh",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b980 from Ramesh. Stock: -2.0kg tomato.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 80.0,
+          "category": "sales",
+          "party_name": "Ramesh",
+          "description": "sold 2kg tomato 80rs to Ramesh"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "tomato",
+          "quantity_delta": -2.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:01:32.348916+00:00"
+  },
+  {
+    "id": "1d32822c-8778-45ea-90c1-00fceb5b9a36",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "aaj mene 5ltr doodh becha 300 rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9300. Stock: -5.0ltr doodh.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 300.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "aaj mene 5ltr doodh becha 300 rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "doodh",
+          "quantity_delta": -5.0,
+          "unit": "ltr"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:02:05.863501+00:00"
+  },
+  {
+    "id": "b480e164-be1d-401d-b06a-269a59c35a4e",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "kal maine 20kg cement liya 400 rupees",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9400. Stock: +20.0kg cement.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 400.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "kal maine 20kg cement liya 400 rupees"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "cement",
+          "quantity_delta": 20.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:02:07.860179+00:00"
+  },
+  {
+    "id": "e1af45a8-fd73-4f8a-9525-c49644b72523",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "abhi 2kg paneer sell kiya 700",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9700. Stock: -2.0kg paneer.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 700.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "abhi 2kg paneer sell kiya 700"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "paneer",
+          "quantity_delta": -2.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:02:09.926867+00:00"
+  },
+  {
+    "id": "96e5547a-f55a-4d77-b605-b1defa33e382",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "tune 3 packets chips becha 60rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b960. Stock: -3.0packet chips.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 60.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "tune 3 packets chips becha 60rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "chips",
+          "quantity_delta": -3.0,
+          "unit": "packet"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:02:12.111335+00:00"
+  },
+  {
+    "id": "3a79079d-9115-494a-9148-92a063eefa58",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "usne 1kg ghee kharida 550",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9550. Stock: +1.0kg ghee.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 550.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "usne 1kg ghee kharida 550"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "ghee",
+          "quantity_delta": 1.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:02:14.389609+00:00"
+  },
+  {
+    "id": "2baab27f-6326-46ab-9f75-f7551591699a",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "hi",
+    "parsed": {
+      "intent": "other",
+      "reply": "Got it! Try: 'sold 5kg rice \u20b9500 to Ramesh' or '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500'",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T15:18:03.068097+00:00"
+  },
+  {
+    "id": "9fee662b-d87a-4d85-96ff-6e4996265247",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "Ajj maine 50 kilo chaawal beche 1200 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b91200. Stock: -50.0kilo chaawal beche.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 1200.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "Ajj maine 50 kilo chaawal beche 1200 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "chaawal beche",
+          "quantity_delta": -50.0,
+          "unit": "kilo"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:18:50.881302+00:00"
+  },
+  {
+    "id": "1ef9409c-cd2c-4d9e-88f5-2f5c13ee8123",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "ajj maine 20 kilo chaaawal beche 1300 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b91300. Stock: -20.0kilo chaaawal beche.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 1300.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "ajj maine 20 kilo chaaawal beche 1300 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "chaaawal beche",
+          "quantity_delta": -20.0,
+          "unit": "kilo"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:19:51.313760+00:00"
+  },
+  {
+    "id": "f7fba7e9-336c-4b87-9ae9-48e4529f444e",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "ajj maine 20 kilo chaaawal beche 1300 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b91300. Stock: -20.0kilo chawal.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 1300.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "ajj maine 20 kilo chaaawal beche 1300 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "chawal",
+          "quantity_delta": -20.0,
+          "unit": "kilo"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:31:27.924396+00:00"
+  },
+  {
+    "id": "16e8c869-8f34-43f8-800b-a439ca678e17",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "aaj maine 5kg chaawal becha 500 rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9500. Stock: -5.0kg chawal.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 500.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "aaj maine 5kg chaawal becha 500 rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "chawal",
+          "quantity_delta": -5.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:31:31.240906+00:00"
+  },
+  {
+    "id": "88664028-8779-4a49-94a7-906c3486f1ba",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "mene 10ltr dudh becha 600 rupees",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9600. Stock: -10.0ltr milk.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 600.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "mene 10ltr dudh becha 600 rupees"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "milk",
+          "quantity_delta": -10.0,
+          "unit": "ltr"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:31:33.469503+00:00"
+  },
+  {
+    "id": "2b8e0e3c-fc8b-4ea0-a37b-9cb4bf5d5dc3",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "sold 2kg tomatoo 80rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b980. Stock: -2.0kg tomato.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 80.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "sold 2kg tomatoo 80rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "tomato",
+          "quantity_delta": -2.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:31:35.490719+00:00"
+  },
+  {
+    "id": "7f5fe5d9-58bc-475b-b575-31d0db77fd25",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "kharida 5kg aatta 200 rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9200. Stock: +5.0kg atta.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 200.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "kharida 5kg aatta 200 rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "atta",
+          "quantity_delta": 5.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:31:37.716471+00:00"
+  },
+  {
+    "id": "3091dd1b-473e-468e-a2ec-2371c392e5ca",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "maine 3kg cheeni bechi 150 ko Ramesh",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9150 from Ramesh. Stock: -3.0kg sugar.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 150.0,
+          "category": "sales",
+          "party_name": "Ramesh",
+          "description": "maine 3kg cheeni bechi 150 ko Ramesh"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "sugar",
+          "quantity_delta": -3.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:31:39.901991+00:00"
+  },
+  {
+    "id": "880f2eed-55e6-4c67-8160-a637b1f36972",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "humne 2ltr sarson tel liya 400rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9400. Stock: +2.0ltr sarson tel.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 400.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "humne 2ltr sarson tel liya 400rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "sarson tel",
+          "quantity_delta": 2.0,
+          "unit": "ltr"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:31:41.936819+00:00"
+  },
+  {
+    "id": "0a86fa1a-5495-47aa-b779-1e7005120a14",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "ajj maine 20 kilo chaaawal beche 1300 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b91300. Stock: -20.0kilo chawal.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 1300.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "ajj maine 20 kilo chaaawal beche 1300 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "chawal",
+          "quantity_delta": -20.0,
+          "unit": "kilo"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:32:52.814817+00:00"
+  },
+  {
+    "id": "a710489e-da4c-4682-8658-9d2f1bf8b77e",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "aaj maine 5kg chaawal becha 500 rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9500. Stock: -5.0kg chawal.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 500.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "aaj maine 5kg chaawal becha 500 rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "chawal",
+          "quantity_delta": -5.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:32:55.011202+00:00"
+  },
+  {
+    "id": "34acd86c-1d35-4f18-be5c-a27ad588743b",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "mene 10ltr dudh becha 600 rupees",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9600. Stock: -10.0ltr milk.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 600.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "mene 10ltr dudh becha 600 rupees"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "milk",
+          "quantity_delta": -10.0,
+          "unit": "ltr"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:32:57.131500+00:00"
+  },
+  {
+    "id": "ee606fc7-e169-4b5b-ad10-1d43909de7c0",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "sold 2kg tomatoo 80rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b980. Stock: -2.0kg tomato.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 80.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "sold 2kg tomatoo 80rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "tomato",
+          "quantity_delta": -2.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:32:59.190719+00:00"
+  },
+  {
+    "id": "87e6b026-1f6e-4c13-b10c-e8a069149421",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "kharida 5kg aatta 200 rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9200. Stock: +5.0kg atta.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 200.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "kharida 5kg aatta 200 rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "atta",
+          "quantity_delta": 5.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:33:01.183003+00:00"
+  },
+  {
+    "id": "b6f1a620-c3ca-4d61-a8ad-0c5b253d599c",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "maine 3kg cheeni bechi 150 ko Ramesh",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9150 from Ramesh. Stock: -3.0kg sugar.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 150.0,
+          "category": "sales",
+          "party_name": "Ramesh",
+          "description": "maine 3kg cheeni bechi 150 ko Ramesh"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "sugar",
+          "quantity_delta": -3.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:33:03.199166+00:00"
+  },
+  {
+    "id": "04dfd3fa-b2c3-444e-b1b6-456aa6f77355",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "humne 2ltr sarson tel liya 400rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9400. Stock: +2.0ltr mustard oil.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 400.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "humne 2ltr sarson tel liya 400rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "mustard oil",
+          "quantity_delta": 2.0,
+          "unit": "ltr"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:33:05.217626+00:00"
+  },
+  {
+    "id": "dde20c20-36e0-4033-b4c5-c136c7333ae5",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "becha 1kg ghiii 600rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9600. Stock: -1.0kg ghee.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 600.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "becha 1kg ghiii 600rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "ghee",
+          "quantity_delta": -1.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:33:07.316321+00:00"
+  },
+  {
+    "id": "29d443eb-f9e6-43cc-b884-1400ba0ef854",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "aaj 5kg aaloo kharida 150rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9150. Stock: +5.0kg potato.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 150.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "aaj 5kg aaloo kharida 150rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "potato",
+          "quantity_delta": 5.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:33:09.488464+00:00"
+  },
+  {
+    "id": "d3a204e1-6496-4fdb-94c5-41a639c86b73",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "sold 3 dozen eggs 240rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9240. Stock: -3.0dozen eggs.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 240.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "sold 3 dozen eggs 240rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "eggs",
+          "quantity_delta": -3.0,
+          "unit": "dozen"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:33:11.532847+00:00"
+  },
+  {
+    "id": "0ca6ae3d-98e7-4044-a60d-12fab35b5213",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "hi",
+    "parsed": {
+      "intent": "other",
+      "reply": "Got it! Try: 'sold 5kg rice \u20b9500 to Ramesh' or '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500'",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T15:34:35.609244+00:00"
+  },
+  {
+    "id": "a832d03a-7cf3-4810-84ed-12bf75012631",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "Ajj maine 70kg chawwl beche 3000 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b93000. Stock: -70.0kg chawwl.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 3000.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "Ajj maine 70kg chawwl beche 3000 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "chawwl",
+          "quantity_delta": -70.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:35:13.886454+00:00"
+  },
+  {
+    "id": "d6f5b967-bcfa-4c67-ae7e-62a3228c6c01",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u0906\u091c \u092e\u0948\u0902\u0928\u0947 300 \u0915\u093f\u0932\u094b \u091a\u093e\u0935\u0932 \u092c\u0947\u091a\u0947\u0902 \u20b93000 \u092e\u0947\u0902",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0906\u092e\u0926\u0928\u0940 \u20b93000 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0908\u0964 Stock: -300.0\u0915\u093f\u0932\u094b chawal.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 3000.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "\u0906\u091c \u092e\u0948\u0902\u0928\u0947 300 \u0915\u093f\u0932\u094b \u091a\u093e\u0935\u0932 \u092c\u0947\u091a\u0947\u0902 \u20b93000 \u092e\u0947\u0902"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "chawal",
+          "quantity_delta": -300.0,
+          "unit": "\u0915\u093f\u0932\u094b"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:38:48.400400+00:00"
+  },
+  {
+    "id": "35ad8433-7c7f-4f4b-80d9-7a939ee6c70c",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u0906\u091c \u092e\u0948\u0902\u0928\u0947 10 \u0915\u093f\u0932\u094b \u0906\u0935\u0915 \u0916\u0930\u0940\u0926\u0947\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u20b910 \u0928\u094b\u091f \u0915\u093f\u092f\u093e\u0964 (income \u092e\u093e\u0928\u093e \u2014 'kharcha' \u092c\u094b\u0932\u0947\u0902 \u092c\u0926\u0932\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f)",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 10.0,
+          "category": "general",
+          "party_name": "",
+          "description": "\u0906\u091c \u092e\u0948\u0902\u0928\u0947 10 \u0915\u093f\u0932\u094b \u0906\u0935\u0915 \u0916\u0930\u0940\u0926\u0947\u0964"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T15:39:17.660264+00:00"
+  },
+  {
+    "id": "819ed609-8c6e-403e-bd22-c68cb89d28fd",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u092e\u0948\u0902\u0928\u0947 10 \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915 \u0916\u0930\u0940\u0926\u0940\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u20b910 \u0928\u094b\u091f \u0915\u093f\u092f\u093e\u0964 (income \u092e\u093e\u0928\u093e \u2014 'kharcha' \u092c\u094b\u0932\u0947\u0902 \u092c\u0926\u0932\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f)",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 10.0,
+          "category": "general",
+          "party_name": "",
+          "description": "\u092e\u0948\u0902\u0928\u0947 10 \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915 \u0916\u0930\u0940\u0926\u0940\u0964"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T15:40:03.044216+00:00"
+  },
+  {
+    "id": "7a466206-fb50-4bdd-9abb-66385fb476d9",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u0906\u091c \u092e\u0948\u0902\u0928\u0947 10 \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915 \u0916\u0930\u0940\u0926\u0940 \u20b9800 \u092e\u0947\u0902\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u20b9800 \u0928\u094b\u091f \u0915\u093f\u092f\u093e\u0964 (income \u092e\u093e\u0928\u093e \u2014 'kharcha' \u092c\u094b\u0932\u0947\u0902 \u092c\u0926\u0932\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f)",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 800.0,
+          "category": "general",
+          "party_name": "",
+          "description": "\u0906\u091c \u092e\u0948\u0902\u0928\u0947 10 \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915 \u0916\u0930\u0940\u0926\u0940 \u20b9800 \u092e\u0947\u0902\u0964"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T15:40:13.460663+00:00"
+  },
+  {
+    "id": "2d17a471-c968-49d6-992a-2e878bf3ee6b",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u091f\u093e\u0907\u092e\u0964",
+    "parsed": {
+      "intent": "other",
+      "reply": "\u0938\u092e\u091d \u0917\u092f\u093e! \u0910\u0938\u0947 \u092c\u094b\u0932\u0947\u0902: '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500 Ramesh \u0915\u094b'",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T15:40:19.719905+00:00"
+  },
+  {
+    "id": "58d3ebf3-ce1b-46b5-aa47-69c65f8cc33f",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u092c\u0924\u093e\u0913 \u0906\u092a \u0915\u0948\u0938\u0947 \u0939\u094b?",
+    "parsed": {
+      "intent": "question",
+      "reply": "\u0905\u092a\u0928\u0947 Dashboard \u092e\u0947\u0902 latest numbers \u0926\u0947\u0916\u0947\u0902!",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T15:43:26.728577+00:00"
+  },
+  {
+    "id": "3af7a86c-f962-4116-9c78-39a50c4d47ef",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u0906\u092a \u0915\u0948\u0938\u0947 \u0939\u094b?",
+    "parsed": {
+      "intent": "question",
+      "reply": "\u0905\u092a\u0928\u0947 Dashboard \u092e\u0947\u0902 latest numbers \u0926\u0947\u0916\u0947\u0902!",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T15:44:03.751739+00:00"
+  },
+  {
+    "id": "595ac078-2aea-4c76-89f3-66ad5d890d12",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u092c\u0939\u0941\u0924 \u092d\u0942\u0916 \u0932\u0917\u0940 \u0925\u0940 \u0907\u0938\u0932\u093f\u090f \u092e\u0948\u0902\u0928\u0947 \u091a\u093e\u0930 \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915 \u092a\u0940 \u090f\u092a\u0964",
+    "parsed": {
+      "intent": "other",
+      "reply": "\u0938\u092e\u091d \u0917\u092f\u093e! \u0910\u0938\u0947 \u092c\u094b\u0932\u0947\u0902: '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500 Ramesh \u0915\u094b'",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T15:44:14.709362+00:00"
+  },
+  {
+    "id": "2afd040c-6730-4630-93e5-3ffb7dc603d3",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u092d\u0942\u0916 \u0932\u0917\u0940 \u0925\u0940 \u0907\u0938\u0932\u093f\u090f \u092e\u0948\u0902\u0928\u0947 \u091a\u093e\u0930 \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915 \u092a\u093f\u090f\u0964 \u20b950 \u092e\u0947\u0902\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u20b950 \u0928\u094b\u091f \u0915\u093f\u092f\u093e\u0964 (income \u092e\u093e\u0928\u093e \u2014 'kharcha' \u092c\u094b\u0932\u0947\u0902 \u092c\u0926\u0932\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f)",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 50.0,
+          "category": "general",
+          "party_name": "",
+          "description": "\u092d\u0942\u0916 \u0932\u0917\u0940 \u0925\u0940 \u0907\u0938\u0932\u093f\u090f \u092e\u0948\u0902\u0928\u0947 \u091a\u093e\u0930 \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915 \u092a\u093f\u090f\u0964 \u20b950 \u092e\u0947\u0902\u0964"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T15:44:31.077567+00:00"
+  },
+  {
+    "id": "e4401bd5-3cd3-4023-94fd-7e7369e4567f",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "hi",
+    "parsed": {
+      "intent": "other",
+      "reply": "Got it! Try: 'sold 5kg rice \u20b9500 to Ramesh' or '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500'",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T15:52:00.754090+00:00"
+  },
+  {
+    "id": "19ad7a6b-8b81-4233-bf4a-865f97e78b09",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u0915\u093f\u0932\u094b \u0926\u093e\u0932 \u092c\u0947\u091a\u0940 \u20b9120 \u092e\u0947\u0902\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0906\u092e\u0926\u0928\u0940 \u20b9120 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0908\u0964",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 120.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "\u0915\u093f\u0932\u094b \u0926\u093e\u0932 \u092c\u0947\u091a\u0940 \u20b9120 \u092e\u0947\u0902\u0964"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T15:53:50.239123+00:00"
+  },
+  {
+    "id": "c04ab5a2-ef90-4f66-8f9a-b2f2f4c1f854",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u091a\u093e\u0930 \u0915\u093f\u0932\u094b \u0926\u093e\u0932 \u092c\u0947\u091a\u0940 120 \u092e\u0947\u0902\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0906\u092e\u0926\u0928\u0940 \u20b9120 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0908\u0964",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 120.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "\u091a\u093e\u0930 \u0915\u093f\u0932\u094b \u0926\u093e\u0932 \u092c\u0947\u091a\u0940 120 \u092e\u0947\u0902\u0964"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T15:55:40.932176+00:00"
+  },
+  {
+    "id": "27290a2f-26ec-4c81-a115-7c291b1de864",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "char kilo dal bechi 120 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9120. Stock: -4.0kilo dal.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 120.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "char kilo dal bechi 120 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "dal",
+          "quantity_delta": -4.0,
+          "unit": "kilo"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:59:07.028249+00:00"
+  },
+  {
+    "id": "d6845780-c680-407b-94de-1a1948913446",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "do kilo chawal becha 200 rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9200. Stock: -2.0kilo chawal.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 200.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "do kilo chawal becha 200 rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "chawal",
+          "quantity_delta": -2.0,
+          "unit": "kilo"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:59:09.740392+00:00"
+  },
+  {
+    "id": "c0b1e73f-df4a-4d41-a257-b2afdd53bd8e",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "paanch ltr dudh becha 300 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9300. Stock: -5.0ltr milk.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 300.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "paanch ltr dudh becha 300 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "milk",
+          "quantity_delta": -5.0,
+          "unit": "ltr"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:59:12.064073+00:00"
+  },
+  {
+    "id": "582e9364-b0b0-48e5-ab34-cf4d0e65e8b0",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "teen kilo aatta kharida 150 rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9150. Stock: +3.0kilo atta.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 150.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "teen kilo aatta kharida 150 rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "atta",
+          "quantity_delta": 3.0,
+          "unit": "kilo"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:59:14.740834+00:00"
+  },
+  {
+    "id": "6b709ea0-acd1-442e-8733-532fbb161dc9",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "ek dozen eggs sold 240rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9240. Stock: -1.0dozen eggs.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 240.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "ek dozen eggs sold 240rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "eggs",
+          "quantity_delta": -1.0,
+          "unit": "dozen"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:59:17.934233+00:00"
+  },
+  {
+    "id": "c9f8bbf2-c0e4-452f-9ec9-b479e7812d21",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "ajj maine 20 kilo chaaawal beche 1300 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b91300. Stock: -20.0kilo chawal.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 1300.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "ajj maine 20 kilo chaaawal beche 1300 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "chawal",
+          "quantity_delta": -20.0,
+          "unit": "kilo"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:59:20.576556+00:00"
+  },
+  {
+    "id": "3f44cfd8-6c4d-4bf2-ac13-a0a523f598cb",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "mene 10ltr dudh becha 600 rupees",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9600. Stock: -10.0ltr milk.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 600.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "mene 10ltr dudh becha 600 rupees"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "milk",
+          "quantity_delta": -10.0,
+          "unit": "ltr"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:59:23.068068+00:00"
+  },
+  {
+    "id": "d66baf34-d40d-495b-9b85-f4be6fb72f9e",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "sold 2kg tomatoo 80rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b980. Stock: -2.0kg tomato.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 80.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "sold 2kg tomatoo 80rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "tomato",
+          "quantity_delta": -2.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:59:25.305688+00:00"
+  },
+  {
+    "id": "9e5481f0-7b85-4336-9b76-00424f7de21c",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "maine 3kg cheeni bechi 150 ko Ramesh",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9150 from Ramesh. Stock: -3.0kg sugar.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 150.0,
+          "category": "sales",
+          "party_name": "Ramesh",
+          "description": "maine 3kg cheeni bechi 150 ko Ramesh"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "sugar",
+          "quantity_delta": -3.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:59:27.737735+00:00"
+  },
+  {
+    "id": "1ab3bcf9-1639-4437-b57d-60346d8d8a02",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "becha 1kg ghiii 600rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9600. Stock: -1.0kg ghee.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 600.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "becha 1kg ghiii 600rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "ghee",
+          "quantity_delta": -1.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:59:30.033728+00:00"
+  },
+  {
+    "id": "697fda8e-86a0-46f1-aec2-7980a59f12c2",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "aaj 5kg aaloo kharida 150rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9150. Stock: +5.0kg potato.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 150.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "aaj 5kg aaloo kharida 150rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "potato",
+          "quantity_delta": 5.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:59:32.534476+00:00"
+  },
+  {
+    "id": "da6a67a4-9f0b-4243-b40d-23e4b36a9dd4",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "char koli dal bechi 120 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9120. Stock: -4.0koli dal.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 120.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "char koli dal bechi 120 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "dal",
+          "quantity_delta": -4.0,
+          "unit": "koli"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T15:59:35.042991+00:00"
+  },
+  {
+    "id": "46ef7118-d022-454d-8827-537d0e250868",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "10 \u0915\u093f\u0932\u094b \u0906\u0932\u0942\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u20b910 \u0928\u094b\u091f \u0915\u093f\u092f\u093e\u0964 (income \u092e\u093e\u0928\u093e \u2014 'kharcha' \u092c\u094b\u0932\u0947\u0902 \u092c\u0926\u0932\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f)",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 10.0,
+          "category": "general",
+          "party_name": "",
+          "description": "10 \u0915\u093f\u0932\u094b \u0906\u0932\u0942\u0964"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T16:41:54.203349+00:00"
+  },
+  {
+    "id": "f21a7104-8308-4b78-9bd9-23b220637c64",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u092a\u093e\u0902\u091a \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915 \u0915\u0947 \u0915\u0948\u0928 \u0916\u0930\u0940\u0926\u0947\u0964 \u20b950 \u092e\u0947\u0902",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u20b950 \u0928\u094b\u091f \u0915\u093f\u092f\u093e\u0964 (income \u092e\u093e\u0928\u093e \u2014 'kharcha' \u092c\u094b\u0932\u0947\u0902 \u092c\u0926\u0932\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f)",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 50.0,
+          "category": "general",
+          "party_name": "",
+          "description": "\u092a\u093e\u0902\u091a \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915 \u0915\u0947 \u0915\u0948\u0928 \u0916\u0930\u0940\u0926\u0947\u0964 \u20b950 \u092e\u0947\u0902"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T16:42:14.988371+00:00"
+  },
+  {
+    "id": "c55fdcd1-e75d-4246-ac19-433a877d45c0",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u0906\u091c \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915 \u0915\u0948\u0928 \u092c\u0947\u091a\u0947 \u20b950 \u092e\u0947\u0902",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0906\u092e\u0926\u0928\u0940 \u20b950 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0908\u0964",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 50.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "\u0906\u091c \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915 \u0915\u0948\u0928 \u092c\u0947\u091a\u0947 \u20b950 \u092e\u0947\u0902"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T16:43:01.009833+00:00"
+  },
+  {
+    "id": "9b22a8d4-8873-4537-af8a-c59028707bd1",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u092a\u093e\u0902\u091a \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915 \u0915\u0948\u0928\u094d\u0938\u0964 \u0916\u0930\u0940\u0926\u0947 \u20b950 \u092e\u0947\u0902",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u20b950 \u0928\u094b\u091f \u0915\u093f\u092f\u093e\u0964 (income \u092e\u093e\u0928\u093e \u2014 'kharcha' \u092c\u094b\u0932\u0947\u0902 \u092c\u0926\u0932\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f)",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 50.0,
+          "category": "general",
+          "party_name": "",
+          "description": "\u092a\u093e\u0902\u091a \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915 \u0915\u0948\u0928\u094d\u0938\u0964 \u0916\u0930\u0940\u0926\u0947 \u20b950 \u092e\u0947\u0902"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T16:43:19.725571+00:00"
+  },
+  {
+    "id": "7f3766fc-96ab-44c2-bed9-225728043a72",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "char kilo dal bechi 120 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9120. Stock: -4.0kilo dal.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 120.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "char kilo dal bechi 120 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "dal",
+          "quantity_delta": -4.0,
+          "unit": "kilo"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:19:07.931811+00:00"
+  },
+  {
+    "id": "9b2b2328-a1d1-4f9b-a3d8-6dfed3f83cf9",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "panch cold drink can kharide 50 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b950. Stock: +5.0can cold drink.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 50.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "panch cold drink can kharide 50 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "cold drink",
+          "quantity_delta": 5.0,
+          "unit": "can"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:19:10.135171+00:00"
+  },
+  {
+    "id": "45f1681c-592b-43c0-9ddf-dacb01ae6792",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "do dozen eggs kharide 200 rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9200. Stock: +2.0dozen eggs.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 200.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "do dozen eggs kharide 200 rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "eggs",
+          "quantity_delta": 2.0,
+          "unit": "dozen"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:19:12.516069+00:00"
+  },
+  {
+    "id": "bf592386-17d6-43b9-b13c-4f4ec56c9feb",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "teen kilo atta becha 150 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9150. Stock: -3.0kilo atta.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 150.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "teen kilo atta becha 150 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "atta",
+          "quantity_delta": -3.0,
+          "unit": "kilo"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:19:14.790446+00:00"
+  },
+  {
+    "id": "3c7ef9a0-65f4-45da-839a-a41eeb41043d",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "ajj maine 20 kilo chaaawal beche 1300 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b91300. Stock: -20.0kilo chawal.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 1300.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "ajj maine 20 kilo chaaawal beche 1300 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "chawal",
+          "quantity_delta": -20.0,
+          "unit": "kilo"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:19:16.952063+00:00"
+  },
+  {
+    "id": "e07dd10e-6290-457e-9b98-87b689a063ea",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "kharida 5kg aatta 200 rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9200. Stock: +5.0kg atta.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 200.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "kharida 5kg aatta 200 rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "atta",
+          "quantity_delta": 5.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:19:19.593261+00:00"
+  },
+  {
+    "id": "d05ed0fe-94fa-4d76-94c4-0f2f47ecc405",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "humne 2ltr sarson tel liya 400rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9400. Stock: +2.0ltr mustard oil.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 400.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "humne 2ltr sarson tel liya 400rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "mustard oil",
+          "quantity_delta": 2.0,
+          "unit": "ltr"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:19:21.890132+00:00"
+  },
+  {
+    "id": "96c560f5-25f4-413f-b602-c9956e74cdf4",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "becha 1kg ghiii 600rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9600. Stock: -1.0kg ghee.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 600.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "becha 1kg ghiii 600rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "ghee",
+          "quantity_delta": -1.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:19:23.889784+00:00"
+  },
+  {
+    "id": "4082444c-72eb-4e0d-b38c-69d7a3173ee0",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "aaj 5kg aaloo kharida 150rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9150. Stock: +5.0kg potato.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 150.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "aaj 5kg aaloo kharida 150rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "potato",
+          "quantity_delta": 5.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:19:26.050429+00:00"
+  },
+  {
+    "id": "10d7d9e3-f8e3-4f31-8a2f-330ff3588ca1",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "sold 3 dozen eggs 240rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9240. Stock: -3.0dozen eggs.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 240.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "sold 3 dozen eggs 240rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "eggs",
+          "quantity_delta": -3.0,
+          "unit": "dozen"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:19:28.243094+00:00"
+  },
+  {
+    "id": "39d6d098-d918-4539-b609-9b14ea156a6f",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u0915\u093e\u0930, \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915\u094d\u0938\u0964 \u20b940 \u092e\u0947\u0902 \u092c\u0947\u091a\u0947\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0906\u092e\u0926\u0928\u0940 \u20b940 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0908\u0964 Stock: -1 cold drink.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 40.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "\u0915\u093e\u0930, \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915\u094d\u0938\u0964 \u20b940 \u092e\u0947\u0902 \u092c\u0947\u091a\u0947\u0964"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "cold drink",
+          "quantity_delta": -1,
+          "unit": "pcs"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:22:13.171182+00:00"
+  },
+  {
+    "id": "c91cb002-d6cd-4170-ac89-99cf4b298fe6",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u092a\u0948\u0915\u0947\u091f \u0927\u0928\u093f\u092f\u093e \u092a\u093e\u0909\u0921\u0930\u0964 \u20b980 \u092e\u0947\u0902 \u0916\u0930\u0940\u0926\u0947\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0916\u0930\u094d\u091a \u20b980 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0906\u0964 Stock: +1 coriander.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 80.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "\u092a\u0948\u0915\u0947\u091f \u0927\u0928\u093f\u092f\u093e \u092a\u093e\u0909\u0921\u0930\u0964 \u20b980 \u092e\u0947\u0902 \u0916\u0930\u0940\u0926\u0947\u0964"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "coriander",
+          "quantity_delta": 1,
+          "unit": "pcs"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:22:52.274382+00:00"
+  },
+  {
+    "id": "3f18648a-1205-4470-9d23-dc738532dc6a",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "12 \u0932\u093f\u092a \u092c\u093e\u092e\u0964 \u20b9150 \u092e\u0947\u0902 \u0916\u0930\u0940\u0926\u0947\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0916\u0930\u094d\u091a \u20b9150 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0906\u0964",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 150.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "12 \u0932\u093f\u092a \u092c\u093e\u092e\u0964 \u20b9150 \u092e\u0947\u0902 \u0916\u0930\u0940\u0926\u0947\u0964"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T17:23:30.933437+00:00"
+  },
+  {
+    "id": "4aa0f753-5559-41f0-9cf5-ab568e757175",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u0915\u094d\u0932\u093e\u0938 \u092a\u0949\u0928\u094d\u0921\u094d\u0938 \u092a\u093e\u0909\u0921\u0930\u0964 \u20b95000 \u092e\u0947\u0902 \u092c\u0947\u091a\u0947?",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0906\u092e\u0926\u0928\u0940 \u20b95000 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0908\u0964",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 5000.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "\u0915\u094d\u0932\u093e\u0938 \u092a\u0949\u0928\u094d\u0921\u094d\u0938 \u092a\u093e\u0909\u0921\u0930\u0964 \u20b95000 \u092e\u0947\u0902 \u092c\u0947\u091a\u0947?"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T17:23:55.466772+00:00"
+  },
+  {
+    "id": "70f58739-cf63-466e-8a9f-afb35e7e1803",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "50\u0964 \u092a\u0949\u0928\u094d\u0921\u094d\u0938 \u092a\u093e\u0909\u0921\u0930 5000 \u092e\u0947\u0902 \u092c\u0947\u091a\u0947\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0906\u092e\u0926\u0928\u0940 \u20b95000 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0908\u0964",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 5000.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "50\u0964 \u092a\u0949\u0928\u094d\u0921\u094d\u0938 \u092a\u093e\u0909\u0921\u0930 5000 \u092e\u0947\u0902 \u092c\u0947\u091a\u0947\u0964"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T17:24:13.765968+00:00"
+  },
+  {
+    "id": "1a5f900d-ca6c-4f20-93ba-7bfbcfc3d6e7",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "char kilo dal bechi 120 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9120. Stock: -4.0kilo dal.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 120.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "char kilo dal bechi 120 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "dal",
+          "quantity_delta": -4.0,
+          "unit": "kilo"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:37:19.757722+00:00"
+  },
+  {
+    "id": "28e44cd5-27c6-473c-843b-a19d01c31c95",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "panch cold drink can kharide 50 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b950. Stock: +5.0can cold drink.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 50.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "panch cold drink can kharide 50 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "cold drink",
+          "quantity_delta": 5.0,
+          "unit": "can"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:37:21.811697+00:00"
+  },
+  {
+    "id": "f03b2607-f79e-4366-9f99-c4f56cadea20",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "sold 2kg tomatoo 80rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b980. Stock: -2.0kg tomato.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 80.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "sold 2kg tomatoo 80rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "tomato",
+          "quantity_delta": -2.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:37:23.775721+00:00"
+  },
+  {
+    "id": "86f3e121-db94-41d9-885d-6d283272458a",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "humne 2ltr sarson tel liya 400rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9400. Stock: +2.0ltr mustard oil.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 400.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "humne 2ltr sarson tel liya 400rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "mustard oil",
+          "quantity_delta": 2.0,
+          "unit": "ltr"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:37:25.805255+00:00"
+  },
+  {
+    "id": "15612b0c-f430-48a7-902c-fc3bef69b119",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "ajj maine 20 kilo chaaawal beche 1300 me",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b91300. Stock: -20.0kilo chawal.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 1300.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "ajj maine 20 kilo chaaawal beche 1300 me"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "chawal",
+          "quantity_delta": -20.0,
+          "unit": "kilo"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:37:27.893057+00:00"
+  },
+  {
+    "id": "b4beb9c0-01f5-4f44-82df-2064358ab728",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "aaj 5kg aaloo kharida 150rs",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9150. Stock: +5.0kg potato.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 150.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "aaj 5kg aaloo kharida 150rs"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "potato",
+          "quantity_delta": 5.0,
+          "unit": "kg"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:37:29.999592+00:00"
+  },
+  {
+    "id": "b39fa7fe-e940-4fae-a125-8208a82a1dd2",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "50u{0964} u{092a}u{0949}u{0928}u{094d}u{0921}u{094d}u{0938} u{092a}u{093e}u{0909}u{0921}u{0930} 5000 u{092e}u{0947}u{0902} u{092c}u{0947}u{091a}u{0947}u{0964}",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Noted \u20b95000. (Assumed income \u2014 say 'expense'/'kharcha' to change.)",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 5000.0,
+          "category": "general",
+          "party_name": "",
+          "description": "50u{0964} u{092a}u{0949}u{0928}u{094d}u{0921}u{094d}u{0938} u{092a}u{093e}u{0909"
+        }
+      ],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-27T17:41:03.245400+00:00"
+  },
+  {
+    "id": "5d768c2e-a744-4e3e-b9e5-e0d669d6b9af",
+    "user_id": "045d5ffa-971d-4277-acd5-591281ca74c9",
+    "channel": "chat-text",
+    "raw_input": "50\u0964 \u092a\u0949\u0928\u094d\u0921\u094d\u0938 \u092a\u093e\u0909\u0921\u0930 5000 \u092e\u0947\u0902 \u092c\u0947\u091a\u0947\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0906\u092e\u0926\u0928\u0940 \u20b95000 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0908\u0964 Stock: -50.0pc \u092a\u0949\u0928\u094d\u0921\u094d\u0938 \u092a\u093e\u0909\u0921\u0930.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 5000.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "50\u0964 \u092a\u0949\u0928\u094d\u0921\u094d\u0938 \u092a\u093e\u0909\u0921\u0930 5000 \u092e\u0947\u0902 \u092c\u0947\u091a\u0947\u0964"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "\u092a\u0949\u0928\u094d\u0921\u094d\u0938 \u092a\u093e\u0909\u0921\u0930",
+          "quantity_delta": -50.0,
+          "unit": "pc"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:44:35.029147+00:00"
+  },
+  {
+    "id": "60c62af8-07f1-4b73-9fdd-d71ab3320cbb",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u092a\u093e\u0902\u091a \u0915\u093f\u0932\u094b \u0917\u0947\u0939\u0942\u0902\u0964 \u20b91300 \u092e\u0947\u0902 \u092c\u0947\u091a\u0947?",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0906\u092e\u0926\u0928\u0940 \u20b91300 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0908\u0964 Stock: -5.0\u0915\u093f\u0932\u094b gehun.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 1300.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "\u092a\u093e\u0902\u091a \u0915\u093f\u0932\u094b \u0917\u0947\u0939\u0942\u0902\u0964 \u20b91300 \u092e\u0947\u0902 \u092c\u0947\u091a\u0947?"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "gehun",
+          "quantity_delta": -5.0,
+          "unit": "\u0915\u093f\u0932\u094b"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:50:27.893292+00:00"
+  },
+  {
+    "id": "f2dcdfad-39bf-44a7-8587-66518cf941c4",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u092a\u093e\u0902\u091a \u0932\u0940\u091f\u0930 \u0926\u0942\u0927\u0964 \u20b9800 \u092e\u0947\u0902 \u0916\u0930\u0940\u0926\u093e\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0916\u0930\u094d\u091a \u20b9800 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0906\u0964 Stock: +5.0\u0932\u0940\u091f\u0930 milk.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 800.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "\u092a\u093e\u0902\u091a \u0932\u0940\u091f\u0930 \u0926\u0942\u0927\u0964 \u20b9800 \u092e\u0947\u0902 \u0916\u0930\u0940\u0926\u093e\u0964"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "milk",
+          "quantity_delta": 5.0,
+          "unit": "\u0932\u0940\u091f\u0930"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-27T17:50:58.031277+00:00"
+  },
+  {
+    "id": "1bd4838f-3ef4-4cd3-b43d-63795db5568f",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-photo",
+    "raw_input": "Extract transactions from this bill/receipt.",
+    "parsed": {
+      "intent": "other",
+      "reply": "Got it! Try: 'sold 5kg rice \u20b9500 to Ramesh' or '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500'",
+      "transactions": [],
+      "inventory": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-27T18:35:36.211594+00:00"
+  },
+  {
+    "id": "d075294a-8ed6-4f0c-8759-2357bfb868f2",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "maine Harsh Se 500 Rupaye  Udhar Liye",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9500. Stock: +1 sev.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 500.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "maine Harsh Se 500 Rupaye  Udhar Liye"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "sev",
+          "quantity_delta": 1,
+          "unit": "pcs"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-28T05:54:52.084780+00:00"
+  },
+  {
+    "id": "2ff42269-002a-43e6-b4d6-917c9e1cc13c",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "harsh ne 300 rupaye ki Daal udhar liya",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9300. Stock: +1 dal.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 300.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "harsh ne 300 rupaye ki Daal udhar liya"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "dal",
+          "quantity_delta": 1,
+          "unit": "pcs"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-29T06:49:03.197577+00:00"
+  },
+  {
+    "id": "0e248c09-8470-4b7d-80d0-9d69bdf0b402",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "harsh ne 300 rupaye uddhar liye",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9300. Stock: +1 harsh rupaye uddhar.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 300.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "harsh ne 300 rupaye uddhar liye"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "harsh rupaye uddhar",
+          "quantity_delta": 1,
+          "unit": "pcs"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-29T06:49:30.461262+00:00"
+  },
+  {
+    "id": "c3623715-2de4-4d72-bf37-bd728dbc8518",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "harsh ne 300 rupaye uddhar liye",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9300. Stock: +1 harsh rupaye uddhar.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 300.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "harsh ne 300 rupaye uddhar liye"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "harsh rupaye uddhar",
+          "quantity_delta": 1,
+          "unit": "pcs"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-29T06:49:48.949503+00:00"
+  },
+  {
+    "id": "70f4193c-2933-463c-a8df-d41a56021758",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "Harsh ko 300 udhar diya",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded expense of \u20b9300. Stock: +1 harsh udhar.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 300.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "Harsh ko 300 udhar diya"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "harsh udhar",
+          "quantity_delta": 1,
+          "unit": "pcs"
+        }
+      ],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-29T06:59:32.115675+00:00"
+  },
+  {
+    "id": "7d99cc6b-3edf-432a-b72a-1fde67e3806c",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "test",
+    "raw_input": "Harsh ko 300 udhar diya",
+    "parsed": {
+      "intent": "udhar",
+      "reply": "\u2713 Udhar given: \u20b9300 to Harsh. Added to Udhar Book.",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [
+        {
+          "party_name": "Harsh",
+          "type": "given",
+          "amount": 300.0,
+          "description": "Harsh ko 300 udhar diya"
+        }
+      ],
+      "contacts": [
+        {
+          "name": "Harsh",
+          "phone": "",
+          "role": "customer"
+        }
+      ],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-29T09:28:41.135965+00:00"
+  },
+  {
+    "id": "64e9c0db-fbfa-4d8a-b667-04d265164f53",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "test",
+    "raw_input": "Ramesh ne 400 rupaye ka chawal udhar liya",
+    "parsed": {
+      "intent": "udhar",
+      "reply": "\u2713 Udhar taken: \u20b9400 from Ramesh. Added to Udhar Book.",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [
+        {
+          "party_name": "Ramesh",
+          "type": "taken",
+          "amount": 400.0,
+          "description": "Ramesh ne 400 rupaye ka chawal udhar liya"
+        }
+      ],
+      "contacts": [
+        {
+          "name": "Ramesh",
+          "phone": "",
+          "role": "customer"
+        }
+      ],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-29T09:45:19.459284+00:00"
+  },
+  {
+    "id": "2581d8f3-eb25-46ff-a545-62c80397b6e3",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "test",
+    "raw_input": "maine Sharma se 500 udhar liya",
+    "parsed": {
+      "intent": "udhar",
+      "reply": "\u2713 Udhar taken: \u20b9500 from Sharma. Added to Udhar Book.",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [
+        {
+          "party_name": "Sharma",
+          "type": "taken",
+          "amount": 500.0,
+          "description": "maine Sharma se 500 udhar liya"
+        }
+      ],
+      "contacts": [
+        {
+          "name": "Sharma",
+          "phone": "",
+          "role": "customer"
+        }
+      ],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-29T09:45:19.571898+00:00"
+  },
+  {
+    "id": "1872c63d-4e36-4b17-af43-8908e8dd521a",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "test",
+    "raw_input": "Priya ne mujhse 200 udhaar liye",
+    "parsed": {
+      "intent": "udhar",
+      "reply": "\u2713 Udhar given: \u20b9200 to Priya. Added to Udhar Book.",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [
+        {
+          "party_name": "Priya",
+          "type": "given",
+          "amount": 200.0,
+          "description": "Priya ne mujhse 200 udhaar liye"
+        }
+      ],
+      "contacts": [
+        {
+          "name": "Priya",
+          "phone": "",
+          "role": "customer"
+        }
+      ],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-29T09:45:19.682402+00:00"
+  },
+  {
+    "id": "e8a4186a-1240-41bb-9088-67b695b9ff41",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "Harsh ko 300 udhar diya",
+    "parsed": {
+      "intent": "udhar",
+      "reply": "\u2713 Udhar given: \u20b9300 to Harsh. Added to Udhar Book.",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [
+        {
+          "party_name": "Harsh",
+          "type": "given",
+          "amount": 300.0,
+          "description": "Harsh ko 300 udhar diya"
+        }
+      ],
+      "contacts": [
+        {
+          "name": "Harsh",
+          "phone": "",
+          "role": "customer"
+        }
+      ],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-29T10:24:24.976229+00:00"
+  },
+  {
+    "id": "b6a3bae0-896a-4f88-8cf1-cc2a3b847366",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "staff Amit ki salary 15000",
+    "parsed": {
+      "intent": "staff",
+      "reply": "\u2713 Salary \u20b915000 paid to Amit. Recorded in Staff section.",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [],
+      "contacts": [
+        {
+          "name": "Amit",
+          "phone": "",
+          "role": "staff"
+        }
+      ],
+      "staff_actions": [
+        {
+          "action": "payment",
+          "name": "Amit",
+          "amount": 15000.0,
+          "description": "staff Amit ki salary 15000"
+        }
+      ],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-29T10:26:01.498264+00:00"
+  },
+  {
+    "id": "7682b44d-36e1-4c41-9146-309b1c4fcddd",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "staff Amit ki salary 15000",
+    "parsed": {
+      "intent": "staff",
+      "reply": "\u2713 Salary \u20b915000 paid to Amit. Recorded in Staff section.",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [],
+      "contacts": [
+        {
+          "name": "Amit",
+          "phone": "",
+          "role": "staff"
+        }
+      ],
+      "staff_actions": [
+        {
+          "action": "payment",
+          "name": "Amit",
+          "amount": 15000.0,
+          "description": "staff Amit ki salary 15000"
+        }
+      ],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-29T10:27:01.427978+00:00"
+  },
+  {
+    "id": "e677abd7-b0df-444a-b640-066589098be3",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "harsh ne 500 udhar liye",
+    "parsed": {
+      "intent": "udhar",
+      "reply": "\u2713 Udhar given: \u20b9500 to Harsh. Added to Udhar Book.",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [
+        {
+          "party_name": "Harsh",
+          "type": "given",
+          "amount": 500.0,
+          "description": "harsh ne 500 udhar liye"
+        }
+      ],
+      "contacts": [
+        {
+          "name": "Harsh",
+          "phone": "",
+          "role": "customer"
+        }
+      ],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-29T11:09:33.530029+00:00"
+  },
+  {
+    "id": "133651a2-819e-43fe-a234-60cda1b33cb9",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "aaj Nivesh ne 360 ka chawal udhar liya",
+    "parsed": {
+      "intent": "udhar",
+      "reply": "\u2713 Udhar taken: \u20b9360 from Nivesh. Added to Udhar Book.",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [
+        {
+          "party_name": "Nivesh",
+          "type": "taken",
+          "amount": 360.0,
+          "description": "aaj Nivesh ne 360 ka chawal udhar liya"
+        }
+      ],
+      "contacts": [
+        {
+          "name": "Nivesh",
+          "phone": "",
+          "role": "customer"
+        }
+      ],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-29T11:10:21.722439+00:00"
+  },
+  {
+    "id": "ba0e5dda-ca09-44fe-9e3a-7a75ed9e4d14",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "hi",
+    "parsed": {
+      "intent": "other",
+      "reply": "Got it! Try: 'sold 5kg rice \u20b9500 to Ramesh' or '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500'",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-29T21:09:16.604344+00:00"
+  },
+  {
+    "id": "0d70793b-1570-4158-ad53-d652727a18a0",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-photo",
+    "raw_input": "Extract transactions from this bill/receipt.",
+    "parsed": {
+      "intent": "other",
+      "reply": "Got it! Try: 'sold 5kg rice \u20b9500 to Ramesh' or '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500'",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-29T21:14:07.907655+00:00"
+  },
+  {
+    "id": "ca17e3e3-cab9-4379-bda1-2f661320b0f8",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-photo",
+    "raw_input": "Extract transactions from this bill/receipt.",
+    "parsed": {
+      "intent": "other",
+      "reply": "Got it! Try: 'sold 5kg rice \u20b9500 to Ramesh' or '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500'",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-29T21:14:23.717178+00:00"
+  },
+  {
+    "id": "03d928b6-817d-40b5-8a11-87efc850de53",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-photo",
+    "raw_input": "Extract transactions from this bill/receipt.",
+    "parsed": {
+      "intent": "other",
+      "reply": "Got it! Try: 'sold 5kg rice \u20b9500 to Ramesh' or '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500'",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-29T21:14:33.278983+00:00"
+  },
+  {
+    "id": "36625738-95df-44f9-8628-a045207ba560",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "Add the Inventory",
+    "parsed": {
+      "intent": "other",
+      "reply": "Got it! Try: 'sold 5kg rice \u20b9500 to Ramesh' or '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500'",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-29T21:14:34.883783+00:00"
+  },
+  {
+    "id": "e274bc47-fb7c-4b81-b819-c13b51eb387e",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "hi",
+    "parsed": {
+      "intent": "other",
+      "reply": "Got it! Try: 'sold 5kg rice \u20b9500 to Ramesh' or '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500'",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-29T21:32:17.812651+00:00"
+  },
+  {
+    "id": "e45fcf39-5bab-4dcf-909f-50ee3c137e5e",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-photo",
+    "raw_input": "Extract transactions from this bill/receipt.",
+    "parsed": {
+      "intent": "other",
+      "reply": "Got it! Try: 'sold 5kg rice \u20b9500 to Ramesh' or '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500'",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-29T21:32:30.616936+00:00"
+  },
+  {
+    "id": "5d9a0b5c-72de-45f1-a15d-f5f0cb8fca21",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u0932\u094b\u0917\u0947 \u0939\u0942\u0901? \u20b9800 \u092e\u0947\u0902 \u092c\u0947\u091a\u0947\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0906\u092e\u0926\u0928\u0940 \u20b9800 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0908\u0964 Stock: -1 \u0932\u094b\u0917\u0947 \u0939\u0942\u0901.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 800.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "\u0932\u094b\u0917\u0947 \u0939\u0942\u0901? \u20b9800 \u092e\u0947\u0902 \u092c\u0947\u091a\u0947\u0964"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "\u0932\u094b\u0917\u0947 \u0939\u0942\u0901",
+          "quantity_delta": -1,
+          "unit": "pcs"
+        }
+      ],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-29T21:34:12.631814+00:00"
+  },
+  {
+    "id": "1a8c3bcd-b9d7-4b42-9060-6a422704a146",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u092a\u093e\u0902\u091a \u0915\u093f\u0932\u094b \u0917\u0947\u0939\u0942\u0902 \u20b9800 \u092e\u0947\u0902 \u092c\u0947\u091a\u0947\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0906\u092e\u0926\u0928\u0940 \u20b9800 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0908\u0964 Stock: -5.0\u0915\u093f\u0932\u094b gehun.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 800.0,
+          "category": "sales",
+          "party_name": "",
+          "description": "\u092a\u093e\u0902\u091a \u0915\u093f\u0932\u094b \u0917\u0947\u0939\u0942\u0902 \u20b9800 \u092e\u0947\u0902 \u092c\u0947\u091a\u0947\u0964"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "gehun",
+          "quantity_delta": -5.0,
+          "unit": "\u0915\u093f\u0932\u094b"
+        }
+      ],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-29T21:34:21.845658+00:00"
+  },
+  {
+    "id": "bb5c4096-9dee-4727-9d92-b0f441092024",
+    "user_id": "2d55bc0d-5801-42c2-a1d3-a23c2705be23",
+    "channel": "chat-text",
+    "raw_input": "hi",
+    "parsed": {
+      "intent": "greeting",
+      "reply": "Hey there! \ud83d\ude4f Ready to help with your business. Just tell me what happened \u2014 'sold 5kg rice \u20b9500' or 'Sharma ko 2000 udhar diya'.",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-30T07:25:11.439357+00:00"
+  },
+  {
+    "id": "2f45e70b-1ac6-44d2-b16e-eb92b9c82921",
+    "user_id": "2d55bc0d-5801-42c2-a1d3-a23c2705be23",
+    "channel": "chat-text",
+    "raw_input": "hi",
+    "parsed": {
+      "intent": "greeting",
+      "reply": "Hello! \ud83d\udc4b I'm your AI business assistant. Tell me about your sales, expenses, or udhar \u2014 I'll manage your books instantly!",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-30T07:25:35.720116+00:00"
+  },
+  {
+    "id": "0a3eec49-1dad-4563-8b85-845feaeebf62",
+    "user_id": "2d55bc0d-5801-42c2-a1d3-a23c2705be23",
+    "channel": "chat-text",
+    "raw_input": "help",
+    "parsed": {
+      "intent": "help",
+      "reply": "Here's what I can do for you:\n\ud83d\udcca Sales/Expenses \u2014 'sold 5kg rice \u20b9500 to Ramesh'\n\ud83d\udcb0 Udhar/Credit \u2014 'gave 2000 udhar to Sharma'\n\ud83d\udc64 Staff \u2014 'Raju salary 15000'\n\ud83d\udce6 Inventory \u2014 'bought 10kg atta \u20b9400'\n\ud83d\udcf8 Bills \u2014 Send a photo, I'll auto-extract!\n\ud83c\udfa4 Voice \u2014 Tap mic and speak naturally!",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-30T07:25:39.251095+00:00"
+  },
+  {
+    "id": "09437ff9-7531-41d1-a96f-b52dab1ca6bd",
+    "user_id": "2d55bc0d-5801-42c2-a1d3-a23c2705be23",
+    "channel": "chat-text",
+    "raw_input": "sold 5kg rice 500 to Ramesh",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 Recorded income of \u20b9500 from Ramesh. Stock: -5.0kg chawal.",
+      "transactions": [
+        {
+          "type": "income",
+          "amount": 500.0,
+          "category": "sales",
+          "party_name": "Ramesh",
+          "description": "sold 5kg rice 500 to Ramesh"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "chawal",
+          "quantity_delta": -5.0,
+          "unit": "kg"
+        }
+      ],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-30T07:25:42.841331+00:00"
+  },
+  {
+    "id": "1c4dc9ba-1781-4e9f-bc1f-769202040ffe",
+    "user_id": "2d55bc0d-5801-42c2-a1d3-a23c2705be23",
+    "channel": "chat-photo",
+    "raw_input": "This is a photo from my business (could be a bill, receipt, udhar notebook page, khata entry, or any business document). Extract ALL relevant data: transactions, inventory items, udhar/credit entries, contacts. Be thorough and extract everything visible.",
+    "parsed": {
+      "intent": "other",
+      "reply": "\ud83d\udcf8 I received your photo but couldn't read it clearly. Please try a clearer photo with good lighting, or type the bill details manually.",
+      "transactions": [],
+      "inventory": [],
+      "bill_items": [],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-30T07:27:05.338321+00:00"
+  },
+  {
+    "id": "ce9342d8-fe24-4fdf-95f1-a1b9c6ce2039",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-photo",
+    "raw_input": "Extract transactions from this bill/receipt.",
+    "parsed": {
+      "intent": "other",
+      "reply": "\ud83d\udcf8 I received your photo but couldn't read it clearly. Please try a clearer photo with good lighting, or type the bill details manually.",
+      "transactions": [],
+      "inventory": [],
+      "bill_items": [],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-30T07:28:55.942979+00:00"
+  },
+  {
+    "id": "f8529fea-f6a9-4041-855c-aea55bbc45ac",
+    "user_id": "2d55bc0d-5801-42c2-a1d3-a23c2705be23",
+    "channel": "chat-photo",
+    "raw_input": "This is a photo from my business (could be a bill, receipt, udhar notebook page, khata entry, or any business document). Extract ALL relevant data: transactions, inventory items, udhar/credit entries, contacts. Be thorough and extract everything visible.",
+    "parsed": {
+      "intent": "expense",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 2689.0,
+          "category": "purchase",
+          "description": "Bill: 5 items, Total \u20b92689"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "Aer Godrej Pocket",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 52.0
+        },
+        {
+          "name": "Air Freshner 300 MI spray",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 72.0
+        },
+        {
+          "name": "Room Freshner Godrej",
+          "quantity": 1.0,
+          "unit": "Bottle",
+          "price": 1050.0
+        },
+        {
+          "name": "Arom Oil Citrus 1 Ltr",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 215.0
+        },
+        {
+          "name": "Ambi Pur Air Freshner 275ml",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 1300.0
+        }
+      ],
+      "bill_items": [
+        {
+          "name": "Aer Godrej Pocket",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 52.0
+        },
+        {
+          "name": "Air Freshner 300 MI spray",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 72.0
+        },
+        {
+          "name": "Room Freshner Godrej",
+          "quantity": 1.0,
+          "unit": "Bottle",
+          "price": 1050.0
+        },
+        {
+          "name": "Arom Oil Citrus 1 Ltr",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 215.0
+        },
+        {
+          "name": "Ambi Pur Air Freshner 275ml",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 1300.0
+        }
+      ],
+      "reply": "\ud83d\udcf8 Bill scanned successfully! Found 5 items totaling \u20b92689.\n\n\u2022 Aer Godrej Pocket \u2014 Qty: 1.0, \u20b952\n\u2022 Air Freshner 300 MI spray \u2014 Qty: 1.0, \u20b972\n\u2022 Room Freshner Godrej \u2014 Qty: 1.0, \u20b91050\n\u2022 Arom Oil Citrus 1 Ltr \u2014 Qty: 1.0, \u20b9215\n\u2022 Ambi Pur Air Freshner 275ml \u2014 Qty: 1.0, \u20b91300\n\n\u2705 Added to inventory & recorded as expense.",
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "insights": []
+    },
+    "actions_count": 7,
+    "created_at": "2026-05-30T08:06:20.285043+00:00"
+  },
+  {
+    "id": "ced37759-7dbe-4fe8-a71c-25ae0eb110ae",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-photo",
+    "raw_input": "Extract transactions from this bill/receipt.",
+    "parsed": {
+      "intent": "expense",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 3530.0,
+          "category": "purchase",
+          "description": "Bill: 3 items, Total \u20b93530"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "Garba eBa Bio De radable Bi",
+          "quantity": 40.0,
+          "unit": "pcs",
+          "price": 50.0
+        },
+        {
+          "name": "Garbage Bag Bio Degradable Big",
+          "quantity": 29.0,
+          "unit": "pcs",
+          "price": 39.0
+        },
+        {
+          "name": "Garba eBa Bio De radable Small",
+          "quantity": 19.0,
+          "unit": "pcs",
+          "price": 21.0
+        }
+      ],
+      "bill_items": [
+        {
+          "name": "Garba eBa Bio De radable Bi",
+          "quantity": 40.0,
+          "unit": "pcs",
+          "price": 50.0
+        },
+        {
+          "name": "Garbage Bag Bio Degradable Big",
+          "quantity": 29.0,
+          "unit": "pcs",
+          "price": 39.0
+        },
+        {
+          "name": "Garba eBa Bio De radable Small",
+          "quantity": 19.0,
+          "unit": "pcs",
+          "price": 21.0
+        }
+      ],
+      "reply": "\ud83d\udcf8 Bill scanned successfully! Found 3 items totaling \u20b93530.\n\n\u2022 Garba eBa Bio De radable Bi \u2014 Qty: 40.0, \u20b950\n\u2022 Garbage Bag Bio Degradable Big \u2014 Qty: 29.0, \u20b939\n\u2022 Garba eBa Bio De radable Small \u2014 Qty: 19.0, \u20b921\n\n\u2705 Added to inventory & recorded as expense.",
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "insights": []
+    },
+    "actions_count": 5,
+    "created_at": "2026-05-30T09:06:07.262175+00:00"
+  },
+  {
+    "id": "ba169998-f4a6-41fb-9f4a-baf75988813f",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u091c\u093f\u0928\u0941 \u0938\u094b \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915 \u0916\u0930\u0940\u0926\u0947\u0964",
+    "parsed": {
+      "intent": "other",
+      "reply": "\ud83e\udd14 \u092e\u0948\u0902 \u0938\u092e\u091d \u0928\u0939\u0940\u0902 \u092a\u093e\u092f\u093e\u0964 \u0915\u0941\u091b \u0910\u0938\u0947 \u092c\u094b\u0932\u093f\u090f:\n\u2022 '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500 Ramesh \u0915\u094b'\n\u2022 '\u0916\u0930\u0940\u0926\u093e 10kg \u0906\u091f\u093e \u20b9400'\n\u2022 '\u0936\u0930\u094d\u092e\u093e \u0915\u094b 2000 \u0909\u0927\u093e\u0930 \u0926\u093f\u092f\u093e'\n\u2022 '\u0930\u093e\u091c\u0942 \u0915\u0940 \u0938\u0948\u0932\u0930\u0940 15000'\n\u092f\u093e 'help' \u092c\u094b\u0932\u0947\u0902 \u0938\u092c features \u091c\u093e\u0928\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f!",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-30T09:11:31.307451+00:00"
+  },
+  {
+    "id": "dd49b2bf-2f7f-4f03-b39f-d79ba8cc78bd",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u091c\u0940\u0928\u0942 \u0928\u0947 50 \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915\u094d\u0938 \u0916\u0930\u0940\u0926\u0947\u0964",
+    "parsed": {
+      "intent": "transaction",
+      "reply": "\u2713 \u0916\u0930\u094d\u091a \u20b950 \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0939\u0941\u0906\u0964 Stock: +1 cold drink.",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 50.0,
+          "category": "purchase",
+          "party_name": "",
+          "description": "\u091c\u0940\u0928\u0942 \u0928\u0947 50 \u0915\u094b\u0932\u094d\u0921 \u0921\u094d\u0930\u093f\u0902\u0915\u094d\u0938 \u0916\u0930\u0940\u0926\u0947\u0964"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "cold drink",
+          "quantity_delta": 1,
+          "unit": "pcs"
+        }
+      ],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 2,
+    "created_at": "2026-05-30T09:11:49.835182+00:00"
+  },
+  {
+    "id": "943185fd-e9d6-47d3-b86d-0f5355f2a1b7",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u091c\u0940\u0928\u0942 \u0928\u0947 \u20b9100 \u0915\u093e\u0964 \u0926\u0942\u0927 \u0909\u0927\u093e\u0930 \u0932\u093f\u092f\u093e\u0964",
+    "parsed": {
+      "intent": "udhar",
+      "reply": "\u2713 \u0909\u0927\u093e\u0930 \u0932\u093f\u092f\u093e: \u20b9100 \u2014 \u091c\u0940\u0928\u0942 \u0938\u0947\u0964 Udhar Book \u092e\u0947\u0902 \u091c\u094b\u0921\u093c \u0926\u093f\u092f\u093e\u0964",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [
+        {
+          "party_name": "\u091c\u0940\u0928\u0942",
+          "type": "taken",
+          "amount": 100.0,
+          "description": "\u091c\u0940\u0928\u0942 \u0928\u0947 \u20b9100 \u0915\u093e\u0964 \u0926\u0942\u0927 \u0909\u0927\u093e\u0930 \u0932\u093f\u092f\u093e\u0964"
+        }
+      ],
+      "contacts": [
+        {
+          "name": "\u091c\u0940\u0928\u0942",
+          "phone": "",
+          "role": "customer"
+        }
+      ],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 1,
+    "created_at": "2026-05-30T09:12:27.823208+00:00"
+  },
+  {
+    "id": "9a379b20-cd03-406a-af30-9e5911f427f9",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-photo",
+    "raw_input": "Extract transactions from this bill/receipt.",
+    "parsed": {
+      "intent": "expense",
+      "transactions": [
+        {
+          "type": "expense",
+          "amount": 5271.0,
+          "category": "purchase",
+          "description": "Bill: 22 items, Total \u20b95271"
+        }
+      ],
+      "inventory": [
+        {
+          "name": "Aer Godrej Pocket",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 52.0
+        },
+        {
+          "name": "Air Freshner 300 MI spray",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 72.0
+        },
+        {
+          "name": "Room Freshener Godre\u0007",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 140.0
+        },
+        {
+          "name": "Arom Oil Citrus 1 Ltr",
+          "quantity": 1.0,
+          "unit": "Bottle",
+          "price": 1050.0
+        },
+        {
+          "name": "Ambi Pur Air Freshener Spray",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 225.0
+        },
+        {
+          "name": "Air Purifier Dispenser",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 1200.0
+        },
+        {
+          "name": "HCL Acid 5 Ltr",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 350.0
+        },
+        {
+          "name": "Ala Bleach 500ML 275 mi",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 85.0
+        },
+        {
+          "name": "Automatic Room Fresheners Godrej Matic Refill 225 ml",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 280.0
+        },
+        {
+          "name": "Check Duster Cloth Blue -2 & Red -2",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 15.0
+        },
+        {
+          "name": "Castic Soda",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 110.0
+        },
+        {
+          "name": "Chock Pump",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 45.0
+        },
+        {
+          "name": "Cotteon Hand Gloves",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 32.0
+        },
+        {
+          "name": "Dettol Liquid Soap 900 ml",
+          "quantity": 1.0,
+          "unit": "Bottle",
+          "price": 145.0
+        },
+        {
+          "name": "Dettol Liquid Soap 5 Ltr",
+          "quantity": 1.0,
+          "unit": "Can",
+          "price": 750.0
+        },
+        {
+          "name": "Drainex Cleaner 50 Gm",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 25.0
+        },
+        {
+          "name": "Dry Mop Refill Blue 24\"",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 325.0
+        },
+        {
+          "name": "Feather Brush Bi",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 90.0
+        },
+        {
+          "name": "Feather Brush Medium",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 55.0
+        },
+        {
+          "name": "Garba eBa Bio De radable Bi 40x50",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 115.0
+        },
+        {
+          "name": "Garbage Bag Bio Degradable Big 29x39",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 65.0
+        },
+        {
+          "name": "Garba eBa Bio De radable Small 19x21",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 45.0
+        }
+      ],
+      "bill_items": [
+        {
+          "name": "Aer Godrej Pocket",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 52.0
+        },
+        {
+          "name": "Air Freshner 300 MI spray",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 72.0
+        },
+        {
+          "name": "Room Freshener Godre\u0007",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 140.0
+        },
+        {
+          "name": "Arom Oil Citrus 1 Ltr",
+          "quantity": 1.0,
+          "unit": "Bottle",
+          "price": 1050.0
+        },
+        {
+          "name": "Ambi Pur Air Freshener Spray",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 225.0
+        },
+        {
+          "name": "Air Purifier Dispenser",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 1200.0
+        },
+        {
+          "name": "HCL Acid 5 Ltr",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 350.0
+        },
+        {
+          "name": "Ala Bleach 500ML 275 mi",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 85.0
+        },
+        {
+          "name": "Automatic Room Fresheners Godrej Matic Refill 225 ml",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 280.0
+        },
+        {
+          "name": "Check Duster Cloth Blue -2 & Red -2",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 15.0
+        },
+        {
+          "name": "Castic Soda",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 110.0
+        },
+        {
+          "name": "Chock Pump",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 45.0
+        },
+        {
+          "name": "Cotteon Hand Gloves",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 32.0
+        },
+        {
+          "name": "Dettol Liquid Soap 900 ml",
+          "quantity": 1.0,
+          "unit": "Bottle",
+          "price": 145.0
+        },
+        {
+          "name": "Dettol Liquid Soap 5 Ltr",
+          "quantity": 1.0,
+          "unit": "Can",
+          "price": 750.0
+        },
+        {
+          "name": "Drainex Cleaner 50 Gm",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 25.0
+        },
+        {
+          "name": "Dry Mop Refill Blue 24\"",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 325.0
+        },
+        {
+          "name": "Feather Brush Bi",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 90.0
+        },
+        {
+          "name": "Feather Brush Medium",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 55.0
+        },
+        {
+          "name": "Garba eBa Bio De radable Bi 40x50",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 115.0
+        },
+        {
+          "name": "Garbage Bag Bio Degradable Big 29x39",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 65.0
+        },
+        {
+          "name": "Garba eBa Bio De radable Small 19x21",
+          "quantity": 1.0,
+          "unit": "Nos",
+          "price": 45.0
+        }
+      ],
+      "reply": "\ud83d\udcf8 Bill scanned successfully! Found 22 items totaling \u20b95271.\n\n\u2022 Aer Godrej Pocket \u2014 Qty: 1.0, \u20b952\n\u2022 Air Freshner 300 MI spray \u2014 Qty: 1.0, \u20b972\n\u2022 Room Freshener Godre\u0007 \u2014 Qty: 1.0, \u20b9140\n\u2022 Arom Oil Citrus 1 Ltr \u2014 Qty: 1.0, \u20b91050\n\u2022 Ambi Pur Air Freshener Spray \u2014 Qty: 1.0, \u20b9225\n\u2022 Air Purifier Dispenser \u2014 Qty: 1.0, \u20b91200\n\u2022 HCL Acid 5 Ltr \u2014 Qty: 1.0, \u20b9350\n\u2022 Ala Bleach 500ML 275 mi \u2014 Qty: 1.0, \u20b985\n\u2022 Automatic Room Fresheners Godrej Matic Refill 225 ml \u2014 Qty: 1.0, \u20b9280\n\u2022 Check Duster Cloth Blue -2 & Red -2 \u2014 Qty: 1.0, \u20b915\n\u2022 Castic Soda \u2014 Qty: 1.0, \u20b9110\n\u2022 Chock Pump \u2014 Qty: 1.0, \u20b945\n\u2022 Cotteon Hand Gloves \u2014 Qty: 1.0, \u20b932\n\u2022 Dettol Liquid Soap 900 ml \u2014 Qty: 1.0, \u20b9145\n\u2022 Dettol Liquid Soap 5 Ltr \u2014 Qty: 1.0, \u20b9750\n\n\u2705 Added to inventory & recorded as expense.",
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "insights": []
+    },
+    "actions_count": 24,
+    "created_at": "2026-05-30T09:21:17.564363+00:00"
+  },
+  {
+    "id": "3f440337-a54d-4040-9abb-daa7e21b479a",
+    "user_id": "7e949751-a205-4b4d-8bc5-7c15afb1088d",
+    "channel": "chat-text",
+    "raw_input": "\u0926\u0940\u0928\u0942 \u0915\u0921\u0942\u0928 \u092a\u0928\u094d\u0928\u093e\u0938 \u0930\u0941\u092a\u092f\u093e \u0909\u0927\u093e\u0930 \u0918\u0947\u0924\u0932\u0947\u0964",
+    "parsed": {
+      "intent": "other",
+      "reply": "\ud83e\udd14 \u092e\u0948\u0902 \u0938\u092e\u091d \u0928\u0939\u0940\u0902 \u092a\u093e\u092f\u093e\u0964 \u0915\u0941\u091b \u0910\u0938\u0947 \u092c\u094b\u0932\u093f\u090f:\n\u2022 '\u092c\u0947\u091a\u093e 5kg \u091a\u093e\u0935\u0932 \u20b9500 Ramesh \u0915\u094b'\n\u2022 '\u0916\u0930\u0940\u0926\u093e 10kg \u0906\u091f\u093e \u20b9400'\n\u2022 '\u0936\u0930\u094d\u092e\u093e \u0915\u094b 2000 \u0909\u0927\u093e\u0930 \u0926\u093f\u092f\u093e'\n\u2022 '\u0930\u093e\u091c\u0942 \u0915\u0940 \u0938\u0948\u0932\u0930\u0940 15000'\n\u092f\u093e 'help' \u092c\u094b\u0932\u0947\u0902 \u0938\u092c features \u091c\u093e\u0928\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f!",
+      "transactions": [],
+      "inventory": [],
+      "udhar": [],
+      "contacts": [],
+      "staff_actions": [],
+      "bill_items": [],
+      "insights": []
+    },
+    "actions_count": 0,
+    "created_at": "2026-05-30T09:26:26.831228+00:00"
+  }
+]

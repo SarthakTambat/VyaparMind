@@ -1,0 +1,2818 @@
+Make the Below as Perfect  in the folder C:\Users\H661539.HONAERO\Desktop\AI_Idea\Emergent
+
+Action: file_editor create /app/backend/.env --file-text "MONGO_URL=\"mongodb://localhost:27017\"
+DB_NAME=\"test_database\"
+CORS_ORIGINS=\"*\"
+EMERGENT_LLM_KEY=sk-emergent-41064CdDc09Df8a5e3
+JWT_SECRET=vyaparmind-super-secret-jwt-key-change-in-prod-2026
+"
+Observation: Overwrite successful: /app/backend/.env
+
+
+
+Now let me create all backend and frontend files in parallel.
+Action: file_editor create /app/image_testing.md --file-text "# Image Integration Testing Playbook
+
+## TEST AGENT PROMPT – IMAGE INTEGRATION RULES
+
+You are the Test Agent responsible for validating image integrations.
+Follow these rules exactly. Do not overcomplicate.
+
+### Image Handling Rules
+- Always use base64-encoded images for all tests and requests.
+- Accepted formats: JPEG, PNG, WEBP only.
+- Do not use SVG, BMP, HEIC, or other formats.
+- Do not upload blank, solid-color, or uniform-variance images.
+- Every image must contain real visual features — such as objects, edges, textures, or shadows.
+- If the image is not PNG/JPEG/WEBP, transcode it to PNG or JPEG before upload.
+- Always re-detect and update the MIME after transformations.
+- If the image is animated (GIF, APNG, WEBP animation), extract the first frame only.
+- Resize large images to reasonable bounds (avoid oversized payloads).
+"
+Observation: Create successful: /app/image_testing.md
+
+
+
+
+Action: file_editor create /app/backend/server.py --file-text "from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File, Form, Header
+from dotenv import load_dotenv
+from starlette.middleware.cors import CORSMiddleware
+from motor.motor_asyncio import AsyncIOMotorClient
+import os
+import logging
+import io
+import json
+import base64
+import uuid
+import re
+from pathlib import Path
+from pydantic import BaseModel, Field, EmailStr
+from typing import List, Optional, Literal, Any, Dict
+from datetime import datetime, timezone, timedelta
+import bcrypt
+import jwt as pyjwt
+
+from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
+from emergentintegrations.llm.openai import OpenAISpeechToText
+
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
+
+MONGO_URL = os.environ['MONGO_URL']
+DB_NAME = os.environ['DB_NAME']
+EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
+JWT_SECRET = os.environ.get('JWT_SECRET', 'dev-secret')
+JWT_ALG = \"HS256\"
+JWT_EXPIRE_DAYS = 30
+
+client = AsyncIOMotorClient(MONGO_URL)
+db = client[DB_NAME]
+
+app = FastAPI(title=\"VyaparMind API\")
+api = APIRouter(prefix=\"/api\")
+
+# ------------------- Models -------------------
+def now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+class RegisterIn(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+    business_name: Optional[str] = None
+    business_type: Optional[str] = None
+    language: Optional[str] = \"en\"
+
+class LoginIn(BaseModel):
+    email: EmailStr
+    password: str
+
+class TokenOut(BaseModel):
+    access_token: str
+    token_type: str = \"bearer\"
+    user: Dict[str, Any]
+
+class UserPublic(BaseModel):
+    id: str
+    name: str
+    email: str
+    business_name: Optional[str] = None
+    business_type: Optional[str] = None
+    language: str = \"en\"
+    created_at: str
+
+class BusinessUpdate(BaseModel):
+    business_name: Optional[str] = None
+    business_type: Optional[str] = None
+    language: Optional[str] = None
+
+class TransactionIn(BaseModel):
+    type: Literal[\"income\", \"expense\"]
+    amount: float
+    category: Optional[str] = \"general\"
+    party_name: Optional[str] = None
+    description: Optional[str] = None
+
+class ChatMessageIn(BaseModel):
+    text: str
+    language: Optional[str] = \"en\"
+
+class AutomationIn(BaseModel):
+    name: str
+    trigger: str
+    action: str
+    active: bool = True
+
+# ------------------- Auth utilities -------------------
+def hash_password(pw: str) -> str:
+    return bcrypt.hashpw(pw.encode(), bcrypt.gensalt()).decode()
+
+def verify_password(pw: str, hashed: str) -> bool:
+    try:
+        return bcrypt.checkpw(pw.encode(), hashed.encode())
+    except Exception:
+        return False
+
+def create_token(user_id: str) -> str:
+    payload = {
+        \"sub\": user_id,
+        \"iat\": datetime.now(timezone.utc),
+        \"exp\": datetime.now(timezone.utc) + timedelta(days=JWT_EXPIRE_DAYS),
+    }
+    return pyjwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
+
+async def get_current_user(authorization: Optional[str] = Header(None)) -> Dict[str, Any]:
+    if not authorization or not authorization.lower().startswith(\"bearer \"):
+        raise HTTPException(401, \"Missing or invalid auth token\")
+    token = authorization.split(\" \", 1)[1]
+    try:
+        payload = pyjwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG])
+    except pyjwt.PyJWTError:
+        raise HTTPException(401, \"Invalid token\")
+    user = await db.users.find_one({\"id\": payload[\"sub\"]}, {\"_id\": 0, \"password_hash\": 0})
+    if not user:
+        raise HTTPException(401, \"User not found\")
+    return user
+
+def user_public(u: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        \"id\": u[\"id\"],
+        \"name\": u[\"name\"],
+        \"email\": u[\"email\"],
+        \"business_name\": u.get(\"business_name\"),
+        \"business_type\": u.get(\"business_type\"),
+        \"language\": u.get(\"language\", \"en\"),
+        \"created_at\": u.get(\"created_at\"),
+    }
+
+# ------------------- Auth Routes -------------------
+@api.post(\"/auth/register\", response_model=TokenOut)
+async def register(body: RegisterIn):
+    existing = await db.users.find_one({\"email\": body.email.lower()})
+    if existing:
+        raise HTTPException(400, \"Email already registered\")
+    uid = str(uuid.uuid4())
+    user_doc = {
+        \"id\": uid,
+        \"name\": body.name,
+        \"email\": body.email.lower(),
+        \"password_hash\": hash_password(body.password),
+        \"business_name\": body.business_name or \"\",
+        \"business_type\": body.business_type or \"\",
+        \"language\": body.language or \"en\",
+        \"score\": 12,
+        \"created_at\": now_iso(),
+    }
+    await db.users.insert_one(user_doc)
+    token = create_token(uid)
+    return TokenOut(access_token=token, user=user_public(user_doc))
+
+@api.post(\"/auth/login\", response_model=TokenOut)
+async def login(body: LoginIn):
+    user = await db.users.find_one({\"email\": body.email.lower()})
+    if not user or not verify_password(body.password, user[\"password_hash\"]):
+        raise HTTPException(401, \"Invalid email or password\")
+    token = create_token(user[\"id\"])
+    return TokenOut(access_token=token, user=user_public(user))
+
+@api.get(\"/auth/me\")
+async def me(user=Depends(get_current_user)):
+    return user_public(user)
+
+@api.patch(\"/auth/business\")
+async def update_business(body: BusinessUpdate, user=Depends(get_current_user)):
+    update = {k: v for k, v in body.model_dump().items() if v is not None}
+    if update:
+        await db.users.update_one({\"id\": user[\"id\"]}, {\"$set\": update})
+    new_user = await db.users.find_one({\"id\": user[\"id\"]}, {\"_id\": 0, \"password_hash\": 0})
+    return user_public(new_user)
+
+# ------------------- AI Helpers -------------------
+SYSTEM_PARSER = \"\"\"You are VyaparMind, an AI ops assistant for Indian micro-businesses.
+The user sends short, natural messages (in English, Hindi, Hinglish or any Indian language) describing business events: sales, expenses, stock changes, customer interactions, reminders, or questions.
+
+Your job: extract STRUCTURED data and respond with VALID JSON ONLY. No prose outside JSON.
+
+Output schema:
+{
+  \"intent\": \"transaction\" | \"inventory\" | \"contact\" | \"question\" | \"reminder\" | \"other\",
+  \"reply\": \"Short friendly reply to the user (max 2 sentences, in the user's language)\",
+  \"transactions\": [
+    {\"type\": \"income\"|\"expense\", \"amount\": <number INR>, \"category\": \"<short category>\", \"party_name\": \"<optional>\", \"description\": \"<short>\"}
+  ],
+  \"inventory\": [
+    {\"name\": \"<item>\", \"quantity_delta\": <number, positive=added, negative=sold/used>, \"unit\": \"<kg|pcs|ltr|etc>\"}
+  ],
+  \"insights\": [\"<optional 0-2 short insights or warnings>\"]
+}
+
+Rules:
+- If user reports a sale like \"sold 5kg rice 500rs to Ramesh\", emit transactions (income 500) AND inventory (rice -5 kg).
+- If user reports an expense like \"bought 20L milk for 1000\", emit expense + inventory addition.
+- If user asks a question (\"how much did i earn today\"), set intent=\"question\" and put the answer in reply (use any context provided).
+- Currency is INR. If no amount, leave transactions empty.
+- ALWAYS valid JSON, no markdown fences, no commentary.\"\"\"
+
+def extract_json(text: str) -> Dict[str, Any]:
+    \"\"\"Robustly extract a JSON object from LLM output.\"\"\"
+    if not text:
+        return {}
+    # strip code fences
+    text = re.sub(r\"^```(?:json)?\", \"\", text.strip(), flags=re.IGNORECASE).rstrip(\"`\").strip()
+    # find first { ... last }
+    start = text.find(\"{\")
+    end = text.rfind(\"}\")
+    if start == -1 or end == -1:
+        return {}
+    try:
+        return json.loads(text[start:end+1])
+    except Exception:
+        return {}
+
+async def llm_parse(user_id: str, text: str, image_b64: Optional[str] = None, language: str = \"en\", context: str = \"\") -> Dict[str, Any]:
+    \"\"\"Call Claude Sonnet 4.5 to parse a business message into structured data.\"\"\"
+    if not EMERGENT_LLM_KEY:
+        return {\"intent\": \"other\", \"reply\": \"AI key not configured.\", \"transactions\": [], \"inventory\": [], \"insights\": []}
+    chat = LlmChat(
+        api_key=EMERGENT_LLM_KEY,
+        session_id=f\"parse-{user_id}-{uuid.uuid4()}\",
+        system_message=SYSTEM_PARSER + (\"\n\nCONTEXT:\n\" + context if context else \"\"),
+    ).with_model(\"anthropic\", \"claude-sonnet-4-5-20250929\")
+
+    msg_text = text if text else \"Please analyze the attached image of a bill/receipt and extract transactions.\"
+    file_contents = []
+    if image_b64:
+        file_contents = [ImageContent(image_base64=image_b64)]
+    msg = UserMessage(text=msg_text, file_contents=file_contents if file_contents else None)
+    try:
+        raw = await chat.send_message(msg)
+    except Exception as e:
+        logging.exception(\"LLM error\")
+        return {\"intent\": \"other\", \"reply\": f\"AI error: {str(e)[:120]}\", \"transactions\": [], \"inventory\": [], \"insights\": []}
+    parsed = extract_json(raw if isinstance(raw, str) else str(raw))
+    if not parsed:
+        parsed = {\"intent\": \"other\", \"reply\": (raw if isinstance(raw, str) else \"Got it.\")[:200], \"transactions\": [], \"inventory\": [], \"insights\": []}
+    parsed.setdefault(\"transactions\", [])
+    parsed.setdefault(\"inventory\", [])
+    parsed.setdefault(\"insights\", [])
+    parsed.setdefault(\"reply\", \"Got it.\")
+    parsed.setdefault(\"intent\", \"other\")
+    return parsed
+
+async def apply_ai_result(user_id: str, parsed: Dict[str, Any], source: str, raw_input: str) -> List[Dict[str, Any]]:
+    actions = []
+    # Transactions
+    for tx in parsed.get(\"transactions\", []) or []:
+        try:
+            tdoc = {
+                \"id\": str(uuid.uuid4()),
+                \"user_id\": user_id,
+                \"type\": tx.get(\"type\", \"income\"),
+                \"amount\": float(tx.get(\"amount\", 0)),
+                \"category\": tx.get(\"category\", \"general\") or \"general\",
+                \"party_name\": tx.get(\"party_name\") or \"\",
+                \"description\": tx.get(\"description\") or \"\",
+                \"source\": source,
+                \"created_at\": now_iso(),
+            }
+            if tdoc[\"amount\"] > 0:
+                await db.transactions.insert_one(tdoc)
+                actions.append({\"kind\": \"transaction\", \"data\": {k: v for k, v in tdoc.items() if k != \"_id\"}})
+        except Exception:
+            continue
+
+    # Inventory
+    for inv in parsed.get(\"inventory\", []) or []:
+        try:
+            name = (inv.get(\"name\") or \"\").strip().lower()
+            if not name:
+                continue
+            delta = float(inv.get(\"quantity_delta\", 0))
+            unit = inv.get(\"unit\") or \"pcs\"
+            existing = await db.inventory.find_one({\"user_id\": user_id, \"name\": name})
+            if existing:
+                new_qty = float(existing.get(\"quantity\", 0)) + delta
+                await db.inventory.update_one(
+                    {\"id\": existing[\"id\"]},
+                    {\"$set\": {\"quantity\": new_qty, \"unit\": unit, \"updated_at\": now_iso()}}
+                )
+                actions.append({\"kind\": \"inventory\", \"data\": {\"name\": name, \"quantity\": new_qty, \"unit\": unit}})
+            else:
+                idoc = {
+                    \"id\": str(uuid.uuid4()),
+                    \"user_id\": user_id,
+                    \"name\": name,
+                    \"quantity\": delta,
+                    \"unit\": unit,
+                    \"reorder_level\": 5,
+                    \"updated_at\": now_iso(),
+                }
+                await db.inventory.insert_one(idoc)
+                actions.append({\"kind\": \"inventory\", \"data\": {k: v for k, v in idoc.items() if k != \"_id\"}})
+        except Exception:
+            continue
+
+    # Insights
+    for ins in parsed.get(\"insights\", []) or []:
+        try:
+            idoc = {
+                \"id\": str(uuid.uuid4()),
+                \"user_id\": user_id,
+                \"title\": ins[:80],
+                \"description\": ins,
+                \"severity\": \"info\",
+                \"created_at\": now_iso(),
+                \"acknowledged\": False,
+            }
+            await db.insights.insert_one(idoc)
+            actions.append({\"kind\": \"insight\", \"data\": {k: v for k, v in idoc.items() if k != \"_id\"}})
+        except Exception:
+            continue
+
+    # bump score
+    if actions:
+        await db.users.update_one({\"id\": user_id}, {\"$inc\": {\"score\": min(3, len(actions))}})
+
+    # Log conversation
+    await db.conversations.insert_one({
+        \"id\": str(uuid.uuid4()),
+        \"user_id\": user_id,
+        \"channel\": source,
+        \"raw_input\": raw_input[:2000],
+        \"parsed\": parsed,
+        \"actions_count\": len(actions),
+        \"created_at\": now_iso(),
+    })
+    return actions
+
+# ------------------- Chat Routes -------------------
+@api.post(\"/chat/text\")
+async def chat_text(body: ChatMessageIn, user=Depends(get_current_user)):
+    # Build context: today's totals
+    context = await build_context(user[\"id\"])
+    parsed = await llm_parse(user[\"id\"], body.text, language=body.language or \"en\", context=context)
+    actions = await apply_ai_result(user[\"id\"], parsed, \"chat-text\", body.text)
+    return {\"parsed\": parsed, \"actions\": actions}
+
+@api.post(\"/chat/voice\")
+async def chat_voice(audio: UploadFile = File(...), language: str = Form(\"en\"), user=Depends(get_current_user)):
+    if not EMERGENT_LLM_KEY:
+        raise HTTPException(500, \"AI key not configured\")
+    content = await audio.read()
+    if len(content) > 25 * 1024 * 1024:
+        raise HTTPException(400, \"Audio file too large (max 25MB)\")
+    stt = OpenAISpeechToText(api_key=EMERGENT_LLM_KEY)
+    fobj = io.BytesIO(content)
+    fobj.name = audio.filename or \"voice.webm\"
+    try:
+        resp = await stt.transcribe(file=fobj, model=\"whisper-1\", response_format=\"json\")
+        transcript = getattr(resp, \"text\", \"\") or \"\"
+    except Exception as e:
+        raise HTTPException(500, f\"Transcription failed: {e}\")
+    if not transcript.strip():
+        return {\"transcript\": \"\", \"parsed\": {\"reply\": \"Couldn't understand the voice note.\", \"intent\": \"other\"}, \"actions\": []}
+    context = await build_context(user[\"id\"])
+    parsed = await llm_parse(user[\"id\"], transcript, language=language, context=context)
+    actions = await apply_ai_result(user[\"id\"], parsed, \"chat-voice\", transcript)
+    return {\"transcript\": transcript, \"parsed\": parsed, \"actions\": actions}
+
+@api.post(\"/chat/photo\")
+async def chat_photo(image: UploadFile = File(...), note: str = Form(\"\"), user=Depends(get_current_user)):
+    content = await image.read()
+    if len(content) > 8 * 1024 * 1024:
+        raise HTTPException(400, \"Image too large (max 8MB)\")
+    b64 = base64.b64encode(content).decode()
+    context = await build_context(user[\"id\"])
+    prompt = note or \"This is a bill/receipt/photo from my business. Extract transactions and items.\"
+    parsed = await llm_parse(user[\"id\"], prompt, image_b64=b64, context=context)
+    actions = await apply_ai_result(user[\"id\"], parsed, \"chat-photo\", prompt)
+    return {\"parsed\": parsed, \"actions\": actions}
+
+async def build_context(user_id: str) -> str:
+    today = datetime.now(timezone.utc).date().isoformat()
+    txs = await db.transactions.find({\"user_id\": user_id, \"created_at\": {\"$gte\": today}}, {\"_id\": 0}).to_list(200)
+    income = sum(t[\"amount\"] for t in txs if t[\"type\"] == \"income\")
+    expense = sum(t[\"amount\"] for t in txs if t[\"type\"] == \"expense\")
+    inv = await db.inventory.find({\"user_id\": user_id}, {\"_id\": 0}).to_list(50)
+    inv_str = \", \".join(f\"{i['name']}: {i['quantity']}{i.get('unit','')}\" for i in inv[:10])
+    return f\"Today income: ₹{income}. Today expense: ₹{expense}. Inventory: {inv_str or 'empty'}.\"
+
+# ------------------- Data Routes -------------------
+@api.get(\"/dashboard\")
+async def dashboard(user=Depends(get_current_user)):
+    uid = user[\"id\"]
+    # Today's stats
+    today = datetime.now(timezone.utc).date().isoformat()
+    txs_today = await db.transactions.find({\"user_id\": uid, \"created_at\": {\"$gte\": today}}, {\"_id\": 0}).to_list(500)
+    income_today = sum(t[\"amount\"] for t in txs_today if t[\"type\"] == \"income\")
+    expense_today = sum(t[\"amount\"] for t in txs_today if t[\"type\"] == \"expense\")
+
+    # last 7 days chart
+    chart = []
+    for i in range(6, -1, -1):
+        day = (datetime.now(timezone.utc).date() - timedelta(days=i)).isoformat()
+        next_day = (datetime.now(timezone.utc).date() - timedelta(days=i-1)).isoformat() if i > 0 else (datetime.now(timezone.utc).date() + timedelta(days=1)).isoformat()
+        day_txs = await db.transactions.find({\"user_id\": uid, \"created_at\": {\"$gte\": day, \"$lt\": next_day}}, {\"_id\": 0}).to_list(500)
+        chart.append({
+            \"day\": day,
+            \"income\": sum(t[\"amount\"] for t in day_txs if t[\"type\"] == \"income\"),
+            \"expense\": sum(t[\"amount\"] for t in day_txs if t[\"type\"] == \"expense\"),
+        })
+
+    # recent activity from conversations
+    recent_convos = await db.conversations.find({\"user_id\": uid}, {\"_id\": 0}).sort(\"created_at\", -1).limit(10).to_list(10)
+    insights = await db.insights.find({\"user_id\": uid}, {\"_id\": 0}).sort(\"created_at\", -1).limit(5).to_list(5)
+    inv = await db.inventory.find({\"user_id\": uid}, {\"_id\": 0}).to_list(50)
+    low_stock = [i for i in inv if float(i.get(\"quantity\", 0)) <= float(i.get(\"reorder_level\", 5))]
+    contacts = await db.transactions.find({\"user_id\": uid, \"party_name\": {\"$ne\": \"\"}}, {\"_id\": 0}).sort(\"created_at\", -1).limit(50).to_list(50)
+    # group contacts
+    cmap: Dict[str, Dict[str, Any]] = {}
+    for t in contacts:
+        name = (t.get(\"party_name\") or \"\").strip()
+        if not name:
+            continue
+        if name not in cmap:
+            cmap[name] = {\"name\": name, \"total\": 0, \"count\": 0, \"last\": t[\"created_at\"]}
+        cmap[name][\"total\"] += t[\"amount\"] if t[\"type\"] == \"income\" else 0
+        cmap[name][\"count\"] += 1
+
+    score = int(user.get(\"score\", 12))
+    return {
+        \"user\": user_public(user),
+        \"today\": {\"income\": income_today, \"expense\": expense_today, \"profit\": income_today - expense_today, \"tx_count\": len(txs_today)},
+        \"chart\": chart,
+        \"recent\": recent_convos,
+        \"insights\": insights,
+        \"low_stock\": low_stock,
+        \"top_contacts\": sorted(cmap.values(), key=lambda c: c[\"total\"], reverse=True)[:5],
+        \"score\": min(100, score),
+    }
+
+@api.get(\"/transactions\")
+async def list_transactions(user=Depends(get_current_user), limit: int = 200):
+    docs = await db.transactions.find({\"user_id\": user[\"id\"]}, {\"_id\": 0}).sort(\"created_at\", -1).limit(limit).to_list(limit)
+    return {\"items\": docs}
+
+@api.post(\"/transactions\")
+async def create_transaction(body: TransactionIn, user=Depends(get_current_user)):
+    doc = {
+        \"id\": str(uuid.uuid4()),
+        \"user_id\": user[\"id\"],
+        \"type\": body.type,
+        \"amount\": body.amount,
+        \"category\": body.category or \"general\",
+        \"party_name\": body.party_name or \"\",
+        \"description\": body.description or \"\",
+        \"source\": \"manual\",
+        \"created_at\": now_iso(),
+    }
+    await db.transactions.insert_one(doc)
+    return {k: v for k, v in doc.items() if k != \"_id\"}
+
+@api.delete(\"/transactions/{tx_id}\")
+async def delete_transaction(tx_id: str, user=Depends(get_current_user)):
+    res = await db.transactions.delete_one({\"id\": tx_id, \"user_id\": user[\"id\"]})
+    return {\"deleted\": res.deleted_count}
+
+@api.get(\"/inventory\")
+async def list_inventory(user=Depends(get_current_user)):
+    docs = await db.inventory.find({\"user_id\": user[\"id\"]}, {\"_id\": 0}).sort(\"updated_at\", -1).to_list(500)
+    return {\"items\": docs}
+
+@api.get(\"/contacts\")
+async def list_contacts(user=Depends(get_current_user)):
+    txs = await db.transactions.find({\"user_id\": user[\"id\"], \"party_name\": {\"$ne\": \"\"}}, {\"_id\": 0}).to_list(2000)
+    cmap: Dict[str, Dict[str, Any]] = {}
+    for t in txs:
+        name = (t.get(\"party_name\") or \"\").strip()
+        if not name:
+            continue
+        if name not in cmap:
+            cmap[name] = {\"name\": name, \"total_income\": 0, \"total_expense\": 0, \"count\": 0, \"last\": t[\"created_at\"]}
+        if t[\"type\"] == \"income\":
+            cmap[name][\"total_income\"] += t[\"amount\"]
+        else:
+            cmap[name][\"total_expense\"] += t[\"amount\"]
+        cmap[name][\"count\"] += 1
+        if t[\"created_at\"] > cmap[name][\"last\"]:
+            cmap[name][\"last\"] = t[\"created_at\"]
+    return {\"items\": sorted(cmap.values(), key=lambda c: c[\"count\"], reverse=True)}
+
+@api.get(\"/insights\")
+async def list_insights(user=Depends(get_current_user)):
+    docs = await db.insights.find({\"user_id\": user[\"id\"]}, {\"_id\": 0}).sort(\"created_at\", -1).limit(100).to_list(100)
+    return {\"items\": docs}
+
+@api.post(\"/insights/generate\")
+async def generate_insights(user=Depends(get_current_user)):
+    \"\"\"Use Claude to generate a weekly business health report.\"\"\"
+    uid = user[\"id\"]
+    txs = await db.transactions.find({\"user_id\": uid}, {\"_id\": 0}).sort(\"created_at\", -1).limit(200).to_list(200)
+    if not txs:
+        return {\"items\": [], \"report\": \"Not enough data yet. Send your first sale via the AI chat.\"}
+    income = sum(t[\"amount\"] for t in txs if t[\"type\"] == \"income\")
+    expense = sum(t[\"amount\"] for t in txs if t[\"type\"] == \"expense\")
+    cats: Dict[str, float] = {}
+    for t in txs:
+        cats[t[\"category\"]] = cats.get(t[\"category\"], 0) + t[\"amount\"]
+    summary = f\"Recent {len(txs)} transactions. Total income: ₹{income}. Total expense: ₹{expense}. Top categories: {cats}.\"
+
+    if EMERGENT_LLM_KEY:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f\"insight-{uid}-{uuid.uuid4()}\",
+            system_message=\"You are a friendly business analyst for an Indian micro-business owner. Generate a short, actionable weekly business health report. Use markdown with 3 sections: 'How you did', 'Watch outs', 'Next moves'. Use rupee symbol. Keep it under 180 words.\",
+        ).with_model(\"anthropic\", \"claude-sonnet-4-5-20250929\")
+        try:
+            report = await chat.send_message(UserMessage(text=summary))
+        except Exception as e:
+            report = f\"Report generation failed: {e}\"
+    else:
+        report = summary
+
+    # Save as insight
+    doc = {
+        \"id\": str(uuid.uuid4()),
+        \"user_id\": uid,
+        \"title\": \"Weekly business health report\",
+        \"description\": report if isinstance(report, str) else str(report),
+        \"severity\": \"info\",
+        \"created_at\": now_iso(),
+        \"acknowledged\": False,
+    }
+    await db.insights.insert_one(doc)
+    return {\"report\": doc[\"description\"], \"id\": doc[\"id\"]}
+
+@api.get(\"/automations\")
+async def list_automations(user=Depends(get_current_user)):
+    docs = await db.automations.find({\"user_id\": user[\"id\"]}, {\"_id\": 0}).sort(\"created_at\", -1).to_list(100)
+    return {\"items\": docs}
+
+@api.post(\"/automations\")
+async def create_automation(body: AutomationIn, user=Depends(get_current_user)):
+    doc = {
+        \"id\": str(uuid.uuid4()),
+        \"user_id\": user[\"id\"],
+        \"name\": body.name,
+        \"trigger\": body.trigger,
+        \"action\": body.action,
+        \"active\": body.active,
+        \"created_at\": now_iso(),
+    }
+    await db.automations.insert_one(doc)
+    return doc
+
+@api.patch(\"/automations/{aid}\")
+async def toggle_automation(aid: str, body: Dict[str, Any], user=Depends(get_current_user)):
+    await db.automations.update_one({\"id\": aid, \"user_id\": user[\"id\"]}, {\"$set\": {\"active\": bool(body.get(\"active\", True))}})
+    doc = await db.automations.find_one({\"id\": aid}, {\"_id\": 0})
+    return doc
+
+@api.delete(\"/automations/{aid}\")
+async def delete_automation(aid: str, user=Depends(get_current_user)):
+    res = await db.automations.delete_one({\"id\": aid, \"user_id\": user[\"id\"]})
+    return {\"deleted\": res.deleted_count}
+
+@api.get(\"/conversations\")
+async def list_conversations(user=Depends(get_current_user), limit: int = 50):
+    docs = await db.conversations.find({\"user_id\": user[\"id\"]}, {\"_id\": 0}).sort(\"created_at\", -1).limit(limit).to_list(limit)
+    return {\"items\": docs}
+
+# ------------------- Health -------------------
+@api.get(\"/\")
+async def root():
+    return {\"app\": \"VyaparMind API\", \"ok\": True}
+
+@api.get(\"/health\")
+async def health():
+    return {\"ok\": True, \"ai_key_present\": bool(EMERGENT_LLM_KEY), \"time\": now_iso()}
+
+app.include_router(api)
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_methods=[\"*\"],
+    allow_headers=[\"*\"],
+)
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(\"vyaparmind\")
+
+@app.on_event(\"shutdown\")
+async def shutdown_db_client():
+    client.close()
+"
+Observation: Overwrite successful: /app/backend/server.py
+
+
+
+
+Action: file_editor create /app/frontend/tailwind.config.js --file-text "/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: [\"class\"],
+  content: [\"./src/**/*.{js,jsx,ts,tsx}\", \"./public/index.html\"],
+  theme: {
+    extend: {
+      fontFamily: {
+        heading: [\"'Cabinet Grotesk'\", \"sans-serif\"],
+        sans: [\"'IBM Plex Sans'\", \"sans-serif\"],
+        mono: [\"'IBM Plex Mono'\", \"monospace\"],
+      },
+      borderRadius: {
+        lg: \"var(--radius)\",
+        md: \"calc(var(--radius) - 2px)\",
+        sm: \"calc(var(--radius) - 4px)\",
+      },
+      colors: {
+        background: \"hsl(var(--background))\",
+        foreground: \"hsl(var(--foreground))\",
+        card: { DEFAULT: \"hsl(var(--card))\", foreground: \"hsl(var(--card-foreground))\" },
+        popover: { DEFAULT: \"hsl(var(--popover))\", foreground: \"hsl(var(--popover-foreground))\" },
+        primary: { DEFAULT: \"hsl(var(--primary))\", foreground: \"hsl(var(--primary-foreground))\" },
+        secondary: { DEFAULT: \"hsl(var(--secondary))\", foreground: \"hsl(var(--secondary-foreground))\" },
+        muted: { DEFAULT: \"hsl(var(--muted))\", foreground: \"hsl(var(--muted-foreground))\" },
+        accent: { DEFAULT: \"hsl(var(--accent))\", foreground: \"hsl(var(--accent-foreground))\" },
+        destructive: { DEFAULT: \"hsl(var(--destructive))\", foreground: \"hsl(var(--destructive-foreground))\" },
+        border: \"hsl(var(--border))\",
+        input: \"hsl(var(--input))\",
+        ring: \"hsl(var(--ring))\",
+        navy: \"#090E17\",
+        signal: \"#00A884\",
+        signalHover: \"#008F6F\",
+        amber: \"#F59E0B\",
+      },
+      keyframes: {
+        \"accordion-down\": { from: { height: \"0\" }, to: { height: \"var(--radix-accordion-content-height)\" } },
+        \"accordion-up\": { from: { height: \"var(--radix-accordion-content-height)\" }, to: { height: \"0\" } },
+        \"marquee\": { from: { transform: \"translateX(0)\" }, to: { transform: \"translateX(-50%)\" } },
+        \"pulse-dot\": { \"0%,100%\": { opacity: \"0.4\" }, \"50%\": { opacity: \"1\" } },
+      },
+      animation: {
+        \"accordion-down\": \"accordion-down 0.2s ease-out\",
+        \"accordion-up\": \"accordion-up 0.2s ease-out\",
+        \"marquee\": \"marquee 28s linear infinite\",
+        \"pulse-dot\": \"pulse-dot 1.6s ease-in-out infinite\",
+      },
+    },
+  },
+  plugins: [require(\"tailwindcss-animate\")],
+};
+"
+Observation: Overwrite successful: /app/frontend/tailwind.config.js
+
+
+
+
+Action: file_editor create /app/frontend/src/index.css --file-text "@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,900,400,300,500,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  margin: 0;
+  font-family: 'IBM Plex Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #F9FAFB;
+  color: #111827;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 8%;
+    --primary: 165 100% 33%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 165 100% 95%;
+    --accent-foreground: 165 100% 20%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 165 100% 33%;
+    --radius: 0.25rem;
+    --chart-1: 165 100% 33%;
+    --chart-2: 38 92% 50%;
+    --chart-3: 220 47% 25%;
+    --chart-4: 0 84% 60%;
+    --chart-5: 263 70% 50%;
+  }
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 0 0% 98%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+}
+
+/* ---- VyaparMind utility classes ---- */
+.font-display { font-family: 'Cabinet Grotesk', sans-serif; letter-spacing: -0.025em; }
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+.noise::before {
+  content: \"\";
+  position: absolute; inset: 0;
+  background-image: url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\");
+  opacity: 0.08; mix-blend-mode: overlay; pointer-events: none;
+}
+
+.btn-signal {
+  background: #00A884; color: white;
+  padding: 0.75rem 1.25rem; border-radius: 4px;
+  font-weight: 700; letter-spacing: -0.01em;
+  transition: transform 150ms ease-out, background 150ms;
+}
+.btn-signal:hover { background: #008F6F; }
+.btn-signal:active { transform: scale(0.96); }
+
+.btn-ghost-light {
+  border: 1px solid rgba(255,255,255,0.18);
+  color: white; padding: 0.75rem 1.25rem; border-radius: 4px;
+  font-weight: 600; transition: all 150ms;
+}
+.btn-ghost-light:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.32); }
+
+.card-flat {
+  background: white; border: 1px solid #E5E7EB; border-radius: 4px;
+  transition: border-color 200ms, transform 200ms;
+}
+.card-flat:hover { border-color: #94A3B8; }
+
+.label-tiny { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; color: #64748B; }
+
+/* Ribbon marquee */
+.ribbon { white-space: nowrap; display: inline-flex; gap: 4rem; }
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+"
+Observation: Overwrite successful: /app/frontend/src/index.css
+
+
+
+
+Action: file_editor create /app/frontend/src/App.css --file-text "/* App-level resets handled in index.css. Keep this minimal. */
+.App { min-height: 100vh; }
+"
+Observation: Overwrite successful: /app/frontend/src/App.css
+
+
+
+
+
+Action: file_editor create /app/frontend/src/lib/api.js --file-text "import axios from \"axios\";
+
+const BACKEND = process.env.REACT_APP_BACKEND_URL;
+export const API_BASE = `${BACKEND}/api`;
+
+export const api = axios.create({ baseURL: API_BASE });
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem(\"vm_token\");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+export function setToken(t) {
+  if (t) localStorage.setItem(\"vm_token\", t);
+  else localStorage.removeItem(\"vm_token\");
+}
+
+export function getToken() {
+  return localStorage.getItem(\"vm_token\");
+}
+"
+Observation: Create successful: /app/frontend/src/lib/api.js
+
+
+
+
+
+Action: file_editor create /app/frontend/src/lib/auth.jsx --file-text "import React, { createContext, useContext, useEffect, useState, useCallback } from \"react\";
+import { api, setToken, getToken } from \"./api\";
+
+const AuthCtx = createContext(null);
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(async () => {
+    const t = getToken();
+    if (!t) { setUser(null); setLoading(false); return; }
+    try {
+      const { data } = await api.get(\"/auth/me\");
+      setUser(data);
+    } catch {
+      setToken(null);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  const login = async (email, password) => {
+    const { data } = await api.post(\"/auth/login\", { email, password });
+    setToken(data.access_token);
+    setUser(data.user);
+    return data.user;
+  };
+
+  const register = async (payload) => {
+    const { data } = await api.post(\"/auth/register\", payload);
+    setToken(data.access_token);
+    setUser(data.user);
+    return data.user;
+  };
+
+  const logout = () => {
+    setToken(null);
+    setUser(null);
+  };
+
+  return (
+    <AuthCtx.Provider value={{ user, setUser, loading, login, register, logout, refresh }}>
+      {children}
+    </AuthCtx.Provider>
+  );
+}
+
+export const useAuth = () => useContext(AuthCtx);
+"
+Observation: Create successful: /app/frontend/src/lib/auth.jsx
+
+
+
+
+
+
+Action: file_editor create /app/frontend/src/App.js --file-text "import React from \"react\";
+import \"@/App.css\";
+import { BrowserRouter, Routes, Route, Navigate } from \"react-router-dom\";
+import { AuthProvider, useAuth } from \"@/lib/auth\";
+import { Toaster } from \"@/components/ui/sonner\";
+
+import Landing from \"@/pages/Landing\";
+import Login from \"@/pages/Login\";
+import Register from \"@/pages/Register\";
+import DashboardLayout from \"@/pages/DashboardLayout\";
+import Dashboard from \"@/pages/Dashboard\";
+import ChatPage from \"@/pages/ChatPage\";
+import Transactions from \"@/pages/Transactions\";
+import Inventory from \"@/pages/Inventory\";
+import Contacts from \"@/pages/Contacts\";
+import Insights from \"@/pages/Insights\";
+import Automations from \"@/pages/Automations\";
+import Settings from \"@/pages/Settings\";
+
+function Protected({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <div className=\"min-h-screen grid place-items-center text-slate-500 font-display\">Loading…</div>;
+  if (!user) return <Navigate to=\"/login\" replace />;
+  return children;
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <Toaster position=\"top-right\" />
+      <BrowserRouter>
+        <Routes>
+          <Route path=\"/\" element={<Landing />} />
+          <Route path=\"/login\" element={<Login />} />
+          <Route path=\"/register\" element={<Register />} />
+          <Route path=\"/app\" element={<Protected><DashboardLayout /></Protected>}>
+            <Route index element={<Dashboard />} />
+            <Route path=\"chat\" element={<ChatPage />} />
+            <Route path=\"transactions\" element={<Transactions />} />
+            <Route path=\"inventory\" element={<Inventory />} />
+            <Route path=\"contacts\" element={<Contacts />} />
+            <Route path=\"insights\" element={<Insights />} />
+            <Route path=\"automations\" element={<Automations />} />
+            <Route path=\"settings\" element={<Settings />} />
+          </Route>
+          <Route path=\"*\" element={<Navigate to=\"/\" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}
+"
+Observation: Overwrite successful: /app/frontend/src/App.js
+
+
+
+
+
+
+Now create the pages in parallel.
+Action: file_editor create /app/frontend/src/pages/Landing.jsx --file-text "import React from \"react\";
+import { Link } from \"react-router-dom\";
+import { motion } from \"framer-motion\";
+import {
+  ChatCircleDots, Lightning, Camera, Microphone, ChartLineUp,
+  Bell, Translate, ShieldCheck, ArrowRight, Check, WhatsappLogo,
+  Plus, Minus,
+} from \"@phosphor-icons/react\";
+import * as Accordion from \"@radix-ui/react-accordion\";
+
+const HERO_IMG = \"https://static.prod-images.emergentagent.com/jobs/a503b4b6-6b6e-4043-b725-ed5a99bdfc1b/images/1991894690da900a1aa838af3b341ddf63c0f67362e7301610a3003fe550fa66.png\";
+const HEALTH_IMG = \"https://static.prod-images.emergentagent.com/jobs/a503b4b6-6b6e-4043-b725-ed5a99bdfc1b/images/ab0205d356c8f3a04f9d00d42129a04e100ba780f7a88aaa87dab87d48a5ae82.png\";
+const FLOW_IMG = \"https://static.prod-images.emergentagent.com/jobs/a503b4b6-6b6e-4043-b725-ed5a99bdfc1b/images/04c27b7e4e15be2b3507c857931b9d31406e78de5004ec91756d512b90c30ddd.png\";
+const USER1 = \"https://images.pexels.com/photos/36317181/pexels-photo-36317181.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940\";
+const USER2 = \"https://images.pexels.com/photos/35317008/pexels-photo-35317008.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940\";
+const STORE = \"https://images.pexels.com/photos/28624931/pexels-photo-28624931.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940\";
+
+const LANGS = [\"हिन्दी\", \"English\", \"தமிழ்\", \"తెలుగు\", \"ಕನ್ನಡ\", \"বাংলা\", \"मराठी\", \"ગુજરાતી\", \"മലയാളം\", \"ਪੰਜਾਬੀ\", \"ଓଡ଼ିଆ\", \"اردو\"];
+
+export default function Landing() {
+  return (
+    <div className=\"bg-[#F9FAFB] text-slate-900\">
+      <Header />
+      <Hero />
+      <LangRibbon />
+      <HowItWorks />
+      <Bento />
+      <SocialProof />
+      <Pricing />
+      <Faq />
+      <Footer />
+    </div>
+  );
+}
+
+function Header() {
+  return (
+    <header className=\"sticky top-0 z-40 backdrop-blur-xl bg-[#090E17]/85 border-b border-white/10\">
+      <div className=\"max-w-7xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between\">
+        <Link to=\"/\" className=\"flex items-center gap-2.5\" data-testid=\"logo-link\">
+          <div className=\"w-7 h-7 bg-signal grid place-items-center\" style={{borderRadius: 4}}>
+            <Lightning weight=\"fill\" size={16} color=\"#090E17\" />
+          </div>
+          <span className=\"text-white font-display font-black tracking-tighter text-lg\">VyaparMind</span>
+        </Link>
+        <nav className=\"hidden md:flex items-center gap-8 text-sm text-white/75\">
+          <a href=\"#how\" className=\"hover:text-white transition-colors\">How it works</a>
+          <a href=\"#features\" className=\"hover:text-white transition-colors\">Features</a>
+          <a href=\"#pricing\" className=\"hover:text-white transition-colors\">Pricing</a>
+          <a href=\"#faq\" className=\"hover:text-white transition-colors\">FAQ</a>
+        </nav>
+        <div className=\"flex items-center gap-2\">
+          <Link to=\"/login\" className=\"text-white/80 hover:text-white text-sm px-3 py-2\" data-testid=\"nav-login-link\">Sign in</Link>
+          <Link to=\"/register\" className=\"btn-signal text-sm\" data-testid=\"nav-register-link\">Start free</Link>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function Hero() {
+  return (
+    <section className=\"relative overflow-hidden bg-[#090E17] text-white noise\">
+      <div className=\"absolute inset-0 grid-bg opacity-60\" />
+      <div
+        className=\"absolute inset-0 opacity-25\"
+        style={{ backgroundImage: `url(${HERO_IMG})`, backgroundSize: \"cover\", backgroundPosition: \"center right\" }}
+      />
+      <div className=\"absolute inset-0 bg-gradient-to-r from-[#090E17] via-[#090E17]/85 to-transparent\" />
+
+      <div className=\"relative max-w-7xl mx-auto px-5 sm:px-8 pt-20 sm:pt-28 pb-32 grid lg:grid-cols-12 gap-12 items-center\">
+        <div className=\"lg:col-span-7\">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+            className=\"inline-flex items-center gap-2 border border-white/15 px-3 py-1.5 mb-7\"
+            style={{ borderRadius: 999 }}
+          >
+            <span className=\"w-1.5 h-1.5 bg-signal animate-pulse-dot rounded-full\" />
+            <span className=\"text-xs tracking-[0.2em] uppercase text-white/70\">Live in 12 Indian languages</span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
+            className=\"font-display font-black text-5xl sm:text-6xl lg:text-7xl tracking-tighter leading-[0.95]\"
+            data-testid=\"hero-headline\"
+          >
+            Your business <span className=\"text-signal\">runs itself.</span><br />
+            You just talk.
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.6 }}
+            className=\"mt-7 text-lg sm:text-xl text-white/70 max-w-xl leading-relaxed\"
+          >
+            VyaparMind turns your WhatsApp-style messages, voice notes and photos of bills
+            into structured books, smart insights and AI-driven decisions. Zero setup. Zero training.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+            className=\"mt-9 flex flex-wrap items-center gap-3\"
+          >
+            <Link to=\"/register\" className=\"btn-signal inline-flex items-center gap-2\" data-testid=\"hero-cta-primary\">
+              Start free <ArrowRight weight=\"bold\" size={18} />
+            </Link>
+            <a href=\"#how\" className=\"btn-ghost-light inline-flex items-center gap-2\" data-testid=\"hero-cta-secondary\">
+              <WhatsappLogo weight=\"fill\" size={18} /> See it work
+            </a>
+          </motion.div>
+
+          <div className=\"mt-10 flex flex-wrap gap-x-8 gap-y-3 text-sm text-white/55\">
+            <span className=\"flex items-center gap-2\"><Check weight=\"bold\" className=\"text-signal\" size={16} /> ₹0 setup</span>
+            <span className=\"flex items-center gap-2\"><Check weight=\"bold\" className=\"text-signal\" size={16} /> 12 languages</span>
+            <span className=\"flex items-center gap-2\"><Check weight=\"bold\" className=\"text-signal\" size={16} /> 5,000+ businesses</span>
+          </div>
+        </div>
+
+        {/* Hero card */}
+        <motion.div
+          initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4, duration: 0.7 }}
+          className=\"lg:col-span-5\"
+        >
+          <div className=\"relative bg-white text-slate-900 p-5 border border-slate-200 shadow-2xl\" style={{borderRadius: 6}}>
+            <div className=\"flex items-center justify-between pb-3 border-b border-slate-100\">
+              <div className=\"flex items-center gap-2\">
+                <div className=\"w-8 h-8 bg-signal grid place-items-center\" style={{borderRadius: 4}}>
+                  <Lightning weight=\"fill\" size={16} color=\"white\" />
+                </div>
+                <div>
+                  <div className=\"font-semibold text-sm\">VyaparMind</div>
+                  <div className=\"text-[10px] text-slate-500 tracking-widest uppercase\">AI Assistant · Online</div>
+                </div>
+              </div>
+              <span className=\"text-xs text-signal font-semibold tracking-widest uppercase\">Live</span>
+            </div>
+            <div className=\"py-4 space-y-3 text-sm\">
+              <Bubble side=\"right\">आज 5kg चावल ₹500 में Ramesh को बेचा</Bubble>
+              <Bubble side=\"left\">
+                <div className=\"text-[11px] text-signal font-bold tracking-widest uppercase mb-1\">Recorded</div>
+                +₹500 income · category: <b>Sales</b><br/>
+                rice stock: <b>−5 kg</b> · customer: <b>Ramesh</b>
+              </Bubble>
+              <Bubble side=\"right\">कितना कमाया आज?</Bubble>
+              <Bubble side=\"left\">
+                Today: <b>+₹2,140</b> profit on <b>9 sales</b>. Top item: <b>Rice</b>. You're 22% ahead of last Tuesday.
+              </Bubble>
+            </div>
+            <div className=\"pt-3 border-t border-slate-100 flex items-center gap-2\">
+              <div className=\"flex-1 border border-slate-200 px-3 py-2 text-xs text-slate-400\" style={{borderRadius:4}}>
+                Type a message…
+              </div>
+              <button className=\"w-9 h-9 bg-slate-900 grid place-items-center text-white\" style={{borderRadius:4}}>
+                <Microphone weight=\"fill\" size={16} />
+              </button>
+              <button className=\"w-9 h-9 bg-signal grid place-items-center text-white\" style={{borderRadius:4}}>
+                <Camera weight=\"fill\" size={16} />
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+function Bubble({ children, side }) {
+  const isRight = side === \"right\";
+  return (
+    <div className={`flex ${isRight ? \"justify-end\" : \"justify-start\"}`}>
+      <div
+        className={`max-w-[85%] px-3.5 py-2.5 text-[13px] leading-relaxed ${
+          isRight ? \"bg-slate-900 text-white\" : \"bg-emerald-50 border border-emerald-100 text-slate-800\"
+        }`}
+        style={{ borderRadius: 4 }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function LangRibbon() {
+  const list = [...LANGS, ...LANGS];
+  return (
+    <div className=\"bg-[#090E17] border-t border-white/5 overflow-hidden\">
+      <div className=\"py-4 overflow-hidden\">
+        <div className=\"ribbon animate-marquee\">
+          {list.map((l, i) => (
+            <span key={i} className=\"text-white/40 font-display text-2xl tracking-tight\">{l} <span className=\"text-signal mx-4\">•</span></span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HowItWorks() {
+  const steps = [
+    { n: \"01\", icon: ChatCircleDots, title: \"Talk naturally\", desc: \"Send a WhatsApp-style text, voice note or photo of a bill — in any Indian language.\" },
+    { n: \"02\", icon: Lightning, title: \"AI understands\", desc: \"Claude-powered NLU parses amounts, items, customers and categories with high accuracy.\" },
+    { n: \"03\", icon: ChartLineUp, title: \"Business runs itself\", desc: \"Ledger, stock, customer history and insights update automatically — no forms, ever.\" },
+  ];
+  return (
+    <section id=\"how\" className=\"bg-white py-24 sm:py-32 border-y border-slate-200\">
+      <div className=\"max-w-7xl mx-auto px-5 sm:px-8\">
+        <div className=\"flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16\">
+          <div className=\"max-w-2xl\">
+            <div className=\"label-tiny mb-3\">How it works</div>
+            <h2 className=\"font-display font-black text-4xl sm:text-5xl tracking-tighter leading-[1.02]\">
+              Three steps. <span className=\"text-signal\">No setup.</span><br />No training. Just results.
+            </h2>
+          </div>
+          <p className=\"text-slate-600 max-w-md\">Stop juggling registers, photos, calculators and WhatsApp. One AI handles all of it — invisibly.</p>
+        </div>
+
+        <div className=\"grid md:grid-cols-3 gap-px bg-slate-200 border border-slate-200\">
+          {steps.map((s) => (
+            <div key={s.n} className=\"bg-white p-8 sm:p-10 hover:bg-slate-50 transition-colors\">
+              <div className=\"flex items-center justify-between mb-8\">
+                <s.icon weight=\"duotone\" size={36} className=\"text-signal\" />
+                <span className=\"font-display font-black text-4xl text-slate-200\">{s.n}</span>
+              </div>
+              <h3 className=\"font-display font-bold text-2xl tracking-tight mb-2\">{s.title}</h3>
+              <p className=\"text-slate-600 leading-relaxed\">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Bento() {
+  return (
+    <section id=\"features\" className=\"bg-[#F9FAFB] py-24 sm:py-32\">
+      <div className=\"max-w-7xl mx-auto px-5 sm:px-8\">
+        <div className=\"max-w-2xl mb-16\">
+          <div className=\"label-tiny mb-3\">The platform</div>
+          <h2 className=\"font-display font-black text-4xl sm:text-5xl tracking-tighter leading-[1.02]\">
+            An AI employee for every micro-business in India.
+          </h2>
+        </div>
+
+        <div className=\"grid grid-cols-1 md:grid-cols-6 gap-4\">
+          {/* Health Score */}
+          <div className=\"md:col-span-3 md:row-span-2 bg-[#090E17] text-white p-8 relative overflow-hidden\" style={{borderRadius:6}}>
+            <div className=\"label-tiny text-white/60 mb-3\">Business health score</div>
+            <h3 className=\"font-display font-black text-3xl tracking-tight mb-3\">Know how your business is doing — without opening a single spreadsheet.</h3>
+            <p className=\"text-white/65 leading-relaxed\">A weekly AI-generated 0-100 score, with one-tap drill-down into what's working and what isn't.</p>
+            <img src={HEALTH_IMG} alt=\"Health score\" className=\"mt-6 w-full object-contain max-h-72\" />
+          </div>
+
+          <FeatureCard icon={Microphone} title=\"Voice-first\" desc=\"Long-press to record. Whisper transcribes 12 Indian languages.\" cols={3} />
+          <FeatureCard icon={Camera} title=\"Photo intelligence\" desc=\"Snap a bill. AI extracts amount, vendor, items, GST.\" cols={3} />
+
+          <FeatureCard icon={Lightning} title=\"Pattern learning\" desc=\"AI notices your routines and offers to automate them.\" cols={2} />
+          <FeatureCard icon={Bell} title=\"Proactive alerts\" desc=\"Low stock, payment due, unusual spend — pinged before it bites.\" cols={2} />
+          <FeatureCard icon={Translate} title=\"12 languages\" desc=\"Hindi, Tamil, Telugu, Kannada, Bengali, Marathi & more.\" cols={2} />
+
+          <div className=\"md:col-span-4 bg-white p-8 border border-slate-200 relative overflow-hidden\" style={{borderRadius:6}}>
+            <div className=\"grid sm:grid-cols-2 gap-6 items-center\">
+              <div>
+                <div className=\"label-tiny mb-3 text-slate-500\">From chat to ledger</div>
+                <h3 className=\"font-display font-black text-2xl tracking-tight mb-2\">Your WhatsApp becomes your accountant.</h3>
+                <p className=\"text-slate-600 leading-relaxed\">Every message is parsed into structured rows. Filter, search, export to Tally — anytime.</p>
+              </div>
+              <img src={FLOW_IMG} alt=\"Data flow\" className=\"w-full object-contain max-h-52\" />
+            </div>
+          </div>
+          <FeatureCard icon={ShieldCheck} title=\"Your data, encrypted\" desc=\"Bank-grade encryption. Your books never leave India.\" cols={2} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FeatureCard({ icon: Icon, title, desc, cols }) {
+  return (
+    <div className={`md:col-span-${cols} bg-white p-6 border border-slate-200 hover:border-slate-400 transition-colors`} style={{borderRadius:6}}>
+      <Icon weight=\"duotone\" size={28} className=\"text-signal mb-4\" />
+      <h3 className=\"font-display font-bold text-lg tracking-tight mb-1.5\">{title}</h3>
+      <p className=\"text-sm text-slate-600 leading-relaxed\">{desc}</p>
+    </div>
+  );
+}
+
+function SocialProof() {
+  return (
+    <section className=\"bg-white py-24 sm:py-32 border-y border-slate-200\">
+      <div className=\"max-w-7xl mx-auto px-5 sm:px-8\">
+        <div className=\"flex flex-col md:flex-row md:items-end justify-between gap-8 mb-14\">
+          <div>
+            <div className=\"label-tiny mb-3\">Owners who switched</div>
+            <h2 className=\"font-display font-black text-4xl sm:text-5xl tracking-tighter leading-[1.02]\">5,000+ shops.<br/>One less worry.</h2>
+          </div>
+          <div className=\"grid grid-cols-3 gap-8 md:gap-12 text-right\">
+            <Stat n=\"2.4h\" l=\"saved daily\" />
+            <Stat n=\"₹18K\" l=\"avg leak fixed / mo\" />
+            <Stat n=\"98%\" l=\"AI accuracy\" />
+          </div>
+        </div>
+
+        <div className=\"grid md:grid-cols-3 gap-4\">
+          <Testimonial img={USER1} name=\"Pankaj Kumar\" role=\"Kirana, Lucknow\"
+            text=\"Pehle din-bhar register mein likhta tha. Ab WhatsApp pe bol deta hoon. Sab ho jaata hai.\" />
+          <Testimonial img={USER2} name=\"Sandeep Soni\" role=\"Mithai shop, Varanasi\"
+            text=\"Voice notes work even in Banarsi Hindi. Stock auto-deducts. I run two counters with one phone.\" />
+          <div className=\"relative h-full min-h-[280px] overflow-hidden border border-slate-200\" style={{borderRadius:6}}>
+            <img src={STORE} alt=\"Indian shopfront\" className=\"absolute inset-0 w-full h-full object-cover\" />
+            <div className=\"absolute inset-0 bg-gradient-to-t from-[#090E17] via-[#090E17]/70 to-transparent\" />
+            <div className=\"absolute inset-0 p-6 flex flex-col justify-end text-white\">
+              <div className=\"label-tiny text-white/70 mb-2\">Built for every</div>
+              <h3 className=\"font-display font-black text-2xl tracking-tight\">Kirana · Clinic · Salon · Workshop · Farm · Transport</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Stat({ n, l }) {
+  return (
+    <div>
+      <div className=\"font-display font-black text-3xl sm:text-4xl tracking-tighter\">{n}</div>
+      <div className=\"label-tiny text-slate-500 mt-1\">{l}</div>
+    </div>
+  );
+}
+
+function Testimonial({ img, name, role, text }) {
+  return (
+    <div className=\"bg-white border border-slate-200 p-6 hover:border-slate-400 transition-colors flex flex-col\" style={{borderRadius:6}}>
+      <p className=\"text-slate-700 leading-relaxed flex-1\">\"{text}\"</p>
+      <div className=\"mt-6 flex items-center gap-3 pt-5 border-t border-slate-100\">
+        <img src={img} alt={name} className=\"w-10 h-10 object-cover\" style={{borderRadius:4}} />
+        <div>
+          <div className=\"font-semibold text-sm\">{name}</div>
+          <div className=\"text-xs text-slate-500\">{role}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Pricing() {
+  const tiers = [
+    { name: \"Shunya\", price: \"₹0\", per: \"Forever free\", desc: \"Try it out — for one solo shop.\", features: [\"1 business, 1 user\", \"50 AI interactions / mo\", \"Text + voice + photo\", \"Weekly summary\"], cta: \"Start free\", popular: false },
+    { name: \"Vikas\", price: \"₹499\", per: \"/ month\", desc: \"For growing dukaans.\", features: [\"3 users\", \"Unlimited AI chats\", \"Full automations\", \"Daily AI briefings\", \"Priority support\"], cta: \"Choose Vikas\", popular: true },
+    { name: \"Shakti\", price: \"₹1,499\", per: \"/ month\", desc: \"For serious operators.\", features: [\"3 businesses, 10 users\", \"Multi-location\", \"Custom automations\", \"Advanced analytics\", \"API access\"], cta: \"Choose Shakti\", popular: false },
+    { name: \"Samrajya\", price: \"Custom\", per: \"Enterprise\", desc: \"Chains, franchises, NBFCs.\", features: [\"Unlimited\", \"White-label\", \"SLA + on-premise\", \"Custom AI training\"], cta: \"Talk to sales\", popular: false },
+  ];
+  return (
+    <section id=\"pricing\" className=\"bg-[#F9FAFB] py-24 sm:py-32\">
+      <div className=\"max-w-7xl mx-auto px-5 sm:px-8\">
+        <div className=\"text-center max-w-2xl mx-auto mb-14\">
+          <div className=\"label-tiny mb-3\">Pricing</div>
+          <h2 className=\"font-display font-black text-4xl sm:text-5xl tracking-tighter leading-[1.02]\">Start free. Upgrade when you outgrow chaos.</h2>
+          <p className=\"mt-4 text-slate-600\">No card. No demos. Just send a message.</p>
+        </div>
+        <div className=\"grid md:grid-cols-2 lg:grid-cols-4 gap-4\">
+          {tiers.map((t) => (
+            <div key={t.name} className={`p-7 flex flex-col bg-white border ${t.popular ? \"border-signal\" : \"border-slate-200\"}`} style={{borderRadius:6, position:\"relative\"}}>
+              {t.popular && (
+                <div className=\"absolute -top-3 left-7 bg-signal text-white text-[10px] tracking-[0.2em] font-bold uppercase px-2 py-1\" style={{borderRadius:3}}>Most popular</div>
+              )}
+              <div className=\"label-tiny text-slate-500 mb-1\">{t.name}</div>
+              <div className=\"flex items-baseline gap-1 mt-1\">
+                <span className=\"font-display font-black text-4xl tracking-tighter\">{t.price}</span>
+                <span className=\"text-slate-500 text-sm\">{t.per}</span>
+              </div>
+              <p className=\"text-sm text-slate-600 mt-2\">{t.desc}</p>
+              <ul className=\"mt-5 space-y-2.5 flex-1\">
+                {t.features.map((f) => (
+                  <li key={f} className=\"flex items-start gap-2 text-sm text-slate-700\">
+                    <Check weight=\"bold\" size={14} className=\"text-signal mt-1 flex-shrink-0\" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to=\"/register\"
+                className={`mt-6 text-center text-sm font-bold py-3 ${t.popular ? \"bg-signal text-white hover:bg-signalHover\" : \"bg-slate-900 text-white hover:bg-slate-700\"} transition-colors`}
+                style={{borderRadius:4}}
+                data-testid={`pricing-cta-${t.name.toLowerCase()}`}
+              >
+                {t.cta}
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Faq() {
+  const items = [
+    { q: \"Do I need to install an app?\", a: \"No. VyaparMind works on the browser as a PWA. WhatsApp Business integration is on our roadmap for phase 2.\" },
+    { q: \"Does it really work in Hindi or Tamil?\", a: \"Yes — voice and text are natively understood in 12 Indian languages via Whisper + Claude Sonnet.\" },
+    { q: \"Is my data safe?\", a: \"All data is encrypted at rest and in transit. You can export or delete everything anytime from Settings.\" },
+    { q: \"Can I keep my Tally / current books?\", a: \"Yes. Export to CSV / Tally is available on the Vikas plan.\" },
+    { q: \"What if AI gets something wrong?\", a: \"You can edit or delete any auto-extracted row in one tap. AI confidence is shown for every parse.\" },
+  ];
+  return (
+    <section id=\"faq\" className=\"bg-white py-24 sm:py-32 border-t border-slate-200\">
+      <div className=\"max-w-3xl mx-auto px-5 sm:px-8\">
+        <div className=\"text-center mb-12\">
+          <div className=\"label-tiny mb-3\">FAQ</div>
+          <h2 className=\"font-display font-black text-4xl tracking-tighter\">Questions, answered.</h2>
+        </div>
+        <Accordion.Root type=\"single\" collapsible className=\"space-y-3\">
+          {items.map((it, i) => (
+            <Accordion.Item key={i} value={`v${i}`} className=\"bg-[#F9FAFB] border border-slate-200\" style={{borderRadius:6}}>
+              <Accordion.Header>
+                <Accordion.Trigger className=\"group w-full flex items-center justify-between text-left px-5 py-4 font-semibold text-slate-900\" data-testid={`faq-trigger-${i}`}>
+                  <span>{it.q}</span>
+                  <Plus weight=\"bold\" size={18} className=\"group-data-[state=open]:hidden\" />
+                  <Minus weight=\"bold\" size={18} className=\"hidden group-data-[state=open]:block\" />
+                </Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Content className=\"px-5 pb-4 text-slate-600 leading-relaxed text-sm\">
+                {it.a}
+              </Accordion.Content>
+            </Accordion.Item>
+          ))}
+        </Accordion.Root>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className=\"bg-[#090E17] text-white border-t border-white/5\">
+      <div className=\"max-w-7xl mx-auto px-5 sm:px-8 py-16 grid md:grid-cols-4 gap-10\">
+        <div className=\"md:col-span-2\">
+          <div className=\"flex items-center gap-2.5 mb-4\">
+            <div className=\"w-7 h-7 bg-signal grid place-items-center\" style={{borderRadius:4}}>
+              <Lightning weight=\"fill\" size={16} color=\"#090E17\" />
+            </div>
+            <span className=\"font-display font-black text-lg tracking-tighter\">VyaparMind</span>
+          </div>
+          <p className=\"text-white/55 max-w-md leading-relaxed\">An AI operating system for India's 64 million micro-businesses. Built in Bengaluru with love.</p>
+        </div>
+        <div>
+          <div className=\"label-tiny text-white/40 mb-4\">Product</div>
+          <ul className=\"space-y-2 text-sm text-white/70\">
+            <li><a href=\"#features\" className=\"hover:text-white\">Features</a></li>
+            <li><a href=\"#pricing\" className=\"hover:text-white\">Pricing</a></li>
+            <li><a href=\"#faq\" className=\"hover:text-white\">FAQ</a></li>
+          </ul>
+        </div>
+        <div>
+          <div className=\"label-tiny text-white/40 mb-4\">Company</div>
+          <ul className=\"space-y-2 text-sm text-white/70\">
+            <li><a href=\"#\" className=\"hover:text-white\">About</a></li>
+            <li><a href=\"#\" className=\"hover:text-white\">Blog</a></li>
+            <li><a href=\"#\" className=\"hover:text-white\">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+      <div className=\"border-t border-white/10 py-5 text-center text-xs text-white/40 tracking-widest uppercase\">
+        © 2026 VyaparMind · Made for बाज़ार
+      </div>
+    </footer>
+  );
+}
+"
+Observation: Create successful: /app/frontend/src/pages/Landing.jsx
+
+
+
+
+
+
+
+Action: file_editor create /app/frontend/src/pages/Login.jsx --file-text "import React, { useState } from \"react\";
+import { Link, useNavigate } from \"react-router-dom\";
+import { Lightning, ArrowRight } from \"@phosphor-icons/react\";
+import { useAuth } from \"@/lib/auth\";
+import { toast } from \"sonner\";
+
+export default function Login() {
+  const { login } = useAuth();
+  const nav = useNavigate();
+  const [email, setEmail] = useState(\"\");
+  const [password, setPassword] = useState(\"\");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      await login(email, password);
+      toast.success(\"Welcome back!\");
+      nav(\"/app\");
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || \"Login failed\");
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <div className=\"min-h-screen grid lg:grid-cols-2 bg-[#F9FAFB]\">
+      <div className=\"hidden lg:flex relative bg-[#090E17] text-white p-12 flex-col justify-between overflow-hidden\">
+        <div className=\"absolute inset-0 grid-bg opacity-50\" />
+        <Link to=\"/\" className=\"relative flex items-center gap-2.5\">
+          <div className=\"w-7 h-7 bg-signal grid place-items-center\" style={{borderRadius:4}}>
+            <Lightning weight=\"fill\" size={16} color=\"#090E17\" />
+          </div>
+          <span className=\"font-display font-black tracking-tighter text-lg\">VyaparMind</span>
+        </Link>
+        <div className=\"relative\">
+          <h2 className=\"font-display font-black text-5xl tracking-tighter leading-[1.02]\">
+            Back to <span className=\"text-signal\">business</span>.<br />Literally.
+          </h2>
+          <p className=\"mt-4 text-white/65 max-w-md\">Your AI ops manager has been quietly tracking everything. Sign in to see the picture.</p>
+        </div>
+        <div className=\"relative text-xs text-white/40 tracking-widest uppercase\">© 2026 VyaparMind</div>
+      </div>
+
+      <div className=\"flex items-center justify-center p-6 sm:p-12\">
+        <form onSubmit={submit} className=\"w-full max-w-md\" data-testid=\"login-form\">
+          <div className=\"label-tiny mb-3\">Sign in</div>
+          <h1 className=\"font-display font-black text-4xl tracking-tighter mb-8\">Welcome back.</h1>
+
+          <label className=\"label-tiny block mb-1.5\">Email</label>
+          <input
+            type=\"email\" required value={email} onChange={(e)=>setEmail(e.target.value)}
+            className=\"w-full px-3.5 py-3 bg-white border border-slate-300 focus:ring-1 focus:ring-signal focus:border-signal outline-none text-sm\"
+            style={{borderRadius:4}}
+            placeholder=\"you@dukaan.com\"
+            data-testid=\"login-email\"
+          />
+          <label className=\"label-tiny block mt-4 mb-1.5\">Password</label>
+          <input
+            type=\"password\" required value={password} onChange={(e)=>setPassword(e.target.value)}
+            className=\"w-full px-3.5 py-3 bg-white border border-slate-300 focus:ring-1 focus:ring-signal focus:border-signal outline-none text-sm\"
+            style={{borderRadius:4}}
+            placeholder=\"••••••••\"
+            data-testid=\"login-password\"
+          />
+
+          <button
+            disabled={busy} type=\"submit\"
+            className=\"mt-6 w-full btn-signal flex items-center justify-center gap-2 disabled:opacity-60\"
+            data-testid=\"login-submit\"
+          >
+            {busy ? \"Signing in…\" : (<>Sign in <ArrowRight weight=\"bold\" size={16} /></>)}
+          </button>
+
+          <p className=\"mt-6 text-sm text-slate-600 text-center\">
+            No account? <Link to=\"/register\" className=\"text-signal font-semibold hover:underline\" data-testid=\"link-register\">Create one</Link>
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
+"
+Observation: Create successful: /app/frontend/src/pages/Login.jsx
+
+
+
+
+
+
+Action: file_editor create /app/frontend/src/pages/Register.jsx --file-text "import React, { useState } from \"react\";
+import { Link, useNavigate } from \"react-router-dom\";
+import { Lightning, ArrowRight, Storefront, Stethoscope, Truck, Plant, Scissors, Wrench } from \"@phosphor-icons/react\";
+import { useAuth } from \"@/lib/auth\";
+import { toast } from \"sonner\";
+
+const TYPES = [
+  { id: \"kirana\", label: \"Kirana / Retail\", Icon: Storefront },
+  { id: \"clinic\", label: \"Clinic / Pharmacy\", Icon: Stethoscope },
+  { id: \"transport\", label: \"Transport / Logistics\", Icon: Truck },
+  { id: \"farm\", label: \"Farm / Agri\", Icon: Plant },
+  { id: \"salon\", label: \"Salon / Beauty\", Icon: Scissors },
+  { id: \"workshop\", label: \"Workshop / Service\", Icon: Wrench },
+];
+
+export default function Register() {
+  const { register } = useAuth();
+  const nav = useNavigate();
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState({ name: \"\", email: \"\", password: \"\", business_name: \"\", business_type: \"kirana\", language: \"en\" });
+  const [busy, setBusy] = useState(false);
+
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const finish = async () => {
+    setBusy(true);
+    try {
+      await register(form);
+      toast.success(\"Welcome to VyaparMind!\");
+      nav(\"/app\");
+    } catch (e) {
+      toast.error(e?.response?.data?.detail || \"Could not create account\");
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <div className=\"min-h-screen grid lg:grid-cols-2 bg-[#F9FAFB]\">
+      <div className=\"hidden lg:flex relative bg-[#090E17] text-white p-12 flex-col justify-between overflow-hidden\">
+        <div className=\"absolute inset-0 grid-bg opacity-50\" />
+        <Link to=\"/\" className=\"relative flex items-center gap-2.5\">
+          <div className=\"w-7 h-7 bg-signal grid place-items-center\" style={{borderRadius:4}}>
+            <Lightning weight=\"fill\" size={16} color=\"#090E17\" />
+          </div>
+          <span className=\"font-display font-black tracking-tighter text-lg\">VyaparMind</span>
+        </Link>
+        <div className=\"relative\">
+          <div className=\"label-tiny text-white/50 mb-3\">Step {step} of 3</div>
+          <h2 className=\"font-display font-black text-5xl tracking-tighter leading-[1.02]\">
+            In 90 seconds,<br />you're <span className=\"text-signal\">automated</span>.
+          </h2>
+          <p className=\"mt-4 text-white/65 max-w-md\">No spreadsheets. No setup forms. Just three quick questions.</p>
+        </div>
+        <div className=\"relative text-xs text-white/40 tracking-widest uppercase\">© 2026 VyaparMind</div>
+      </div>
+
+      <div className=\"flex items-center justify-center p-6 sm:p-12\">
+        <div className=\"w-full max-w-md\">
+          {step === 1 && (
+            <form onSubmit={(e)=>{e.preventDefault(); setStep(2);}} data-testid=\"register-step1\">
+              <div className=\"label-tiny mb-3\">Create account</div>
+              <h1 className=\"font-display font-black text-4xl tracking-tighter mb-8\">Let's begin.</h1>
+              <Field label=\"Your name\" value={form.name} onChange={(v)=>set(\"name\",v)} placeholder=\"Anita Sharma\" testid=\"reg-name\" required />
+              <Field label=\"Email\" type=\"email\" value={form.email} onChange={(v)=>set(\"email\",v)} placeholder=\"you@dukaan.com\" testid=\"reg-email\" required />
+              <Field label=\"Password\" type=\"password\" value={form.password} onChange={(v)=>set(\"password\",v)} placeholder=\"At least 6 characters\" testid=\"reg-password\" required minLength={6} />
+              <button type=\"submit\" className=\"mt-6 w-full btn-signal flex items-center justify-center gap-2\" data-testid=\"reg-next-1\">
+                Next <ArrowRight weight=\"bold\" size={16} />
+              </button>
+              <p className=\"mt-6 text-sm text-slate-600 text-center\">
+                Have an account? <Link to=\"/login\" className=\"text-signal font-semibold hover:underline\">Sign in</Link>
+              </p>
+            </form>
+          )}
+
+          {step === 2 && (
+            <form onSubmit={(e)=>{e.preventDefault(); setStep(3);}} data-testid=\"register-step2\">
+              <div className=\"label-tiny mb-3\">Step 2 · Your business</div>
+              <h1 className=\"font-display font-black text-3xl tracking-tighter mb-8\">What do you run?</h1>
+              <Field label=\"Business name\" value={form.business_name} onChange={(v)=>set(\"business_name\",v)} placeholder=\"Sharma Kirana Store\" testid=\"reg-biz-name\" required />
+              <label className=\"label-tiny block mt-4 mb-2\">Business type</label>
+              <div className=\"grid grid-cols-2 gap-2\">
+                {TYPES.map((t) => (
+                  <button
+                    type=\"button\" key={t.id}
+                    onClick={()=>set(\"business_type\", t.id)}
+                    className={`flex items-center gap-2 px-3 py-3 border text-sm text-left transition-colors ${form.business_type === t.id ? \"border-signal bg-emerald-50 text-emerald-900\" : \"border-slate-300 bg-white hover:border-slate-500\"}`}
+                    style={{borderRadius:4}}
+                    data-testid={`reg-type-${t.id}`}
+                  >
+                    <t.Icon weight=\"duotone\" size={20} className=\"text-signal\" />
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+              <div className=\"flex gap-2 mt-6\">
+                <button type=\"button\" onClick={()=>setStep(1)} className=\"flex-1 py-3 border border-slate-300 text-sm font-semibold bg-white hover:bg-slate-50\" style={{borderRadius:4}} data-testid=\"reg-back-2\">Back</button>
+                <button type=\"submit\" className=\"flex-1 btn-signal flex items-center justify-center gap-2\" data-testid=\"reg-next-2\">
+                  Next <ArrowRight weight=\"bold\" size={16} />
+                </button>
+              </div>
+            </form>
+          )}
+
+          {step === 3 && (
+            <form onSubmit={(e)=>{e.preventDefault(); finish();}} data-testid=\"register-step3\">
+              <div className=\"label-tiny mb-3\">Step 3 · Language</div>
+              <h1 className=\"font-display font-black text-3xl tracking-tighter mb-2\">Which language do you prefer?</h1>
+              <p className=\"text-slate-600 text-sm mb-6\">You can talk to VyaparMind in any Indian language — we'll set the dashboard accordingly.</p>
+              <div className=\"grid grid-cols-3 gap-2\">
+                {[
+                  {c:\"en\", l:\"English\"}, {c:\"hi\", l:\"हिन्दी\"}, {c:\"ta\", l:\"தமிழ்\"},
+                  {c:\"te\", l:\"తెలుగు\"}, {c:\"kn\", l:\"ಕನ್ನಡ\"}, {c:\"bn\", l:\"বাংলা\"},
+                  {c:\"mr\", l:\"मराठी\"}, {c:\"gu\", l:\"ગુજરાતી\"}, {c:\"ml\", l:\"മലയാളം\"},
+                ].map((o)=>(
+                  <button
+                    type=\"button\" key={o.c}
+                    onClick={()=>set(\"language\", o.c)}
+                    className={`px-3 py-3 border text-sm transition-colors ${form.language===o.c ? \"border-signal bg-emerald-50 text-emerald-900\" : \"border-slate-300 bg-white hover:border-slate-500\"}`}
+                    style={{borderRadius:4}}
+                    data-testid={`reg-lang-${o.c}`}
+                  >{o.l}</button>
+                ))}
+              </div>
+              <div className=\"flex gap-2 mt-6\">
+                <button type=\"button\" onClick={()=>setStep(2)} className=\"flex-1 py-3 border border-slate-300 text-sm font-semibold bg-white hover:bg-slate-50\" style={{borderRadius:4}} data-testid=\"reg-back-3\">Back</button>
+                <button disabled={busy} type=\"submit\" className=\"flex-1 btn-signal flex items-center justify-center gap-2 disabled:opacity-60\" data-testid=\"reg-finish\">
+                  {busy ? \"Creating…\" : (<>Finish <ArrowRight weight=\"bold\" size={16} /></>)}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, placeholder, type = \"text\", required = false, minLength, testid }) {
+  return (
+    <div className=\"mt-4 first:mt-0\">
+      <label className=\"label-tiny block mb-1.5\">{label}</label>
+      <input
+        type={type} value={value} onChange={(e)=>onChange(e.target.value)}
+        placeholder={placeholder} required={required} minLength={minLength}
+        className=\"w-full px-3.5 py-3 bg-white border border-slate-300 focus:ring-1 focus:ring-signal focus:border-signal outline-none text-sm\"
+        style={{borderRadius:4}}
+        data-testid={testid}
+      />
+    </div>
+  );
+}
+"
+Observation: Create successful: /app/frontend/src/pages/Register.jsx
+
+
+
+
+
+
+
+Action: file_editor create /app/frontend/src/pages/DashboardLayout.jsx --file-text "import React from \"react\";
+import { Outlet, NavLink, useNavigate } from \"react-router-dom\";
+import {
+  House, ChatCircleDots, Receipt, Package, Users, ChartLine, Lightning,
+  Gear, SignOut, CaretDown,
+} from \"@phosphor-icons/react\";
+import { useAuth } from \"@/lib/auth\";
+import * as DropdownMenu from \"@radix-ui/react-dropdown-menu\";
+
+const NAV = [
+  { to: \"/app\", icon: House, label: \"Overview\", end: true, id: \"nav-overview\" },
+  { to: \"/app/chat\", icon: ChatCircleDots, label: \"AI Chat\", id: \"nav-chat\" },
+  { to: \"/app/transactions\", icon: Receipt, label: \"Ledger\", id: \"nav-transactions\" },
+  { to: \"/app/inventory\", icon: Package, label: \"Inventory\", id: \"nav-inventory\" },
+  { to: \"/app/contacts\", icon: Users, label: \"Contacts\", id: \"nav-contacts\" },
+  { to: \"/app/insights\", icon: ChartLine, label: \"Insights\", id: \"nav-insights\" },
+  { to: \"/app/automations\", icon: Lightning, label: \"Automations\", id: \"nav-automations\" },
+  { to: \"/app/settings\", icon: Gear, label: \"Settings\", id: \"nav-settings\" },
+];
+
+const LANGUAGES = [
+  { c: \"en\", l: \"English\" }, { c: \"hi\", l: \"हिन्दी\" }, { c: \"ta\", l: \"தமிழ்\" },
+  { c: \"te\", l: \"తెలుగు\" }, { c: \"kn\", l: \"ಕನ್ನಡ\" }, { c: \"bn\", l: \"বাংলা\" },
+  { c: \"mr\", l: \"मराठी\" }, { c: \"gu\", l: \"ગુજરાતી\" }, { c: \"ml\", l: \"മലയാളം\" },
+];
+
+export default function DashboardLayout() {
+  const { user, logout } = useAuth();
+  const nav = useNavigate();
+  const initial = (user?.name || \"?\").charAt(0).toUpperCase();
+
+  return (
+    <div className=\"min-h-screen bg-[#F9FAFB] grid lg:grid-cols-[240px_1fr]\">
+      {/* Sidebar */}
+      <aside className=\"hidden lg:flex bg-white border-r border-slate-200 flex-col\" data-testid=\"sidebar\">
+        <div className=\"px-5 py-5 border-b border-slate-200 flex items-center gap-2.5\">
+          <div className=\"w-7 h-7 bg-signal grid place-items-center\" style={{ borderRadius: 4 }}>
+            <Lightning weight=\"fill\" size={16} color=\"white\" />
+          </div>
+          <span className=\"font-display font-black tracking-tighter text-lg text-slate-900\">VyaparMind</span>
+        </div>
+        <nav className=\"flex-1 px-3 py-4 space-y-0.5\">
+          {NAV.map((n) => (
+            <NavLink
+              key={n.to}
+              to={n.to}
+              end={n.end}
+              data-testid={n.id}
+              className={({ isActive }) =>
+                `flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium transition-colors ${
+                  isActive ? \"bg-slate-900 text-white\" : \"text-slate-700 hover:bg-slate-100\"
+                }`
+              }
+              style={{ borderRadius: 4 }}
+            >
+              <n.icon weight=\"duotone\" size={18} />
+              {n.label}
+            </NavLink>
+          ))}
+        </nav>
+        <div className=\"p-3 border-t border-slate-200\">
+          <button
+            onClick={() => { logout(); nav(\"/\"); }}
+            className=\"w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-100 transition-colors\"
+            style={{ borderRadius: 4 }}
+            data-testid=\"logout-btn\"
+          >
+            <SignOut size={18} /> Logout
+          </button>
+        </div>
+      </aside>
+
+      <div className=\"min-w-0 flex flex-col\">
+        {/* Topbar */}
+        <header className=\"bg-white border-b border-slate-200 px-5 lg:px-8 h-16 flex items-center justify-between\">
+          <div className=\"lg:hidden flex items-center gap-2.5\">
+            <div className=\"w-7 h-7 bg-signal grid place-items-center\" style={{ borderRadius: 4 }}>
+              <Lightning weight=\"fill\" size={16} color=\"white\" />
+            </div>
+            <span className=\"font-display font-black tracking-tighter\">VyaparMind</span>
+          </div>
+          <div className=\"hidden lg:block\">
+            <div className=\"label-tiny text-slate-500\">{user?.business_type ? user.business_type.toUpperCase() : \"BUSINESS\"}</div>
+            <div className=\"font-display font-bold text-lg tracking-tight text-slate-900\" data-testid=\"biz-name-header\">
+              {user?.business_name || \"Your business\"}
+            </div>
+          </div>
+          <div className=\"flex items-center gap-3\">
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <button className=\"flex items-center gap-2 px-3 py-2 text-sm border border-slate-200 hover:border-slate-400 transition-colors\" style={{borderRadius:4}} data-testid=\"lang-toggle\">
+                  <span className=\"label-tiny text-slate-500\">Lang</span>
+                  <span className=\"font-semibold\">{LANGUAGES.find(l=>l.c===user?.language)?.l || \"English\"}</span>
+                  <CaretDown size={12} />
+                </button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Portal>
+                <DropdownMenu.Content className=\"bg-white border border-slate-200 shadow-lg py-1 min-w-[160px] z-50\" style={{borderRadius:4}} sideOffset={6} align=\"end\">
+                  {LANGUAGES.map((l) => (
+                    <DropdownMenu.Item key={l.c} className=\"px-3 py-2 text-sm hover:bg-slate-100 cursor-pointer outline-none\" data-testid={`lang-opt-${l.c}`}>
+                      {l.l}
+                    </DropdownMenu.Item>
+                  ))}
+                </DropdownMenu.Content>
+              </DropdownMenu.Portal>
+            </DropdownMenu.Root>
+
+            <div className=\"w-9 h-9 bg-slate-900 text-white grid place-items-center font-display font-bold\" style={{borderRadius:4}} data-testid=\"avatar\">{initial}</div>
+          </div>
+        </header>
+
+        {/* Mobile nav */}
+        <nav className=\"lg:hidden bg-white border-b border-slate-200 overflow-x-auto no-scrollbar\">
+          <div className=\"flex gap-1 px-3 py-2\">
+            {NAV.map((n) => (
+              <NavLink key={n.to} to={n.to} end={n.end}
+                className={({isActive}) => `flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium whitespace-nowrap ${isActive?\"bg-slate-900 text-white\":\"text-slate-600 bg-slate-50\"}`}
+                style={{borderRadius:4}}
+                data-testid={`m-${n.id}`}
+              >
+                <n.icon size={14} /> {n.label}
+              </NavLink>
+            ))}
+          </div>
+        </nav>
+
+        <main className=\"flex-1 p-5 lg:p-8 overflow-auto\">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}
+"
+Observation: Create successful: /app/frontend/src/pages/DashboardLayout.jsx
+
+
+
+
+
+Action: file_editor create /app/frontend/src/pages/Dashboard.jsx --file-text "import React, { useEffect, useState } from \"react\";
+import { Link } from \"react-router-dom\";
+import { api } from \"@/lib/api\";
+import { ArrowUp, ArrowDown, Sparkle, Warning, Receipt, ChatCircleDots, Camera, Microphone, ArrowRight, Package } from \"@phosphor-icons/react\";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid, BarChart, Bar } from \"recharts\";
+
+export default function Dashboard() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get(\"/dashboard\").then(r => setData(r.data)).finally(()=>setLoading(false));
+  }, []);
+
+  if (loading) return <Skeleton />;
+  if (!data) return <div className=\"text-slate-500\">Failed to load dashboard.</div>;
+
+  const today = data.today || {};
+  const score = data.score ?? 0;
+
+  return (
+    <div className=\"space-y-6\" data-testid=\"dashboard-root\">
+      <div className=\"flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3\">
+        <div>
+          <div className=\"label-tiny mb-1\">Today</div>
+          <h1 className=\"font-display font-black text-3xl tracking-tighter\">Good day, {data.user?.name?.split(\" \")[0] || \"boss\"}.</h1>
+          <p className=\"text-slate-600 text-sm mt-1\">Here's how your business is moving right now.</p>
+        </div>
+        <Link to=\"/app/chat\" className=\"btn-signal inline-flex items-center gap-2 self-start sm:self-auto\" data-testid=\"dash-cta-chat\">
+          <ChatCircleDots weight=\"fill\" size={16} /> Tell AI something
+        </Link>
+      </div>
+
+      {/* KPI strip */}
+      <div className=\"grid grid-cols-2 lg:grid-cols-4 gap-4\">
+        <Kpi label=\"Income today\" value={fmt(today.income)} accent=\"text-emerald-600\" Icon={ArrowUp} testid=\"kpi-income\" />
+        <Kpi label=\"Expense today\" value={fmt(today.expense)} accent=\"text-rose-600\" Icon={ArrowDown} testid=\"kpi-expense\" />
+        <Kpi label=\"Profit today\" value={fmt(today.profit)} accent={today.profit >= 0 ? \"text-slate-900\" : \"text-rose-600\"} Icon={Receipt} testid=\"kpi-profit\" />
+        <Kpi label=\"Health score\" value={`${score}/100`} accent=\"text-signal\" Icon={Sparkle} testid=\"kpi-score\" />
+      </div>
+
+      {/* Main grid */}
+      <div className=\"grid lg:grid-cols-3 gap-4\">
+        {/* Chart */}
+        <div className=\"lg:col-span-2 card-flat p-5\">
+          <div className=\"flex items-center justify-between mb-1\">
+            <div>
+              <div className=\"label-tiny text-slate-500\">Last 7 days</div>
+              <h3 className=\"font-display font-bold text-lg tracking-tight\">Cash flow</h3>
+            </div>
+            <div className=\"flex gap-3 text-xs\">
+              <Legend color=\"#00A884\" label=\"Income\" />
+              <Legend color=\"#EF4444\" label=\"Expense\" />
+            </div>
+          </div>
+          <div className=\"h-64 mt-3\" data-testid=\"cashflow-chart\">
+            <ResponsiveContainer width=\"100%\" height=\"100%\">
+              <LineChart data={data.chart}>
+                <CartesianGrid strokeDasharray=\"3 3\" stroke=\"#E5E7EB\" />
+                <XAxis dataKey=\"day\" tickFormatter={(d)=>d.slice(5)} stroke=\"#9CA3AF\" fontSize={11} />
+                <YAxis stroke=\"#9CA3AF\" fontSize={11} />
+                <Tooltip contentStyle={{ borderRadius: 4, fontSize: 12, border: \"1px solid #E5E7EB\" }} />
+                <Line type=\"monotone\" dataKey=\"income\" stroke=\"#00A884\" strokeWidth={2.5} dot={{ r: 3 }} />
+                <Line type=\"monotone\" dataKey=\"expense\" stroke=\"#EF4444\" strokeWidth={2.5} dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Health gauge */}
+        <div className=\"card-flat p-5 bg-[#090E17] text-white border-[#090E17] relative overflow-hidden\">
+          <div className=\"absolute inset-0 grid-bg opacity-30\" />
+          <div className=\"relative\">
+            <div className=\"label-tiny text-white/50\">Business health</div>
+            <h3 className=\"font-display font-bold text-lg tracking-tight\">This week</h3>
+            <Gauge value={score} />
+            <p className=\"text-xs text-white/65 leading-relaxed mt-2\">
+              {score >= 70 ? \"Strong momentum. Keep the discipline going.\" : score >= 40 ? \"Healthy. Watch the watchouts on the right.\" : \"Just getting started — start sending sales to grow the score.\"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Alerts + Activity */}
+      <div className=\"grid lg:grid-cols-2 gap-4\">
+        {/* Smart alerts */}
+        <div className=\"card-flat p-5\">
+          <div className=\"flex items-center justify-between mb-3\">
+            <div>
+              <div className=\"label-tiny text-slate-500\">Smart alerts</div>
+              <h3 className=\"font-display font-bold text-lg tracking-tight\">Watch outs</h3>
+            </div>
+            <Link to=\"/app/insights\" className=\"text-xs text-signal font-semibold tracking-widest uppercase hover:underline\" data-testid=\"link-all-insights\">All</Link>
+          </div>
+          {data.low_stock?.length > 0 || data.insights?.length > 0 ? (
+            <ul className=\"space-y-2\">
+              {data.low_stock?.slice(0,3).map((s) => (
+                <li key={s.id} className=\"flex items-start gap-2.5 p-2.5 bg-amber-50 border border-amber-200\" style={{borderRadius:4}}>
+                  <Warning weight=\"fill\" className=\"text-amber-600 mt-0.5\" size={16} />
+                  <div className=\"text-sm\">
+                    <b className=\"capitalize\">{s.name}</b> running low — only {s.quantity}{s.unit || \"\"} left.
+                  </div>
+                </li>
+              ))}
+              {data.insights?.slice(0,3).map((s) => (
+                <li key={s.id} className=\"flex items-start gap-2.5 p-2.5 bg-emerald-50 border border-emerald-100\" style={{borderRadius:4}}>
+                  <Sparkle weight=\"fill\" className=\"text-signal mt-0.5\" size={16} />
+                  <div className=\"text-sm\">{s.title || s.description}</div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <Empty msg=\"No alerts yet. Send your first sale via AI chat to begin.\" />
+          )}
+        </div>
+
+        {/* AI activity */}
+        <div className=\"card-flat p-5\">
+          <div className=\"flex items-center justify-between mb-3\">
+            <div>
+              <div className=\"label-tiny text-slate-500\">AI activity</div>
+              <h3 className=\"font-display font-bold text-lg tracking-tight\">Recent auto-actions</h3>
+            </div>
+            <Link to=\"/app/chat\" className=\"text-xs text-signal font-semibold tracking-widest uppercase hover:underline\">Open chat</Link>
+          </div>
+          {data.recent?.length ? (
+            <ul className=\"space-y-2\">
+              {data.recent.slice(0, 5).map((c) => (
+                <li key={c.id} className=\"flex items-start gap-2.5 text-sm\">
+                  <div className=\"w-7 h-7 grid place-items-center bg-slate-100\" style={{borderRadius:4}}>
+                    {c.channel === \"chat-voice\" ? <Microphone size={14}/> : c.channel === \"chat-photo\" ? <Camera size={14}/> : <ChatCircleDots size={14}/>}
+                  </div>
+                  <div className=\"flex-1 min-w-0\">
+                    <div className=\"truncate text-slate-700\">{c.raw_input}</div>
+                    <div className=\"text-[11px] text-slate-500 tracking-wider uppercase mt-0.5\">{c.actions_count} action{c.actions_count===1?\"\":\"s\"} recorded</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <Empty msg=\"No conversations yet — head to AI Chat and try 'sold 5kg rice 500rs'.\" />
+          )}
+        </div>
+      </div>
+
+      {/* Top contacts + quick actions */}
+      <div className=\"grid lg:grid-cols-3 gap-4\">
+        <div className=\"card-flat p-5 lg:col-span-2\">
+          <div className=\"flex items-center justify-between mb-3\">
+            <div>
+              <div className=\"label-tiny text-slate-500\">Top customers</div>
+              <h3 className=\"font-display font-bold text-lg tracking-tight\">Who's keeping you in business</h3>
+            </div>
+            <Link to=\"/app/contacts\" className=\"text-xs text-signal font-semibold tracking-widest uppercase hover:underline\">View all</Link>
+          </div>
+          {data.top_contacts?.length ? (
+            <div className=\"grid sm:grid-cols-2 gap-2\">
+              {data.top_contacts.map((c) => (
+                <div key={c.name} className=\"flex items-center justify-between p-3 border border-slate-200\" style={{borderRadius:4}}>
+                  <div className=\"flex items-center gap-3 min-w-0\">
+                    <div className=\"w-9 h-9 bg-slate-900 text-white grid place-items-center font-display font-bold\" style={{borderRadius:4}}>
+                      {c.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className=\"min-w-0\">
+                      <div className=\"font-semibold text-sm truncate\">{c.name}</div>
+                      <div className=\"text-[11px] text-slate-500 tracking-wider uppercase\">{c.count} tx</div>
+                    </div>
+                  </div>
+                  <div className=\"font-display font-bold text-sm text-signal\">{fmt(c.total)}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Empty msg=\"No customers yet — tag party names in your messages: 'sold 200rs chai to Mahesh'.\" />
+          )}
+        </div>
+
+        <div className=\"card-flat p-5 bg-[#090E17] text-white border-[#090E17]\">
+          <div className=\"label-tiny text-white/50\">Quick actions</div>
+          <h3 className=\"font-display font-bold text-lg tracking-tight mb-3\">Talk to VyaparMind</h3>
+          <div className=\"space-y-2\">
+            <Link to=\"/app/chat\" className=\"flex items-center justify-between w-full px-3 py-2.5 bg-white/5 hover:bg-white/10 transition-colors\" style={{borderRadius:4}} data-testid=\"qa-text\">
+              <span className=\"flex items-center gap-2 text-sm\"><ChatCircleDots size={16}/> Text a sale or expense</span>
+              <ArrowRight size={14}/>
+            </Link>
+            <Link to=\"/app/chat\" className=\"flex items-center justify-between w-full px-3 py-2.5 bg-white/5 hover:bg-white/10 transition-colors\" style={{borderRadius:4}} data-testid=\"qa-voice\">
+              <span className=\"flex items-center gap-2 text-sm\"><Microphone size={16}/> Send a voice note</span>
+              <ArrowRight size={14}/>
+            </Link>
+            <Link to=\"/app/chat\" className=\"flex items-center justify-between w-full px-3 py-2.5 bg-white/5 hover:bg-white/10 transition-colors\" style={{borderRadius:4}} data-testid=\"qa-photo\">
+              <span className=\"flex items-center gap-2 text-sm\"><Camera size={16}/> Snap a bill</span>
+              <ArrowRight size={14}/>
+            </Link>
+            <Link to=\"/app/inventory\" className=\"flex items-center justify-between w-full px-3 py-2.5 bg-white/5 hover:bg-white/10 transition-colors\" style={{borderRadius:4}} data-testid=\"qa-inventory\">
+              <span className=\"flex items-center gap-2 text-sm\"><Package size={16}/> View inventory</span>
+              <ArrowRight size={14}/>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function fmt(n) {
+  if (n === undefined || n === null || isNaN(n)) return \"₹0\";
+  const sign = n < 0 ? \"-\" : \"\";
+  return `${sign}₹${Math.abs(Math.round(n)).toLocaleString(\"en-IN\")}`;
+}
+
+function Kpi({ label, value, accent, Icon, testid }) {
+  return (
+    <div className=\"card-flat p-5\" data-testid={testid}>
+      <div className=\"flex items-center justify-between\">
+        <div className=\"label-tiny text-slate-500\">{label}</div>
+        <Icon weight=\"duotone\" size={18} className={accent} />
+      </div>
+      <div className={`mt-2 font-display font-black text-3xl tracking-tighter ${accent}`}>{value}</div>
+    </div>
+  );
+}
+
+function Legend({ color, label }) {
+  return (
+    <span className=\"flex items-center gap-1.5 text-slate-500\">
+      <span className=\"w-2.5 h-2.5\" style={{ background: color, borderRadius: 2 }} />
+      {label}
+    </span>
+  );
+}
+
+function Empty({ msg }) {
+  return <div className=\"text-sm text-slate-500 italic py-4 text-center\">{msg}</div>;
+}
+
+function Gauge({ value }) {
+  const radius = 56;
+  const c = 2 * Math.PI * radius;
+  const dash = (Math.max(0, Math.min(100, value)) / 100) * c;
+  return (
+    <div className=\"relative grid place-items-center my-4\">
+      <svg width=\"160\" height=\"160\" viewBox=\"0 0 160 160\">
+        <circle cx=\"80\" cy=\"80\" r={radius} stroke=\"rgba(255,255,255,0.1)\" strokeWidth=\"10\" fill=\"none\" />
+        <circle
+          cx=\"80\" cy=\"80\" r={radius} stroke=\"#00A884\" strokeWidth=\"10\" fill=\"none\"
+          strokeDasharray={`${dash} ${c}`} strokeLinecap=\"round\"
+          transform=\"rotate(-90 80 80)\"
+        />
+      </svg>
+      <div className=\"absolute text-center\">
+        <div className=\"font-display font-black text-4xl tracking-tighter text-white\">{value}</div>
+        <div className=\"text-[10px] text-white/50 tracking-widest uppercase\">/ 100</div>
+      </div>
+    </div>
+  );
+}
+
+function Skeleton() {
+  return (
+    <div className=\"space-y-4\">
+      <div className=\"h-8 w-64 bg-slate-200 animate-pulse\" />
+      <div className=\"grid grid-cols-2 lg:grid-cols-4 gap-4\">
+        {[...Array(4)].map((_, i) => <div key={i} className=\"h-28 bg-white border border-slate-200 animate-pulse\" />)}
+      </div>
+      <div className=\"h-64 bg-white border border-slate-200 animate-pulse\" />
+    </div>
+  );
+}
+"
+Observation: Create successful: /app/frontend/src/pages/Dashboard.jsx
+
+
+
+
+
+Action: file_editor create /app/frontend/src/pages/ChatPage.jsx --file-text "import React, { useEffect, useRef, useState } from \"react\";
+import { api } from \"@/lib/api\";
+import { Microphone, Camera, PaperPlaneTilt, Lightning, Stop, X } from \"@phosphor-icons/react\";
+import { toast } from \"sonner\";
+
+export default function ChatPage() {
+  const [msgs, setMsgs] = useState([
+    { id: \"w\", side: \"ai\", text: \"Namaste! I'm VyaparMind. Just tell me about your business — sales, expenses, stock changes, customers. Try: 'sold 2kg sugar 80rs to Anjali' or attach a bill photo.\" }
+  ]);
+  const [text, setText] = useState(\"\");
+  const [busy, setBusy] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const recRef = useRef(null);
+  const chunksRef = useRef([]);
+  const scrollRef = useRef(null);
+  const fileRef = useRef(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: \"smooth\" });
+  }, [msgs]);
+
+  const push = (m) => setMsgs((prev) => [...prev, { id: crypto.randomUUID(), ...m }]);
+
+  const handleSend = async () => {
+    const t = text.trim();
+    if (!t || busy) return;
+    push({ side: \"user\", text: t });
+    setText(\"\");
+    setBusy(true);
+    try {
+      const { data } = await api.post(\"/chat/text\", { text: t });
+      push({ side: \"ai\", text: data.parsed?.reply || \"Got it.\", actions: data.actions });
+    } catch (e) {
+      push({ side: \"ai\", text: \"Couldn't reach the AI. Try again in a moment.\", error: true });
+    } finally { setBusy(false); }
+  };
+
+  const startRec = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mr = new MediaRecorder(stream, { mimeType: \"audio/webm\" });
+      chunksRef.current = [];
+      mr.ondataavailable = (e) => chunksRef.current.push(e.data);
+      mr.onstop = async () => {
+        const blob = new Blob(chunksRef.current, { type: \"audio/webm\" });
+        stream.getTracks().forEach(t => t.stop());
+        push({ side: \"user\", text: \"🎤 voice note\", audio: URL.createObjectURL(blob) });
+        setBusy(true);
+        try {
+          const fd = new FormData();
+          fd.append(\"audio\", blob, \"voice.webm\");
+          const { data } = await api.post(\"/chat/voice\", fd, { headers: { \"Content-Type\": \"multipart/form-data\" } });
+          if (data.transcript) push({ side: \"user-transcript\", text: `\"${data.transcript}\"` });
+          push({ side: \"ai\", text: data.parsed?.reply || \"Got it.\", actions: data.actions });
+        } catch (e) {
+          push({ side: \"ai\", text: \"Voice transcription failed.\", error: true });
+        } finally { setBusy(false); }
+      };
+      mr.start();
+      recRef.current = mr;
+      setRecording(true);
+    } catch (e) {
+      toast.error(\"Microphone access denied\");
+    }
+  };
+
+  const stopRec = () => {
+    if (recRef.current && recRef.current.state !== \"inactive\") recRef.current.stop();
+    setRecording(false);
+  };
+
+  const handlePhoto = async (file) => {
+    if (!file) return;
+    push({ side: \"user\", text: \"📷 Bill photo\", img: URL.createObjectURL(file) });
+    setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append(\"image\", file);
+      fd.append(\"note\", \"Extract transactions from this bill/receipt.\");
+      const { data } = await api.post(\"/chat/photo\", fd, { headers: { \"Content-Type\": \"multipart/form-data\" } });
+      push({ side: \"ai\", text: data.parsed?.reply || \"Got it.\", actions: data.actions });
+    } catch (e) {
+      push({ side: \"ai\", text: \"Photo analysis failed.\", error: true });
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <div className=\"h-[calc(100vh-9rem)] lg:h-[calc(100vh-6rem)] flex flex-col\" data-testid=\"chat-page\">
+      <div className=\"mb-4\">
+        <div className=\"label-tiny mb-1\">AI Chat</div>
+        <h1 className=\"font-display font-black text-3xl tracking-tighter\">Talk to your business.</h1>
+      </div>
+
+      <div ref={scrollRef} className=\"flex-1 overflow-y-auto bg-white border border-slate-200 p-5 space-y-3\" style={{borderRadius:6}}>
+        {msgs.map((m) => <Bubble key={m.id} m={m} />)}
+        {busy && (
+          <div className=\"flex items-center gap-2 text-slate-500 text-sm\">
+            <Lightning weight=\"fill\" size={14} className=\"text-signal animate-pulse\" /> AI is thinking…
+          </div>
+        )}
+      </div>
+
+      <div className=\"mt-3 flex items-end gap-2\">
+        <div className=\"flex-1 flex items-center bg-white border border-slate-300 focus-within:border-signal focus-within:ring-1 focus-within:ring-signal\" style={{borderRadius:4}}>
+          <textarea
+            value={text} onChange={(e)=>setText(e.target.value)}
+            onKeyDown={(e)=>{ if (e.key===\"Enter\" && !e.shiftKey){ e.preventDefault(); handleSend(); } }}
+            rows={1}
+            placeholder='Try: \"bought 10kg sugar for 500\" or \"kitna kamaya aaj\"'
+            className=\"flex-1 px-3 py-3 text-sm bg-transparent outline-none resize-none max-h-28\"
+            data-testid=\"chat-input\"
+          />
+          <input ref={fileRef} type=\"file\" accept=\"image/*\" capture=\"environment\" hidden onChange={(e)=>{handlePhoto(e.target.files?.[0]); e.target.value=\"\";}} data-testid=\"chat-photo-input\" />
+          <button onClick={()=>fileRef.current?.click()} className=\"px-3 text-slate-600 hover:text-signal\" title=\"Attach a photo\" data-testid=\"chat-photo-btn\">
+            <Camera size={20} />
+          </button>
+          {recording ? (
+            <button onClick={stopRec} className=\"px-3 text-rose-600\" title=\"Stop\" data-testid=\"chat-stop-btn\"><Stop weight=\"fill\" size={20}/></button>
+          ) : (
+            <button onClick={startRec} className=\"px-3 text-slate-600 hover:text-signal\" title=\"Voice note\" data-testid=\"chat-mic-btn\"><Microphone size={20}/></button>
+          )}
+        </div>
+        <button onClick={handleSend} disabled={!text.trim() || busy} className=\"btn-signal h-12 px-4 disabled:opacity-50\" data-testid=\"chat-send-btn\">
+          <PaperPlaneTilt weight=\"fill\" size={18} />
+        </button>
+      </div>
+
+      {recording && (
+        <div className=\"mt-2 text-xs text-rose-600 tracking-widest uppercase font-bold flex items-center gap-2\">
+          <span className=\"w-2 h-2 bg-rose-600 rounded-full animate-pulse\" /> recording — tap stop when done
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Bubble({ m }) {
+  if (m.side === \"user-transcript\") {
+    return (
+      <div className=\"flex justify-end\">
+        <div className=\"text-[11px] text-slate-500 italic\">{m.text}</div>
+      </div>
+    );
+  }
+  const isUser = m.side === \"user\";
+  return (
+    <div className={`flex ${isUser ? \"justify-end\" : \"justify-start\"}`}>
+      <div
+        className={`max-w-[80%] px-3.5 py-2.5 text-sm leading-relaxed ${
+          isUser ? \"bg-slate-900 text-white\" : m.error ? \"bg-rose-50 border border-rose-200 text-rose-900\" : \"bg-emerald-50 border border-emerald-100 text-slate-800\"
+        }`}
+        style={{ borderRadius: 4 }}
+      >
+        {m.img && <img src={m.img} alt=\"upload\" className=\"mb-2 max-h-40 object-cover\" style={{borderRadius:3}} />}
+        {m.audio && <audio src={m.audio} controls className=\"mb-2 max-w-full\" />}
+        <div className=\"whitespace-pre-wrap\">{m.text}</div>
+        {m.actions?.length > 0 && (
+          <div className=\"mt-2.5 pt-2.5 border-t border-emerald-200 space-y-1\">
+            {m.actions.map((a, i) => <ActionChip key={i} a={a} />)}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ActionChip({ a }) {
+  if (a.kind === \"transaction\") {
+    const d = a.data;
+    return <div className=\"text-[11px] tracking-wider uppercase font-bold text-emerald-800\">✓ {d.type}: ₹{Math.round(d.amount)} · {d.category}{d.party_name ? ` · ${d.party_name}` : \"\"}</div>;
+  }
+  if (a.kind === \"inventory\") {
+    return <div className=\"text-[11px] tracking-wider uppercase font-bold text-emerald-800\">✓ inventory: {a.data.name} → {a.data.quantity}{a.data.unit || \"\"}</div>;
+  }
+  if (a.kind === \"insight\") {
+    return <div className=\"text-[11px] tracking-wider uppercase font-bold text-amber-700\">💡 {a.data.title}</div>;
+  }
+  return null;
+}
+"
+Observation: Create successful: /app/frontend/src/pages/ChatPage.jsx
+
+
+
+
+
+Action: file_editor create /app/frontend/src/pages/Transactions.jsx --file-text "import React, { useEffect, useState } from \"react\";
+import { api } from \"@/lib/api\";
+import { Plus, Trash, ArrowUp, ArrowDown } from \"@phosphor-icons/react\";
+import { toast } from \"sonner\";
+
+export default function Transactions() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState({ type: \"income\", amount: \"\", category: \"\", party_name: \"\", description: \"\" });
+  const [showForm, setShowForm] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    const { data } = await api.get(\"/transactions\");
+    setItems(data.items || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const add = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post(\"/transactions\", { ...form, amount: parseFloat(form.amount) });
+      toast.success(\"Transaction added\");
+      setForm({ type: \"income\", amount: \"\", category: \"\", party_name: \"\", description: \"\" });
+      setShowForm(false);
+      load();
+    } catch { toast.error(\"Failed to add\"); }
+  };
+
+  const del = async (id) => {
+    await api.delete(`/transactions/${id}`);
+    toast.success(\"Deleted\");
+    load();
+  };
+
+  return (
+    <div data-testid=\"transactions-page\">
+      <div className=\"flex items-end justify-between mb-5\">
+        <div>
+          <div className=\"label-tiny mb-1\">Ledger</div>
+          <h1 className=\"font-display font-black text-3xl tracking-tighter\">Transactions</h1>
+        </div>
+        <button onClick={()=>setShowForm(!showForm)} className=\"btn-signal inline-flex items-center gap-2\" data-testid=\"add-tx-btn\">
+          <Plus weight=\"bold\" size={16} /> Add manual
+        </button>
+      </div>
+
+      {showForm && (
+        <form onSubmit={add} className=\"card-flat p-5 mb-5 grid sm:grid-cols-5 gap-3\" data-testid=\"tx-form\">
+          <select value={form.type} onChange={(e)=>setForm({...form, type:e.target.value})} className=\"px-3 py-2.5 border border-slate-300 bg-white text-sm\" style={{borderRadius:4}}>
+            <option value=\"income\">Income</option>
+            <option value=\"expense\">Expense</option>
+          </select>
+          <input required type=\"number\" step=\"0.01\" placeholder=\"Amount ₹\" value={form.amount} onChange={(e)=>setForm({...form, amount:e.target.value})} className=\"px-3 py-2.5 border border-slate-300 bg-white text-sm\" style={{borderRadius:4}} />
+          <input placeholder=\"Category\" value={form.category} onChange={(e)=>setForm({...form, category:e.target.value})} className=\"px-3 py-2.5 border border-slate-300 bg-white text-sm\" style={{borderRadius:4}} />
+          <input placeholder=\"Party (optional)\" value={form.party_name} onChange={(e)=>setForm({...form, party_name:e.target.value})} className=\"px-3 py-2.5 border border-slate-300 bg-white text-sm\" style={{borderRadius:4}} />
+          <button type=\"submit\" className=\"btn-signal text-sm\">Save</button>
+        </form>
+      )}
+
+      <div className=\"card-flat overflow-hidden\">
+        {loading ? (
+          <div className=\"p-8 text-center text-slate-500\">Loading…</div>
+        ) : items.length === 0 ? (
+          <div className=\"p-12 text-center text-slate-500\">
+            <div className=\"font-display font-bold text-lg mb-1\">No transactions yet</div>
+            <div className=\"text-sm\">Use AI Chat or add one manually.</div>
+          </div>
+        ) : (
+          <table className=\"w-full text-sm\">
+            <thead className=\"bg-slate-50 border-b border-slate-200\">
+              <tr className=\"text-left\">
+                <th className=\"px-4 py-3 label-tiny text-slate-500\">Date</th>
+                <th className=\"px-4 py-3 label-tiny text-slate-500\">Type</th>
+                <th className=\"px-4 py-3 label-tiny text-slate-500 text-right\">Amount</th>
+                <th className=\"px-4 py-3 label-tiny text-slate-500\">Category</th>
+                <th className=\"px-4 py-3 label-tiny text-slate-500\">Party</th>
+                <th className=\"px-4 py-3 label-tiny text-slate-500\">Source</th>
+                <th className=\"px-4 py-3\"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((t) => (
+                <tr key={t.id} className=\"border-b border-slate-100 hover:bg-slate-50\">
+                  <td className=\"px-4 py-3 text-slate-600 text-xs\">{new Date(t.created_at).toLocaleString(\"en-IN\", {dateStyle:\"medium\", timeStyle:\"short\"})}</td>
+                  <td className=\"px-4 py-3\">
+                    {t.type === \"income\" ? (
+                      <span className=\"inline-flex items-center gap-1 text-xs text-emerald-700 font-bold tracking-wider uppercase\"><ArrowUp size={12}/> Income</span>
+                    ) : (
+                      <span className=\"inline-flex items-center gap-1 text-xs text-rose-700 font-bold tracking-wider uppercase\"><ArrowDown size={12}/> Expense</span>
+                    )}
+                  </td>
+                  <td className=\"px-4 py-3 text-right font-display font-bold\">₹{Math.round(t.amount).toLocaleString(\"en-IN\")}</td>
+                  <td className=\"px-4 py-3 capitalize\">{t.category}</td>
+                  <td className=\"px-4 py-3 capitalize\">{t.party_name || \"—\"}</td>
+                  <td className=\"px-4 py-3 text-xs text-slate-500 tracking-wider uppercase\">{t.source}</td>
+                  <td className=\"px-4 py-3 text-right\">
+                    <button onClick={()=>del(t.id)} className=\"text-slate-400 hover:text-rose-600\" data-testid={`del-tx-${t.id}`}><Trash size={16}/></button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+"
+Observation: Create successful: /app/frontend/src/pages/Transactions.jsx
+
+
+
+Action: file_editor create /app/frontend/src/pages/Inventory.jsx --file-text "import React, { useEffect, useState } from \"react\";
+import { api } from \"@/lib/api\";
+import { Package, Warning } from \"@phosphor-icons/react\";
+
+export default function Inventory() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get(\"/inventory\").then(r => setItems(r.data.items || [])).finally(()=>setLoading(false));
+  }, []);
+
+  return (
+    <div data-testid=\"inventory-page\">
+      <div className=\"mb-5\">
+        <div className=\"label-tiny mb-1\">Stock</div>
+        <h1 className=\"font-display font-black text-3xl tracking-tighter\">Inventory</h1>
+        <p className=\"text-slate-600 text-sm mt-1\">Auto-updated from your AI chat. Mention items by name and quantity — VyaparMind tracks them.</p>
+      </div>
+
+      {loading ? (
+        <div className=\"card-flat p-8 text-center text-slate-500\">Loading…</div>
+      ) : items.length === 0 ? (
+        <div className=\"card-flat p-12 text-center\">
+          <Package weight=\"duotone\" size={48} className=\"text-slate-300 mx-auto mb-3\" />
+          <div className=\"font-display font-bold text-lg mb-1\">No items yet</div>
+          <p className=\"text-sm text-slate-500\">Try sending in AI Chat: \"bought 20kg rice for 1500\"</p>
+        </div>
+      ) : (
+        <div className=\"grid sm:grid-cols-2 lg:grid-cols-3 gap-3\">
+          {items.map((i) => {
+            const low = i.quantity <= (i.reorder_level || 5);
+            return (
+              <div key={i.id} className={`card-flat p-4 ${low ? \"border-amber-300\" : \"\"}`} data-testid={`inv-item-${i.id}`}>
+                <div className=\"flex items-center justify-between\">
+                  <div className=\"font-display font-bold text-lg capitalize tracking-tight\">{i.name}</div>
+                  {low && <Warning weight=\"fill\" className=\"text-amber-500\" size={18} />}
+                </div>
+                <div className=\"mt-2 font-display font-black text-3xl tracking-tighter text-slate-900\">
+                  {i.quantity} <span className=\"text-base text-slate-500 font-medium\">{i.unit || \"\"}</span>
+                </div>
+                <div className=\"label-tiny text-slate-500 mt-1\">Reorder at {i.reorder_level || 5}{i.unit || \"\"}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+"
+Observation: Create successful: /app/frontend/src/pages/Inventory.jsx
+
+
+
+Action: file_editor create /app/frontend/src/pages/Contacts.jsx --file-text "import React, { useEffect, useState } from \"react\";
+import { api } from \"@/lib/api\";
+import { Users } from \"@phosphor-icons/react\";
+
+export default function Contacts() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get(\"/contacts\").then(r => setItems(r.data.items || [])).finally(()=>setLoading(false));
+  }, []);
+
+  return (
+    <div data-testid=\"contacts-page\">
+      <div className=\"mb-5\">
+        <div className=\"label-tiny mb-1\">CRM</div>
+        <h1 className=\"font-display font-black text-3xl tracking-tighter\">Contacts</h1>
+        <p className=\"text-slate-600 text-sm mt-1\">Names you mention in your chat become contacts automatically.</p>
+      </div>
+
+      {loading ? (
+        <div className=\"card-flat p-8 text-center text-slate-500\">Loading…</div>
+      ) : items.length === 0 ? (
+        <div className=\"card-flat p-12 text-center\">
+          <Users weight=\"duotone\" size={48} className=\"text-slate-300 mx-auto mb-3\" />
+          <div className=\"font-display font-bold text-lg mb-1\">No contacts yet</div>
+          <p className=\"text-sm text-slate-500\">Tag party names in messages — \"sold 100rs to Ramesh\".</p>
+        </div>
+      ) : (
+        <div className=\"grid sm:grid-cols-2 lg:grid-cols-3 gap-3\">
+          {items.map((c) => (
+            <div key={c.name} className=\"card-flat p-4\" data-testid={`contact-${c.name}`}>
+              <div className=\"flex items-center gap-3\">
+                <div className=\"w-11 h-11 bg-slate-900 text-white grid place-items-center font-display font-bold text-lg\" style={{borderRadius:4}}>
+                  {c.name.charAt(0).toUpperCase()}
+                </div>
+                <div className=\"min-w-0\">
+                  <div className=\"font-display font-bold text-lg tracking-tight capitalize truncate\">{c.name}</div>
+                  <div className=\"label-tiny text-slate-500\">{c.count} interactions</div>
+                </div>
+              </div>
+              <div className=\"mt-4 grid grid-cols-2 gap-2 pt-3 border-t border-slate-100\">
+                <div>
+                  <div className=\"label-tiny text-slate-500\">Earned</div>
+                  <div className=\"font-display font-bold text-signal\">₹{Math.round(c.total_income).toLocaleString(\"en-IN\")}</div>
+                </div>
+                <div>
+                  <div className=\"label-tiny text-slate-500\">Paid out</div>
+                  <div className=\"font-display font-bold text-rose-600\">₹{Math.round(c.total_expense).toLocaleString(\"en-IN\")}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+"
+Observation: Create successful: /app/frontend/src/pages/Contacts.jsx
+
+
+
+
+Action: file_editor create /app/frontend/src/pages/Insights.jsx --file-text "import React, { useEffect, useState } from \"react\";
+import { api } from \"@/lib/api\";
+import { Sparkle, ChartLine } from \"@phosphor-icons/react\";
+import { toast } from \"sonner\";
+
+export default function Insights() {
+  const [items, setItems] = useState([]);
+  const [report, setReport] = useState(\"\");
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    const { data } = await api.get(\"/insights\");
+    setItems(data.items || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const generate = async () => {
+    setGenerating(true);
+    try {
+      const { data } = await api.post(\"/insights/generate\");
+      setReport(data.report);
+      toast.success(\"Weekly report generated\");
+      load();
+    } catch { toast.error(\"Could not generate report\"); }
+    finally { setGenerating(false); }
+  };
+
+  return (
+    <div data-testid=\"insights-page\">
+      <div className=\"flex items-end justify-between mb-5\">
+        <div>
+          <div className=\"label-tiny mb-1\">AI Insights</div>
+          <h1 className=\"font-display font-black text-3xl tracking-tighter\">Your business, explained.</h1>
+        </div>
+        <button onClick={generate} disabled={generating} className=\"btn-signal inline-flex items-center gap-2 disabled:opacity-60\" data-testid=\"gen-insight-btn\">
+          <Sparkle weight=\"fill\" size={16} /> {generating ? \"Generating…\" : \"Generate weekly report\"}
+        </button>
+      </div>
+
+      {report && (
+        <div className=\"card-flat p-6 mb-5 bg-emerald-50 border-emerald-200\">
+          <div className=\"label-tiny text-emerald-700 mb-2\">AI weekly report · just now</div>
+          <div className=\"prose prose-sm max-w-none whitespace-pre-wrap text-slate-800 leading-relaxed\">{report}</div>
+        </div>
+      )}
+
+      {loading ? (
+        <div className=\"card-flat p-8 text-center text-slate-500\">Loading…</div>
+      ) : items.length === 0 ? (
+        <div className=\"card-flat p-12 text-center\">
+          <ChartLine weight=\"duotone\" size={48} className=\"text-slate-300 mx-auto mb-3\" />
+          <div className=\"font-display font-bold text-lg mb-1\">No insights yet</div>
+          <p className=\"text-sm text-slate-500\">Generate a report — AI will analyze your transactions and give actionable suggestions.</p>
+        </div>
+      ) : (
+        <ul className=\"space-y-2\">
+          {items.map((i) => (
+            <li key={i.id} className=\"card-flat p-4\" data-testid={`insight-${i.id}`}>
+              <div className=\"flex items-start gap-3\">
+                <Sparkle weight=\"fill\" className=\"text-signal mt-1\" size={18} />
+                <div className=\"flex-1 min-w-0\">
+                  <div className=\"font-semibold text-sm\">{i.title}</div>
+                  <div className=\"text-sm text-slate-600 leading-relaxed mt-1 whitespace-pre-wrap\">{i.description}</div>
+                  <div className=\"label-tiny text-slate-400 mt-2\">{new Date(i.created_at).toLocaleString(\"en-IN\")}</div>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+"
+Observation: Create successful: /app/frontend/src/pages/Insights.jsx
+
+
+
+
+Action: file_editor create /app/frontend/src/pages/Automations.jsx --file-text "import React, { useEffect, useState } from \"react\";
+import { api } from \"@/lib/api\";
+import { Plus, Trash, Lightning } from \"@phosphor-icons/react\";
+import { toast } from \"sonner\";
+
+const TEMPLATES = [
+  { name: \"Daily Sales Tracker\", trigger: \"Every day at 9pm\", action: \"Send end-of-day income/expense summary\" },
+  { name: \"Smart Reorder\", trigger: \"Stock drops below reorder level\", action: \"Alert and draft order to supplier\" },
+  { name: \"Customer Follow-up\", trigger: \"No visit in 14 days from a top customer\", action: \"Send a friendly WhatsApp message\" },
+  { name: \"Payment Reminder\", trigger: \"Due date approaching for receivable\", action: \"Send polite reminder\" },
+];
+
+export default function Automations() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState({ name: \"\", trigger: \"\", action: \"\" });
+
+  const load = async () => {
+    setLoading(true);
+    const { data } = await api.get(\"/automations\");
+    setItems(data.items || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const create = async (payload) => {
+    await api.post(\"/automations\", { ...payload, active: true });
+    toast.success(\"Automation added\");
+    load();
+  };
+
+  const toggle = async (a) => {
+    await api.patch(`/automations/${a.id}`, { active: !a.active });
+    load();
+  };
+
+  const del = async (id) => {
+    await api.delete(`/automations/${id}`);
+    load();
+  };
+
+  return (
+    <div data-testid=\"automations-page\">
+      <div className=\"mb-5\">
+        <div className=\"label-tiny mb-1\">Automations</div>
+        <h1 className=\"font-display font-black text-3xl tracking-tighter\">Set it. Forget it.</h1>
+        <p className=\"text-slate-600 text-sm mt-1\">Pre-built rules + AI-learned automations from your patterns.</p>
+      </div>
+
+      <div className=\"card-flat p-5 mb-5\">
+        <div className=\"label-tiny text-slate-500 mb-3\">Quick-start templates</div>
+        <div className=\"grid sm:grid-cols-2 gap-3\">
+          {TEMPLATES.map((t) => (
+            <div key={t.name} className=\"border border-slate-200 p-4 flex flex-col justify-between\" style={{borderRadius:4}}>
+              <div>
+                <div className=\"flex items-center gap-2 mb-1\">
+                  <Lightning weight=\"fill\" className=\"text-signal\" size={16} />
+                  <div className=\"font-semibold text-sm\">{t.name}</div>
+                </div>
+                <div className=\"text-xs text-slate-500 mt-2\">WHEN: {t.trigger}</div>
+                <div className=\"text-xs text-slate-500\">DO: {t.action}</div>
+              </div>
+              <button onClick={()=>create(t)} className=\"mt-3 text-xs font-bold tracking-widest uppercase text-signal hover:underline self-start\" data-testid={`tmpl-${t.name.replace(/\s+/g,'-').toLowerCase()}`}>+ Enable</button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <form onSubmit={(e)=>{e.preventDefault(); if(!form.name) return; create(form); setForm({name:\"\",trigger:\"\",action:\"\"});}} className=\"card-flat p-5 mb-5 grid sm:grid-cols-4 gap-3\" data-testid=\"auto-form\">
+        <input placeholder=\"Automation name\" value={form.name} onChange={(e)=>setForm({...form,name:e.target.value})} className=\"px-3 py-2.5 border border-slate-300 bg-white text-sm\" style={{borderRadius:4}} />
+        <input placeholder=\"Trigger (when…)\" value={form.trigger} onChange={(e)=>setForm({...form,trigger:e.target.value})} className=\"px-3 py-2.5 border border-slate-300 bg-white text-sm\" style={{borderRadius:4}} />
+        <input placeholder=\"Action (do…)\" value={form.action} onChange={(e)=>setForm({...form,action:e.target.value})} className=\"px-3 py-2.5 border border-slate-300 bg-white text-sm\" style={{borderRadius:4}} />
+        <button type=\"submit\" className=\"btn-signal inline-flex items-center justify-center gap-2 text-sm\"><Plus weight=\"bold\" size={14}/> Add custom</button>
+      </form>
+
+      <div className=\"card-flat overflow-hidden\">
+        {loading ? (
+          <div className=\"p-8 text-center text-slate-500\">Loading…</div>
+        ) : items.length === 0 ? (
+          <div className=\"p-12 text-center text-slate-500\">
+            <div className=\"font-display font-bold text-lg mb-1\">No automations yet</div>
+            <div className=\"text-sm\">Enable a template above to get started.</div>
+          </div>
+        ) : (
+          <ul>
+            {items.map((a) => (
+              <li key={a.id} className=\"px-5 py-4 border-b border-slate-100 last:border-0 flex items-center gap-4\" data-testid={`auto-${a.id}`}>
+                <div className=\"flex-1 min-w-0\">
+                  <div className=\"font-semibold text-sm\">{a.name}</div>
+                  <div className=\"text-xs text-slate-500 mt-0.5\">When: {a.trigger} · Do: {a.action}</div>
+                </div>
+                <button onClick={()=>toggle(a)} className={`px-3 py-1.5 text-[11px] font-bold tracking-widest uppercase ${a.active ? \"bg-signal text-white\" : \"bg-slate-100 text-slate-600\"}`} style={{borderRadius:4}}>
+                  {a.active ? \"Active\" : \"Paused\"}
+                </button>
+                <button onClick={()=>del(a.id)} className=\"text-slate-400 hover:text-rose-600\"><Trash size={16}/></button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+"
+Observation: Create successful: /app/frontend/src/pages/Automations.jsx
+
+
+
+
+Action: file_editor create /app/frontend/src/pages/Settings.jsx --file-text "import React, { useState } from \"react\";
+import { api } from \"@/lib/api\";
+import { useAuth } from \"@/lib/auth\";
+import { toast } from \"sonner\";
+
+export default function Settings() {
+  const { user, setUser, logout } = useAuth();
+  const [form, setForm] = useState({
+    business_name: user?.business_name || \"\",
+    business_type: user?.business_type || \"\",
+    language: user?.language || \"en\",
+  });
+  const [busy, setBusy] = useState(false);
+
+  const save = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      const { data } = await api.patch(\"/auth/business\", form);
+      setUser(data);
+      toast.success(\"Settings saved\");
+    } catch { toast.error(\"Could not save\"); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <div className=\"max-w-2xl\" data-testid=\"settings-page\">
+      <div className=\"mb-5\">
+        <div className=\"label-tiny mb-1\">Settings</div>
+        <h1 className=\"font-display font-black text-3xl tracking-tighter\">Your account.</h1>
+      </div>
+
+      <form onSubmit={save} className=\"card-flat p-6 space-y-4\">
+        <Field label=\"Name\" value={user?.name || \"\"} disabled />
+        <Field label=\"Email\" value={user?.email || \"\"} disabled />
+        <Field label=\"Business name\" value={form.business_name} onChange={(v)=>setForm({...form, business_name:v})} testid=\"set-biz-name\" />
+        <div>
+          <label className=\"label-tiny block mb-1.5\">Business type</label>
+          <select value={form.business_type} onChange={(e)=>setForm({...form, business_type:e.target.value})} className=\"w-full px-3.5 py-3 bg-white border border-slate-300 focus:ring-1 focus:ring-signal focus:border-signal outline-none text-sm\" style={{borderRadius:4}} data-testid=\"set-biz-type\">
+            <option value=\"kirana\">Kirana / Retail</option>
+            <option value=\"clinic\">Clinic / Pharmacy</option>
+            <option value=\"transport\">Transport / Logistics</option>
+            <option value=\"farm\">Farm / Agri</option>
+            <option value=\"salon\">Salon / Beauty</option>
+            <option value=\"workshop\">Workshop / Service</option>
+            <option value=\"other\">Other</option>
+          </select>
+        </div>
+        <div>
+          <label className=\"label-tiny block mb-1.5\">Preferred language</label>
+          <select value={form.language} onChange={(e)=>setForm({...form, language:e.target.value})} className=\"w-full px-3.5 py-3 bg-white border border-slate-300 focus:ring-1 focus:ring-signal focus:border-signal outline-none text-sm\" style={{borderRadius:4}} data-testid=\"set-language\">
+            <option value=\"en\">English</option>
+            <option value=\"hi\">हिन्दी</option>
+            <option value=\"ta\">தமிழ்</option>
+            <option value=\"te\">తెలుగు</option>
+            <option value=\"kn\">ಕನ್ನಡ</option>
+            <option value=\"bn\">বাংলা</option>
+            <option value=\"mr\">मराठी</option>
+            <option value=\"gu\">ગુજરાતી</option>
+            <option value=\"ml\">മലയാളം</option>
+          </select>
+        </div>
+        <div className=\"flex justify-between items-center pt-4 border-t border-slate-100\">
+          <button type=\"button\" onClick={logout} className=\"text-sm text-rose-600 hover:underline\" data-testid=\"set-logout\">Sign out</button>
+          <button disabled={busy} type=\"submit\" className=\"btn-signal text-sm disabled:opacity-60\" data-testid=\"set-save\">{busy ? \"Saving…\" : \"Save changes\"}</button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, disabled, testid }) {
+  return (
+    <div>
+      <label className=\"label-tiny block mb-1.5\">{label}</label>
+      <input
+        value={value} onChange={onChange ? (e)=>onChange(e.target.value) : undefined} disabled={disabled}
+        className=\"w-full px-3.5 py-3 bg-white border border-slate-300 focus:ring-1 focus:ring-signal focus:border-signal outline-none text-sm disabled:bg-slate-50 disabled:text-slate-500\"
+        style={{borderRadius:4}}
+        data-testid={testid}
+      />
+    </div>
+  );
+}
+"
+Observation: Create successful: /app/frontend/src/pages/Settings.jsx
+
+
+
+Action: file_editor str_replace /app/frontend/src/pages/Landing.jsx --old-str "function FeatureCard({ icon: Icon, title, desc, cols }) {
+  return (
+    <div className={`md:col-span-${cols} bg-white p-6 border border-slate-200 hover:border-slate-400 transition-colors`} style={{borderRadius:6}}>
+      <Icon weight=\"duotone\" size={28} className=\"text-signal mb-4\" />
+      <h3 className=\"font-display font-bold text-lg tracking-tight mb-1.5\">{title}</h3>
+      <p className=\"text-sm text-slate-600 leading-relaxed\">{desc}</p>
+    </div>
+  );
+}" --new-str "function FeatureCard({ icon: Icon, title, desc, cols }) {
+  const colMap = { 2: \"md:col-span-2\", 3: \"md:col-span-3\", 4: \"md:col-span-4\" };
+  return (
+    <div className={`${colMap[cols] || \"md:col-span-3\"} bg-white p-6 border border-slate-200 hover:border-slate-400 transition-colors`} style={{borderRadius:6}}>
+      <Icon weight=\"duotone\" size={28} className=\"text-signal mb-4\" />
+      <h3 className=\"font-display font-bold text-lg tracking-tight mb-1.5\">{title}</h3>
+      <p className=\"text-sm text-slate-600 leading-relaxed\">{desc}</p>
+    </div>
+  );
+}"
+Observation: Edit was successful.
+
+
+Arrange the above files perfectly and make the App Work 
+
+
+
