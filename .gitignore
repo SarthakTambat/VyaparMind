@@ -18,7 +18,10 @@ build/
 Thumbs.db
 .DS_Store
 
-# Test images
-*.png
-*.jpg
-*.jpeg
+# Test images (bill photos)
+backend/data/bills/
+image.png
+
+# But allow logos
+!*Logo*
+!frontend/public/*.png
