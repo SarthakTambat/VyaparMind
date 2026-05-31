@@ -2002,18 +2002,24 @@ async def apply_ai_result(user_id: str, parsed: Dict[str, Any], source: str, raw
 
     # bump score
     if actions:
-        await db.users.update_one({"id": user_id}, {"$inc": {"score": min(3, len(actions))}})
+        try:
+            await db.users.update_one({"id": user_id}, {"$inc": {"score": min(3, len(actions))}})
+        except Exception:
+            pass
 
-    # Log conversation
-    await db.conversations.insert_one({
-        "id": str(uuid.uuid4()),
-        "user_id": user_id,
-        "channel": source,
-        "raw_input": raw_input[:2000],
-        "parsed": parsed,
-        "actions_count": len(actions),
-        "created_at": now_iso(),
-    })
+    # Log conversation (non-fatal - don't break chat if logging fails)
+    try:
+        await db.conversations.insert_one({
+            "id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "channel": source,
+            "raw_input": raw_input[:2000],
+            "parsed": parsed,
+            "actions_count": len(actions),
+            "created_at": now_iso(),
+        })
+    except Exception as e:
+        logging.warning(f"Failed to log conversation: {e}")
     return actions
 
 # ------------------- Chat Routes -------------------
@@ -2076,26 +2082,30 @@ async def chat_photo(image: UploadFile = File(...), note: str = Form(""), user=D
     return {"parsed": parsed, "actions": actions}
 
 async def build_context(user_id: str) -> str:
-    today = datetime.now(timezone.utc).date().isoformat()
-    txs = await db.transactions.find({"user_id": user_id, "created_at": {"$gte": today}}, {"_id": 0}).to_list(200)
-    income = sum(t["amount"] for t in txs if t["type"] == "income")
-    expense = sum(t["amount"] for t in txs if t["type"] == "expense")
-    inv = await db.inventory.find({"user_id": user_id}, {"_id": 0}).to_list(50)
-    inv_str = ", ".join(f"{i['name']}: {i['quantity']}{i.get('unit','')}" for i in inv[:10])
-    # Udhar context
-    udhar_entries = await db.udhar.find({"user_id": user_id, "status": "pending"}, {"_id": 0}).to_list(50)
-    udhar_given = sum(e["amount"] for e in udhar_entries if e.get("type") == "given")
-    udhar_taken = sum(e["amount"] for e in udhar_entries if e.get("type") == "taken")
-    udhar_people = ", ".join(f"{e['party_name']}(₹{e['amount']} {e['type']})" for e in udhar_entries[:8])
-    # Staff context
-    staff_list = await db.staff.find({"user_id": user_id, "status": "active"}, {"_id": 0}).to_list(50)
-    staff_str = ", ".join(s["name"] for s in staff_list[:10])
-    return (
-        f"Today income: ₹{income}. Today expense: ₹{expense}. "
-        f"Inventory: {inv_str or 'empty'}. "
-        f"Udhar pending - Given: ₹{udhar_given}, Taken: ₹{udhar_taken}. People: {udhar_people or 'none'}. "
-        f"Staff: {staff_str or 'none'}."
-    )
+    try:
+        today = datetime.now(timezone.utc).date().isoformat()
+        txs = await db.transactions.find({"user_id": user_id, "created_at": {"$gte": today}}, {"_id": 0}).to_list(200)
+        income = sum(t.get("amount", 0) for t in txs if t.get("type") == "income")
+        expense = sum(t.get("amount", 0) for t in txs if t.get("type") == "expense")
+        inv = await db.inventory.find({"user_id": user_id}, {"_id": 0}).to_list(50)
+        inv_str = ", ".join(f"{i.get('name','?')}: {i.get('quantity',0)}{i.get('unit','')}" for i in inv[:10])
+        # Udhar context
+        udhar_entries = await db.udhar.find({"user_id": user_id, "status": "pending"}, {"_id": 0}).to_list(50)
+        udhar_given = sum(e.get("amount", 0) for e in udhar_entries if e.get("type") == "given")
+        udhar_taken = sum(e.get("amount", 0) for e in udhar_entries if e.get("type") == "taken")
+        udhar_people = ", ".join(f"{e.get('party_name','?')}(₹{e.get('amount',0)} {e.get('type','?')})" for e in udhar_entries[:8])
+        # Staff context
+        staff_list = await db.staff.find({"user_id": user_id, "status": "active"}, {"_id": 0}).to_list(50)
+        staff_str = ", ".join(s.get("name", "?") for s in staff_list[:10])
+        return (
+            f"Today income: ₹{income}. Today expense: ₹{expense}. "
+            f"Inventory: {inv_str or 'empty'}. "
+            f"Udhar pending - Given: ₹{udhar_given}, Taken: ₹{udhar_taken}. People: {udhar_people or 'none'}. "
+            f"Staff: {staff_str or 'none'}."
+        )
+    except Exception as e:
+        logging.warning(f"build_context failed: {e}")
+        return ""
 
 # ------------------- Data Routes -------------------
 @api.get("/dashboard")
@@ -3373,3 +3383,13 @@ app.add_middleware(
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("vyaparmind")
+
+import traceback as _tb
+from starlette.requests import Request
+from starlette.responses import JSONResponse
+
+@app.exception_handler(Exception)
+async def _unhandled_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled error on {request.method} {request.url.path}: {exc}")
+    _tb.print_exc()
+    return JSONResponse(status_code=500, content={"detail": str(exc)})

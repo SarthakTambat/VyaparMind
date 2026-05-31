@@ -36,6 +36,71 @@ from supabase import create_client, Client
 
 _client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+# ─── Field name mapping ─────────────────────────────────────────────────────
+# Maps application code field names → actual database column names
+_COLUMN_MAP: Dict[str, Dict[str, str]] = {
+    "transactions": {"party_name": "party"},
+    "inventory": {"reorder_level": "low_stock_alert", "updated_at": "created_at"},
+    "udhar": {"party_name": "party"},
+}
+
+# Reverse: database column names → application field names
+_REVERSE_MAP: Dict[str, Dict[str, str]] = {
+    table: {v: k for k, v in mapping.items()}
+    for table, mapping in _COLUMN_MAP.items()
+}
+
+# Fields the app writes but that don't exist in the DB (silently dropped)
+_DROP_FIELDS: Dict[str, set] = {
+    "transactions": {"source"},
+}
+
+
+def _map_field(table: str, field: str) -> str:
+    """Map an app field name to the actual DB column name."""
+    return _COLUMN_MAP.get(table, {}).get(field, field)
+
+
+def _unmap_field(table: str, col: str) -> str:
+    """Map a DB column name back to the app field name."""
+    return _REVERSE_MAP.get(table, {}).get(col, col)
+
+
+def _map_query(table: str, query: Dict[str, Any]) -> Dict[str, Any]:
+    """Remap field names in a MongoDB-style query dict."""
+    if not query:
+        return query
+    mapped = {}
+    for key, val in query.items():
+        if key.startswith("$"):
+            # Operators like $and, $or - recurse into their values
+            if isinstance(val, list):
+                mapped[key] = [_map_query(table, sub) for sub in val]
+            else:
+                mapped[key] = val
+        else:
+            mapped[_map_field(table, key)] = val
+    return mapped
+
+
+def _map_doc_for_write(table: str, doc: Dict[str, Any]) -> Dict[str, Any]:
+    """Remap field names and drop non-existent fields before DB write."""
+    drop = _DROP_FIELDS.get(table, set())
+    result = {}
+    for key, val in doc.items():
+        if key in drop:
+            continue
+        result[_map_field(table, key)] = val
+    return result
+
+
+def _unmap_doc(table: str, doc: Dict[str, Any]) -> Dict[str, Any]:
+    """Reverse-map DB column names back to app field names in a result."""
+    result = {}
+    for key, val in doc.items():
+        result[_unmap_field(table, key)] = val
+    return result
+
 
 def _mongo_query_to_postgrest(query: Dict[str, Any], builder):
     """Convert MongoDB-style query to Supabase/PostgREST filters."""
@@ -159,7 +224,7 @@ class SupabaseCollection:
         return _client.table(self.name)
 
     async def find_one(self, query: Dict[str, Any] = None, projection: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
-        query = query or {}
+        query = _map_query(self.name, query or {})
         columns = _apply_projection_to_columns(projection)
         
         builder = self._table().select(columns)
@@ -169,33 +234,46 @@ class SupabaseCollection:
         response = builder.execute()
         
         if response.data and len(response.data) > 0:
-            doc = response.data[0]
+            doc = _unmap_doc(self.name, response.data[0])
             return _apply_exclusion(doc, projection)
         return None
 
     def find(self, query: Dict[str, Any] = None, projection: Optional[Dict[str, Any]] = None) -> "SupabaseCursor":
-        query = query or {}
+        query = _map_query(self.name, query or {})
         return SupabaseCursor(self.name, query, projection)
 
     async def insert_one(self, doc: Dict[str, Any]) -> "InsertResult":
+        import re as _re
         new_doc = deepcopy(doc)
         new_doc.pop("_id", None)
+        new_doc = _map_doc_for_write(self.name, new_doc)
         
-        # Convert any nested dicts/lists to JSON strings for JSONB columns
-        for key, val in new_doc.items():
-            if isinstance(val, (list, dict)):
-                # Keep as-is; Supabase handles JSON serialization
-                pass
+        # Retry loop: strip unknown columns on schema errors
+        for _ in range(3):
+            try:
+                response = self._table().insert(new_doc).execute()
+                inserted_id = ""
+                if response.data and len(response.data) > 0:
+                    inserted_id = response.data[0].get("id", "")
+                return InsertResult(inserted_id)
+            except Exception as e:
+                msg = str(e)
+                m = _re.search(r"Could not find the '(\w+)' column", msg)
+                if m:
+                    bad_col = m.group(1)
+                    new_doc.pop(bad_col, None)
+                    continue
+                raise
         
+        # Final attempt after stripping all bad columns
         response = self._table().insert(new_doc).execute()
-        
         inserted_id = ""
         if response.data and len(response.data) > 0:
             inserted_id = response.data[0].get("id", "")
-        
         return InsertResult(inserted_id)
 
     async def update_one(self, query: Dict[str, Any], update: Dict[str, Any]) -> "UpdateResult":
+        import re as _re
         # First find the document
         doc = await self.find_one(query)
         if not doc:
@@ -207,7 +285,25 @@ class SupabaseCollection:
         if not update_data:
             return UpdateResult(0)
         
-        # Update by id
+        # Map field names for write
+        update_data = _map_doc_for_write(self.name, update_data)
+        
+        # Retry loop: strip unknown columns on schema errors
+        for _ in range(3):
+            try:
+                self._table().update(update_data).eq("id", doc["id"]).execute()
+                return UpdateResult(1)
+            except Exception as e:
+                msg = str(e)
+                m = _re.search(r"Could not find the '(\w+)' column", msg)
+                if m:
+                    bad_col = m.group(1)
+                    update_data.pop(bad_col, None)
+                    if not update_data:
+                        return UpdateResult(0)
+                    continue
+                raise
+        
         self._table().update(update_data).eq("id", doc["id"]).execute()
         return UpdateResult(1)
 
@@ -250,7 +346,7 @@ class SupabaseCursor:
         self._limit_val = None
 
     def sort(self, key: str, direction: int = -1) -> "SupabaseCursor":
-        self._sort_key = key
+        self._sort_key = _map_field(self._table_name, key)
         self._sort_dir = direction
         return self
 
@@ -276,6 +372,9 @@ class SupabaseCursor:
         response = builder.execute()
         
         docs = response.data or []
+        
+        # Reverse-map DB column names to app field names
+        docs = [_unmap_doc(self._table_name, d) for d in docs]
         
         # Apply exclusion projection if needed
         if self._projection:

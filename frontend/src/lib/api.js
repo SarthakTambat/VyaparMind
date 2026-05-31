@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const BASE = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
+// In development, requests go through the React dev server proxy (package.json "proxy")
+// In production, set REACT_APP_BACKEND_URL to the actual backend URL
+const BASE = process.env.REACT_APP_BACKEND_URL || "";
 
 export const api = axios.create({ baseURL: BASE });
 

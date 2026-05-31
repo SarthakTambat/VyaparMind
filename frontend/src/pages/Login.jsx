@@ -52,10 +52,8 @@ export default function Login() {
         <div className="hidden lg:flex relative bg-[#090E17] text-white p-12 flex-col justify-between overflow-hidden">
           <div className="absolute inset-0 grid-bg opacity-50" />
           <Link to="/" className="relative flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-signal grid place-items-center" style={{borderRadius:4}}>
-              <Lightning weight="fill" size={16} color="#090E17" />
-            </div>
-            <span className="font-display font-black tracking-tighter text-lg">VyaparMind</span>
+            <div className="w-10 h-10 rounded logo-zoom"><img src="/vyaparmind-logo.png" alt="VyaparMind" className="w-10 h-10" /></div>
+            <span className="font-display font-black tracking-tighter text-xl">VyaparMind</span>
           </Link>
           <div className="relative">
             <h2 className="font-display font-black text-5xl tracking-tighter leading-[1.02]">

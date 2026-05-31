@@ -156,9 +156,7 @@ function Hero() {
           <div className="relative bg-white text-slate-900 p-5 border border-slate-200 shadow-2xl" style={{borderRadius: 6}}>
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-signal grid place-items-center" style={{borderRadius: 4}}>
-                  <Lightning weight="fill" size={16} color="white" />
-                </div>
+                <img src="/vyaparmind-logo.png" alt="VyaparMind" className="h-8" />
                 <div>
                   <div className="font-semibold text-sm">VyaparMind</div>
                   <div className="text-[10px] text-slate-500 tracking-widest uppercase">AI Assistant · Online</div>
