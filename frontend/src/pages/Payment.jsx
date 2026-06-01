@@ -81,26 +81,29 @@ export default function Payment() {
     }
 
     setLoading(true);
+    setStatus(null);
+
     try {
       // Ensure Razorpay script is loaded
       if (!window.Razorpay) {
-        // Wait for script to load
         await new Promise((resolve, reject) => {
           const existingScript = document.getElementById("razorpay-script");
           if (existingScript) {
-            existingScript.onload = resolve;
-            existingScript.onerror = reject;
-            // If script already loaded
-            if (existingScript.getAttribute("data-loaded")) resolve();
+            if (existingScript.getAttribute("data-loaded")) {
+              resolve();
+            } else {
+              existingScript.onload = () => resolve();
+              existingScript.onerror = () => reject(new Error("Script load error"));
+            }
           } else {
             reject(new Error("Razorpay script not found"));
           }
-          setTimeout(resolve, 3000); // fallback timeout
+          setTimeout(resolve, 5000);
         });
       }
 
       if (!window.Razorpay) {
-        alert("Payment gateway failed to load. Please refresh and try again.");
+        setStatus("failed");
         setLoading(false);
         return;
       }
@@ -110,59 +113,69 @@ export default function Payment() {
         plan: planKey,
       });
 
-      // Step 2: Open Razorpay checkout with ALL payment modes
+      if (!data.order_id || !data.key_id) {
+        console.error("Invalid order response:", data);
+        setStatus("failed");
+        setLoading(false);
+        return;
+      }
+
+      // Step 2: Open Razorpay checkout
+      // NOTE: Do NOT pass amount/currency when order_id is provided - Razorpay reads from order
       const options = {
         key: data.key_id,
-        amount: data.amount,
-        currency: data.currency,
-        name: "VyaparMind",
-        description: `${plan.name} Plan - Monthly Subscription`,
-        image: "/logo192.png",
         order_id: data.order_id,
-        handler: async function (response) {
+        name: "VyaparMind",
+        description: data.description || `${plan.name} Plan - Monthly`,
+        handler: function (response) {
           // Step 3: Verify payment on backend
-          try {
-            const verifyRes = await api.post("/api/payments/verify", {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              plan: planKey,
+          setLoading(true);
+          api.post("/api/payments/verify", {
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            plan: planKey,
+          })
+            .then((verifyRes) => {
+              setStatus("success");
+              setPaymentDetails({
+                ...verifyRes.data,
+                payment_id: response.razorpay_payment_id,
+              });
+              setLoading(false);
+            })
+            .catch((err) => {
+              console.error("Verify error:", err);
+              setStatus("failed");
+              setLoading(false);
             });
-            setStatus("success");
-            setPaymentDetails(verifyRes.data);
-          } catch (err) {
-            setStatus("failed");
-          }
         },
         prefill: {
-          name: user.name || "",
-          email: user.email || "",
-          contact: user.phone || "",
+          name: data.user_name || user.name || "",
+          email: data.user_email || user.email || "",
         },
-        // Enable ALL payment methods
-        method: {
-          upi: true,
-          card: true,
-          netbanking: true,
-          wallet: true,
-          emi: true,
-          paylater: true,
+        notes: {
+          plan: planKey,
         },
         theme: {
           color: plan.color,
-          backdrop_color: "rgba(9, 14, 23, 0.85)",
         },
         modal: {
           confirm_close: true,
           ondismiss: function () {
             setLoading(false);
           },
+          escape: true,
+        },
+        retry: {
+          enabled: true,
+          max_count: 3,
         },
       };
 
       const rzp = new window.Razorpay(options);
       rzp.on("payment.failed", function (response) {
-        console.error("Razorpay payment failed:", response.error);
+        console.error("Payment failed:", response.error);
         setStatus("failed");
         setLoading(false);
       });
@@ -182,28 +195,35 @@ export default function Payment() {
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
             <CheckCircle size={40} weight="fill" className="text-green-600" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Payment Successful!</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Payment Successful! 🎉</h2>
           <p className="text-slate-600 mb-6">
-            Your <span className="font-semibold">{plan.name}</span> plan is now active.
+            Your <span className="font-semibold capitalize">{plan.name}</span> plan is now active.
+            Enjoy unlimited AI features!
           </p>
           {paymentDetails && (
             <div className="bg-slate-50 rounded-lg p-4 mb-6 text-left text-sm">
               <div className="flex justify-between mb-2">
                 <span className="text-slate-500">Plan</span>
-                <span className="font-semibold">{plan.name}</span>
+                <span className="font-semibold capitalize">{plan.name}</span>
               </div>
               <div className="flex justify-between mb-2">
-                <span className="text-slate-500">Amount</span>
-                <span className="font-semibold">{plan.price}</span>
+                <span className="text-slate-500">Amount Paid</span>
+                <span className="font-semibold">₹{Math.round(plan.amount * 1.18)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Payment ID</span>
-                <span className="font-mono text-xs">{paymentDetails.payment_id || "—"}</span>
+              <div className="flex justify-between mb-2">
+                <span className="text-slate-500">Status</span>
+                <span className="font-semibold text-green-600">Active</span>
               </div>
+              {paymentDetails.payment_id && (
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Payment ID</span>
+                  <span className="font-mono text-xs text-slate-600">{paymentDetails.payment_id}</span>
+                </div>
+              )}
             </div>
           )}
           <button
-            onClick={() => navigate("/app")}
+            onClick={() => { window.location.href = "/app"; }}
             className="w-full bg-[#00A884] text-white font-bold py-3 rounded-lg hover:bg-[#008f6f] transition-colors"
           >
             Go to Dashboard →
@@ -222,8 +242,11 @@ export default function Payment() {
             <XCircle size={40} weight="fill" className="text-red-600" />
           </div>
           <h2 className="text-2xl font-bold text-slate-900 mb-2">Payment Failed</h2>
-          <p className="text-slate-600 mb-6">
+          <p className="text-slate-600 mb-4">
             Something went wrong with your payment. No amount was charged.
+          </p>
+          <p className="text-xs text-slate-400 mb-6">
+            Please try again. Use UPI, Cards, or Net Banking.
           </p>
           <div className="flex gap-3">
             <button
@@ -232,12 +255,12 @@ export default function Payment() {
             >
               Try Again
             </button>
-            <Link
-              to="/#pricing"
-              className="flex-1 bg-slate-100 text-slate-700 font-bold py-3 rounded-lg hover:bg-slate-200 transition-colors text-center"
+            <button
+              onClick={() => navigate("/app/upgrade")}
+              className="flex-1 bg-slate-100 text-slate-700 font-bold py-3 rounded-lg hover:bg-slate-200 transition-colors"
             >
               View Plans
-            </Link>
+            </button>
           </div>
         </div>
       </div>
