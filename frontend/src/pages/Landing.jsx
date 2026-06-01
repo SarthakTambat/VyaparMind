@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useLanguage, LANGUAGES } from "lib/i18n";
 import {
@@ -8,6 +8,7 @@ import {
   Plus, Minus, List, X,
 } from "@phosphor-icons/react";
 import * as Accordion from "@radix-ui/react-accordion";
+import LoadingSplash from "components/LoadingSplash";
 
 const HERO_IMG = "https://static.prod-images.emergentagent.com/jobs/a503b4b6-6b6e-4043-b725-ed5a99bdfc1b/images/1991894690da900a1aa838af3b341ddf63c0f67362e7301610a3003fe550fa66.png";
 const HEALTH_IMG = "https://static.prod-images.emergentagent.com/jobs/a503b4b6-6b6e-4043-b725-ed5a99bdfc1b/images/ab0205d356c8f3a04f9d00d42129a04e100ba780f7a88aaa87dab87d48a5ae82.png";
@@ -38,8 +39,20 @@ function Header() {
   const { t, language, setLanguage } = useLanguage();
   const [langOpen, setLangOpen] = React.useState(false);
   const [mobileNav, setMobileNav] = React.useState(false);
+  const [showSplash, setShowSplash] = React.useState(false);
+  const navigate = React.useCallback((path) => window.location.href = path, []);
   const currentLang = LANGUAGES.find((l) => l.code === language);
+
+  const handleGetStarted = () => {
+    setShowSplash(true);
+    setTimeout(() => {
+      window.location.href = "/register";
+    }, 6000);
+  };
+
   return (
+    <>
+    {showSplash && <LoadingSplash message="Setting up your experience..." />}
     <header className="sticky top-0 z-40 bg-[#090E17]/85 border-b border-white/10 ios-blur" style={{ WebkitBackdropFilter: 'blur(20px)', backdropFilter: 'blur(20px)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 shrink-0">
@@ -84,7 +97,7 @@ function Header() {
             )}
           </div>
           <Link to="/login" className="hidden sm:inline-block text-white/80 hover:text-white text-sm px-3 py-2">{t("landing.login")}</Link>
-          <Link to="/register" className="btn-signal text-xs sm:text-sm !px-3 !py-2 sm:!px-5 sm:!py-3 whitespace-nowrap">{t("landing.getStarted")}</Link>
+          <button onClick={handleGetStarted} className="btn-signal text-xs sm:text-sm !px-3 !py-2 sm:!px-5 sm:!py-3 whitespace-nowrap">{t("landing.getStarted")}</button>
           {/* Mobile hamburger */}
           <button onClick={() => setMobileNav(!mobileNav)} className="md:hidden p-2 text-white/70 hover:text-white">
             {mobileNav ? <X size={22} weight="bold" /> : <List size={22} weight="bold" />}
@@ -102,6 +115,7 @@ function Header() {
         </div>
       )}
     </header>
+    </>
   );
 }
 
