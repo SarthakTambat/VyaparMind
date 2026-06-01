@@ -5,7 +5,7 @@ import { useLanguage, LANGUAGES } from "lib/i18n";
 import {
   ChatCircleDots, Lightning, Camera, Microphone, ChartLineUp,
   Bell, Translate, ShieldCheck, ArrowRight, Check, WhatsappLogo,
-  Plus, Minus, List, X,
+  Plus, Minus, List, X, Play,
 } from "@phosphor-icons/react";
 import * as Accordion from "@radix-ui/react-accordion";
 import LoadingSplash from "components/LoadingSplash";
@@ -163,9 +163,9 @@ function Hero() {
             <Link to="/register" className="btn-signal inline-flex items-center gap-2">
               Start free <ArrowRight weight="bold" size={18} />
             </Link>
-            <a href="#how" className="btn-ghost-light inline-flex items-center gap-2">
-              <WhatsappLogo weight="fill" size={18} /> See it work
-            </a>
+            <Link to="/demo" className="btn-ghost-light inline-flex items-center gap-2">
+              <Play weight="fill" size={18} /> View Demo
+            </Link>
           </motion.div>
 
           <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-sm text-white/55">
