@@ -135,15 +135,30 @@ def user_public(u: Dict[str, Any]) -> Dict[str, Any]:
         "business_name": u.get("business_name"),
         "business_type": u.get("business_type"),
         "language": u.get("language", "en"),
+        "plan": u.get("plan", "shunya"),
+        "plan_expires_at": u.get("plan_expires_at"),
         "created_at": u.get("created_at"),
     }
 
 # ------------------- Auth Routes -------------------
 @api.post("/auth/register", response_model=TokenOut)
 async def register(body: RegisterIn):
+    # Password policy enforcement
+    pwd = body.password
+    if len(pwd) < 8:
+        raise HTTPException(400, "Password must be at least 8 characters")
+    if not any(c.isupper() for c in pwd):
+        raise HTTPException(400, "Password must contain at least one uppercase letter")
+    if not any(c.islower() for c in pwd):
+        raise HTTPException(400, "Password must contain at least one lowercase letter")
+    if not any(c.isdigit() for c in pwd):
+        raise HTTPException(400, "Password must contain at least one number")
+    if not any(not c.isalnum() for c in pwd):
+        raise HTTPException(400, "Password must contain at least one special character")
+
     existing = await db.users.find_one({"email": body.email.lower()})
     if existing:
-        raise HTTPException(400, "Email already registered")
+        raise HTTPException(400, "An account with this email already exists. Please sign in instead.")
     uid = str(uuid.uuid4())
     user_doc = {
         "id": uid,
@@ -181,20 +196,19 @@ async def update_business(body: BusinessUpdate, user=Depends(get_current_user)):
     return user_public(new_user)
 
 # ------------------- AI Helpers -------------------
-SYSTEM_PARSER = """You are VyaparMind, an AI ops assistant for Indian micro-businesses.
-The user sends short, natural messages (in English, Hindi, Hinglish or any Indian language) describing business events: sales, expenses, stock changes, customer interactions, udhar (credit), staff actions, reminders, or questions.
-
-Your job: extract STRUCTURED data and respond with VALID JSON ONLY. No prose outside JSON.
+SYSTEM_PARSER = """You are VyaparMind, an AI business automation assistant for Indian micro-businesses (kirana stores, retail shops, clinics, farms, etc.).
+The user speaks naturally in Hindi, Hinglish, English, or any Indian language to describe business events.
+You MUST extract structured data and EXECUTE the correct actions. Respond with VALID JSON ONLY.
 
 Output schema:
 {
   "intent": "transaction" | "inventory" | "udhar" | "contact" | "staff" | "bill" | "question" | "reminder" | "other",
-  "reply": "Short friendly reply to the user (max 2 sentences, in the user's language)",
+  "reply": "Short friendly reply confirming the action taken (max 2 sentences, in the user's language)",
   "transactions": [
     {"type": "income"|"expense", "amount": <number INR>, "category": "<short category>", "party_name": "<optional>", "description": "<short>"}
   ],
   "inventory": [
-    {"name": "<item>", "quantity_delta": <number, positive=added, negative=sold/used>, "unit": "<kg|pcs|ltr|etc>"}
+    {"name": "<item>", "quantity_delta": <number>, "unit": "<kg|pcs|ltr|etc>"}
   ],
   "udhar": [
     {"party_name": "<person name>", "type": "given"|"taken", "amount": <number INR>, "description": "<short reason>"}
@@ -211,16 +225,95 @@ Output schema:
   "insights": ["<optional 0-2 short insights or warnings>"]
 }
 
-Rules:
-- If user reports a sale like "sold 5kg rice 500rs to Ramesh", emit transactions (income 500) AND inventory (rice -5 kg) AND contacts (Ramesh, customer).
-- If user reports an expense like "bought 20L milk for 1000 from Sharma", emit expense + inventory addition + contacts (Sharma, supplier).
-- UDHAR RULES: If user says "Harsh ko 300 udhar diya" or "maine Ramesh ko credit diya" → udhar type="given" (you gave money/goods on credit, they owe you). If user says "Ramesh ne 400 ka chawal udhar liya" → udhar type="given" (they took from you on credit). If user says "maine Sharma se 500 udhar liya" or "Sharma ka 500 baaki hai" → udhar type="taken" (you owe them). Also emit the related transaction if amount involved.
-- STAFF RULES: If user says "Raju aaj nahi aaya" → staff attendance absent. "Suresh ko 5000 salary diya" → staff payment. "Naya staff Mohan join hua, 12000 monthly" → staff add.
-- BILL/RECEIPT: When user uploads a bill/receipt image, extract ALL line items into bill_items AND update inventory accordingly. Each item from the bill should appear in both bill_items and inventory.
-- CONTACTS: Whenever a NEW person name is mentioned in any context (customer, supplier, staff), add them to contacts.
-- Currency is INR. If no amount, leave arrays empty.
-- Multiple intents can coexist. E.g., a sale creates transaction + inventory + contact + udhar all at once.
-- ALWAYS valid JSON, no markdown fences, no commentary."""
+=== CRITICAL: BUY vs SELL INVENTORY RULES ===
+
+BUYING/PURCHASING (kharide/kharida/bought/purchased/liya/laye):
+  → Transaction type = "expense" (money going OUT)
+  → Inventory quantity_delta = POSITIVE (stock INCREASES because you bought new goods)
+  → The supplier is a "supplier" contact
+
+SELLING (beche/becha/sold/sell/bikri):
+  → Transaction type = "income" (money coming IN)
+  → Inventory quantity_delta = NEGATIVE (stock DECREASES because goods left your shop)
+  → The buyer is a "customer" contact
+
+=== HINDI/HINGLISH KEYWORD MAPPING ===
+
+PURCHASE WORDS (expense + inventory ADD):
+  kharide, kharida, kharidi, kharido, liya, liye, laye, mangaya, mangwaya, aaya (goods came)
+  खरीदे, खरीदा, खरीदी, लिया, लिये, लाये, मंगाया, मंगवाया, आया (माल)
+  bought, purchased, received stock, restocked, procured
+
+SALE WORDS (income + inventory SUBTRACT):
+  beche, becha, bechi, becho, bik gaya, bikri, de diya (customer ko), nikal gaya
+  बेचे, बेचा, बेची, बिक गया, बिक्री, दे दिया (customer को), निकल गया
+  sold, sell, sale, given to customer, dispatched
+
+=== WORKED EXAMPLES ===
+
+Example 1: "5 kilo chawal 1000 rupaye me kharide"
+→ User BOUGHT 5kg rice for ₹1000 (purchase/expense)
+{
+  "intent": "inventory",
+  "reply": "Done! 5 kg chawal inventory mein add kar diya. ₹1000 expense record kiya.",
+  "transactions": [{"type": "expense", "amount": 1000, "category": "purchase", "description": "5kg chawal kharida"}],
+  "inventory": [{"name": "chawal", "quantity_delta": 5, "unit": "kg"}],
+  "contacts": [], "udhar": [], "staff_actions": [], "bill_items": [], "insights": []
+}
+
+Example 2: "Ramesh ko 2 kilo chawal 500 me beche"
+→ User SOLD 2kg rice for ₹500 to Ramesh (sale/income)
+{
+  "intent": "transaction",
+  "reply": "Done! Ramesh ko 2 kg chawal becha ₹500. Inventory se minus kar diya.",
+  "transactions": [{"type": "income", "amount": 500, "category": "sale", "party_name": "Ramesh", "description": "2kg chawal sold"}],
+  "inventory": [{"name": "chawal", "quantity_delta": -2, "unit": "kg"}],
+  "contacts": [{"name": "Ramesh", "role": "customer"}],
+  "udhar": [], "staff_actions": [], "bill_items": [], "insights": []
+}
+
+Example 3: "10 packet doodh aaya 450 rupaye ka"
+→ Milk arrived (purchased) = expense + inventory ADD
+{
+  "intent": "inventory",
+  "reply": "10 packet doodh stock mein add kiya. ₹450 expense.",
+  "transactions": [{"type": "expense", "amount": 450, "category": "purchase", "description": "10 packet doodh"}],
+  "inventory": [{"name": "doodh", "quantity_delta": 10, "unit": "packet"}],
+  "contacts": [], "udhar": [], "staff_actions": [], "bill_items": [], "insights": []
+}
+
+Example 4: "Sharma ji se 20 litre tel liya 2000 mein"
+→ Bought oil from Sharma = expense + inventory ADD + contact (supplier)
+{
+  "intent": "inventory",
+  "reply": "20 ltr tel inventory mein add kiya. Sharma ji se ₹2000 ka purchase recorded.",
+  "transactions": [{"type": "expense", "amount": 2000, "category": "purchase", "party_name": "Sharma", "description": "20L tel purchased"}],
+  "inventory": [{"name": "tel", "quantity_delta": 20, "unit": "ltr"}],
+  "contacts": [{"name": "Sharma", "role": "supplier"}],
+  "udhar": [], "staff_actions": [], "bill_items": [], "insights": []
+}
+
+Example 5: "aaj 3 kg aata bika 150 rupaye"
+→ Sold flour = income + inventory SUBTRACT
+{
+  "intent": "transaction",
+  "reply": "3 kg aata becha ₹150. Stock se minus kiya.",
+  "transactions": [{"type": "income", "amount": 150, "category": "sale", "description": "3kg aata sold"}],
+  "inventory": [{"name": "aata", "quantity_delta": -3, "unit": "kg"}],
+  "contacts": [], "udhar": [], "staff_actions": [], "bill_items": [], "insights": []
+}
+
+=== ADDITIONAL RULES ===
+
+- UDHAR: "X ko 300 udhar diya" → udhar type="given" (they owe you). "Maine X se 500 udhar liya" → udhar type="taken" (you owe them). "X ne 400 ka saman udhar liya" → type="given" + inventory subtract.
+- STAFF: "Raju aaj nahi aaya" → attendance absent. "Suresh ko 5000 salary diya" → payment + expense. "Naya staff Mohan, 12000 monthly" → add.
+- BILL/RECEIPT: Extract ALL items into bill_items AND inventory (positive delta since buying).
+- CONTACTS: Auto-add new person names as contacts with correct role.
+- Currency = INR. If no amount mentioned, leave transaction array empty but still update inventory if quantity is clear.
+- Multiple intents coexist: a sale = transaction + inventory + contact all at once.
+- If user asks a question (like "kitna stock hai?" or "aaj ki kamai?"), set intent="question" and reply with info from CONTEXT.
+- ALWAYS output valid JSON. No markdown fences, no commentary outside JSON.
+- Reply in the SAME language the user spoke (Hindi reply for Hindi input, English for English)."""
 
 def extract_json(text: str) -> Dict[str, Any]:
     """Robustly extract a JSON object from LLM output."""
@@ -2040,11 +2133,18 @@ async def chat_voice(audio: UploadFile = File(...), language: str = Form("en"), 
     fobj = io.BytesIO(content)
     fobj.name = audio.filename or "voice.webm"
 
-    # Try Groq Whisper first (free, fast)
+    # Whisper prompt helps with domain-specific vocabulary (business terms in Hindi/Hinglish)
+    whisper_prompt = "VyaparMind business assistant. Hindi Hinglish English. kharide beche becha bikri udhar diya liya rupaye kilo packet litre stock inventory chawal atta daal tel doodh salary payment staff"
+
+    # Try Groq Whisper first (free, fast, best for Hindi)
     if GROQ_API_KEY and HAS_OPENAI:
         try:
             client = AsyncOpenAI(api_key=GROQ_API_KEY, base_url="https://api.groq.com/openai/v1")
-            resp = await client.audio.transcriptions.create(file=fobj, model="whisper-large-v3", response_format="json")
+            resp = await client.audio.transcriptions.create(
+                file=fobj, model="whisper-large-v3",
+                response_format="json", language="hi",
+                prompt=whisper_prompt
+            )
             transcript = resp.text if hasattr(resp, 'text') else ""
         except Exception as e:
             logging.warning(f"Groq Whisper failed: {e}")
@@ -2055,7 +2155,11 @@ async def chat_voice(audio: UploadFile = File(...), language: str = Form("en"), 
         try:
             client = AsyncOpenAI(api_key=OPENAI_API_KEY)
             fobj.seek(0)
-            resp = await client.audio.transcriptions.create(file=fobj, model="whisper-1", response_format="json")
+            resp = await client.audio.transcriptions.create(
+                file=fobj, model="whisper-1",
+                response_format="json", language="hi",
+                prompt=whisper_prompt
+            )
             transcript = resp.text if hasattr(resp, 'text') else ""
         except Exception as e:
             logging.warning(f"OpenAI Whisper failed: {e}")
@@ -2087,8 +2191,8 @@ async def build_context(user_id: str) -> str:
         txs = await db.transactions.find({"user_id": user_id, "created_at": {"$gte": today}}, {"_id": 0}).to_list(200)
         income = sum(t.get("amount", 0) for t in txs if t.get("type") == "income")
         expense = sum(t.get("amount", 0) for t in txs if t.get("type") == "expense")
-        inv = await db.inventory.find({"user_id": user_id}, {"_id": 0}).to_list(50)
-        inv_str = ", ".join(f"{i.get('name','?')}: {i.get('quantity',0)}{i.get('unit','')}" for i in inv[:10])
+        inv = await db.inventory.find({"user_id": user_id}, {"_id": 0}).to_list(100)
+        inv_str = ", ".join(f"{i.get('name','?')}: {i.get('quantity',0)} {i.get('unit','pcs')}" for i in inv[:30])
         # Udhar context
         udhar_entries = await db.udhar.find({"user_id": user_id, "status": "pending"}, {"_id": 0}).to_list(50)
         udhar_given = sum(e.get("amount", 0) for e in udhar_entries if e.get("type") == "given")
@@ -2097,11 +2201,15 @@ async def build_context(user_id: str) -> str:
         # Staff context
         staff_list = await db.staff.find({"user_id": user_id, "status": "active"}, {"_id": 0}).to_list(50)
         staff_str = ", ".join(s.get("name", "?") for s in staff_list[:10])
+        # Recent transactions for context
+        recent_txs = await db.transactions.find({"user_id": user_id}, {"_id": 0}).sort("created_at", -1).limit(5).to_list(5)
+        recent_str = "; ".join(f"{t.get('type','?')} ₹{t.get('amount',0)} ({t.get('description','')})" for t in recent_txs)
         return (
-            f"Today income: ₹{income}. Today expense: ₹{expense}. "
-            f"Inventory: {inv_str or 'empty'}. "
-            f"Udhar pending - Given: ₹{udhar_given}, Taken: ₹{udhar_taken}. People: {udhar_people or 'none'}. "
-            f"Staff: {staff_str or 'none'}."
+            f"TODAY: Income ₹{income}, Expense ₹{expense}, Transactions: {len(txs)}.\n"
+            f"CURRENT INVENTORY: {inv_str or 'empty (no items yet)'}.\n"
+            f"UDHAR PENDING: Given ₹{udhar_given} (they owe you), Taken ₹{udhar_taken} (you owe). People: {udhar_people or 'none'}.\n"
+            f"STAFF: {staff_str or 'none'}.\n"
+            f"RECENT TRANSACTIONS: {recent_str or 'none'}."
         )
     except Exception as e:
         logging.warning(f"build_context failed: {e}")
@@ -2620,7 +2728,7 @@ def _get_fallback_rates(commodities: list) -> list:
         approx = _APPROX_PRICES.get(name_lower, None)
         rates.append({
             **c,
-            "price": f"\u20b9{approx}" if approx else None,
+            "price": approx if approx else None,
             "market": "Avg. Indian market (approx)" if approx else None,
             "last_updated": now_iso(),
             "is_estimate": True,

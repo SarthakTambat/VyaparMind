@@ -1,10 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { api } from "lib/api";
 import { useLanguage } from "lib/i18n";
+import { useAuth } from "lib/auth";
 import { Microphone, Camera, PaperPlaneTilt, Lightning, Stop, Robot, ClockCounterClockwise, CaretDown, CaretUp, SpeakerHigh } from "@phosphor-icons/react";
 import { toast } from "sonner";
+import UpgradeModal, { isProUser } from "components/UpgradeModal";
 
 export default function ChatPage() {
+  const { user } = useAuth();
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [msgs, setMsgs] = useState([]);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
@@ -55,9 +59,15 @@ export default function ChatPage() {
 
   const push = (m) => setMsgs((prev) => [...prev, { id: crypto.randomUUID(), ...m }]);
 
+  const requirePro = () => {
+    if (!isProUser(user)) { setShowUpgrade(true); return true; }
+    return false;
+  };
+
   const handleSend = async () => {
     const t = text.trim();
     if (!t || busy) return;
+    if (requirePro()) return;
     push({ side: "user", text: t });
     setText("");
     setBusy(true);
@@ -70,72 +80,66 @@ export default function ChatPage() {
   };
 
   const startRec = async () => {
-    // Use Web Speech API for real-time transcription (works offline, supports Hindi/English)
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      toast.error("Speech recognition not supported in this browser. Try Chrome.");
-      return;
-    }
+    if (requirePro()) return;
+    // Use MediaRecorder to capture audio, then send to backend Whisper API for superior Hindi/Hinglish recognition
     try {
-      const recognition = new SpeechRecognition();
-      recognition.lang = "hi-IN"; // Hindi + English mixed (supports Hinglish)
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-      recognition.continuous = true; // Keep listening until user manually stops
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 16000 } });
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm' });
+      chunksRef.current = [];
 
-      // Accumulate transcript pieces as user speaks
-      let fullTranscript = "";
-
-      recognition.onresult = (event) => {
-        // Collect all new results (continuous mode fires multiple times)
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          if (event.results[i].isFinal) {
-            fullTranscript += event.results[i][0].transcript + " ";
-          }
-        }
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
       };
 
-      recognition.onerror = (event) => {
+      mediaRecorder.onstop = async () => {
+        // Stop all tracks to release microphone
+        stream.getTracks().forEach(t => t.stop());
         setRecording(false);
-        if (event.error === "not-allowed") {
-          toast.error("Microphone access denied. Please allow microphone permissions.");
-        } else if (event.error === "no-speech") {
-          push({ side: "ai", text: "No speech detected. Please try again.", error: true });
-        } else if (event.error !== "aborted") {
-          push({ side: "ai", text: `Voice error: ${event.error}. Try typing instead.`, error: true });
-        }
-      };
 
-      // When user stops recording, process the full transcript
-      recognition.onend = async () => {
-        setRecording(false);
-        const transcript = fullTranscript.trim();
-        if (!transcript) {
-          push({ side: "ai", text: "Couldn't understand the voice. Please try again.", error: true });
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        if (blob.size < 1000) {
+          push({ side: "ai", text: "Recording too short. Please hold the mic button and speak clearly.", error: true });
           return;
         }
-        push({ side: "user", text: `\ud83c\udfa4 "${transcript}"` });
+
+        push({ side: "user", text: "🎤 Voice message..." });
         setBusy(true);
         try {
-          const { data } = await api.post("/api/chat/text", { text: transcript });
+          const fd = new FormData();
+          fd.append("audio", blob, "voice.webm");
+          fd.append("language", "hi");
+          const { data } = await api.post("/api/chat/voice", fd, { headers: { "Content-Type": "multipart/form-data" } });
+          // Update user message with actual transcript
+          setMsgs(prev => {
+            const updated = [...prev];
+            const lastUserIdx = updated.findLastIndex(m => m.side === "user");
+            if (lastUserIdx >= 0 && updated[lastUserIdx].text === "🎤 Voice message...") {
+              updated[lastUserIdx] = { ...updated[lastUserIdx], text: `🎤 "${data.transcript || '...'}"` };
+            }
+            return updated;
+          });
           const reply = data.parsed?.reply || "Got it.";
           push({ side: "ai", text: reply, actions: data.actions, spoken: true });
           speakReply(reply);
         } catch (e) {
-          push({ side: "ai", text: "Couldn't reach the AI. Try again.", error: true });
+          push({ side: "ai", text: "Voice processing failed. Please try again or type your message.", error: true });
         } finally { setBusy(false); }
       };
 
-      recognition.start();
-      recRef.current = recognition;
+      mediaRecorder.start(250); // collect data every 250ms for responsiveness
+      recRef.current = mediaRecorder;
       setRecording(true);
     } catch (e) {
-      toast.error("Microphone access denied");
+      if (e.name === "NotAllowedError") {
+        toast.error("Microphone access denied. Please allow microphone permissions.");
+      } else {
+        toast.error("Could not access microphone. Please check your settings.");
+      }
     }
   };
 
   const stopRec = () => {
-    if (recRef.current) {
+    if (recRef.current && recRef.current.state !== "inactive") {
       recRef.current.stop();
     }
     setRecording(false);
@@ -143,6 +147,7 @@ export default function ChatPage() {
 
   const handlePhoto = async (file) => {
     if (!file) return;
+    if (requirePro()) return;
     push({ side: "user", text: "\ud83d\udcf7 Bill photo", img: URL.createObjectURL(file) });
     setBusy(true);
     try {
@@ -158,6 +163,7 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-full">
+      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
       {/* Header */}
       <div className="px-6 py-4 border-b border-slate-200 bg-white">
         <div className="flex items-center justify-between">
@@ -318,10 +324,25 @@ function ActionChip({ a }) {
     return <div className="text-[11px] tracking-wider uppercase font-bold text-emerald-800">{"\u2713"} {d.type}: {"\u20B9"}{Math.round(d.amount)} {"\u00B7"} {d.category}{d.party_name ? ` \u00b7 ${d.party_name}` : ""}</div>;
   }
   if (a.kind === "inventory") {
-    return <div className="text-[11px] tracking-wider uppercase font-bold text-emerald-800">{"\u2713"} inventory: {a.data.name} {"\u2192"} {a.data.quantity}{a.data.unit || ""}</div>;
+    return <div className="text-[11px] tracking-wider uppercase font-bold text-emerald-800">{"\u2713"} inventory: {a.data.name} {"\u2192"} {a.data.quantity} {a.data.unit || ""}</div>;
+  }
+  if (a.kind === "udhar") {
+    const d = a.data;
+    return <div className="text-[11px] tracking-wider uppercase font-bold text-orange-700">{"\u2713"} udhar {d.type}: {"\u20B9"}{Math.round(d.amount)} {"\u00B7"} {d.party_name}</div>;
+  }
+  if (a.kind === "contact") {
+    return <div className="text-[11px] tracking-wider uppercase font-bold text-blue-700">{"\u2713"} contact added: {a.data.display_name || a.data.name} ({a.data.role})</div>;
+  }
+  if (a.kind === "staff_add" || a.kind === "staff_attendance" || a.kind === "staff_payment") {
+    const d = a.data;
+    const label = a.kind === "staff_add" ? "staff added" : a.kind === "staff_attendance" ? `attendance: ${d.status}` : `payment: ₹${d.amount}`;
+    return <div className="text-[11px] tracking-wider uppercase font-bold text-purple-700">{"\u2713"} {d.name} {"\u00B7"} {label}</div>;
+  }
+  if (a.kind === "bill") {
+    return <div className="text-[11px] tracking-wider uppercase font-bold text-emerald-800">{"\u2713"} bill: {a.data.items_count} items {"\u00B7"} {"\u20B9"}{Math.round(a.data.total)}</div>;
   }
   if (a.kind === "insight") {
     return <div className="text-[11px] tracking-wider uppercase font-bold text-amber-700">{"\ud83d\udca1"} {a.data.title}</div>;
   }
-  return null;
+  return <div className="text-[11px] tracking-wider uppercase font-bold text-slate-600">{"\u2713"} {a.kind}</div>;
 }

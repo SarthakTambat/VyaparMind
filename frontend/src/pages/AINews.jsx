@@ -5,6 +5,7 @@ import {
   Newspaper, TrendUp, Robot, PaperPlaneTilt, ArrowClockwise,
   CaretRight, Tag, Globe, Lightning
 } from "@phosphor-icons/react";
+import UpgradeModal, { isProUser } from "components/UpgradeModal";
 
 const TABS = [
   { id: "news", label: "Market News", icon: Newspaper },
@@ -15,9 +16,19 @@ const TABS = [
 export default function AINews() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("news");
+  const [showUpgrade, setShowUpgrade] = useState(false);
+
+  const handleTabClick = (tabId) => {
+    if (tabId === "ask" && !isProUser(user)) {
+      setShowUpgrade(true);
+      return;
+    }
+    setActiveTab(tabId);
+  };
 
   return (
     <div className="flex flex-col h-full">
+      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
       {/* Header */}
       <div className="px-6 py-4 border-b border-slate-200 bg-white">
         <h1 className="font-display font-black text-xl tracking-tight text-slate-900">
@@ -35,7 +46,7 @@ export default function AINews() {
           {TABS.map((t) => (
             <button
               key={t.id}
-              onClick={() => setActiveTab(t.id)}
+              onClick={() => handleTabClick(t.id)}
               className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold tracking-widest uppercase transition-colors ${
                 activeTab === t.id
                   ? "text-signal border-b-2 border-signal"

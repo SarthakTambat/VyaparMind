@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "lib/api";
 import { useLanguage } from "lib/i18n";
-import { ArrowUp, ArrowDown, Sparkle, Warning, Receipt, ChatCircleDots, Camera, Microphone, ArrowRight, Package } from "@phosphor-icons/react";
+import { ArrowUp, ArrowDown, Sparkle, Warning, Receipt, ChatCircleDots, Camera, Microphone, ArrowRight, Package, Crown } from "@phosphor-icons/react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
+import { isProUser } from "components/UpgradeModal";
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
@@ -21,16 +22,39 @@ export default function Dashboard() {
   const score = data.score ?? 0;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         <div>
           <div className="label-tiny mb-1">{t("dash.today")}</div>
-          <h1 className="font-display font-black text-3xl tracking-tighter">{t("dash.greeting", { name: data.user?.name?.split(" ")[0] || "boss" })}</h1>
+          <h1 className="font-display font-black text-2xl sm:text-3xl tracking-tighter">{t("dash.greeting", { name: data.user?.name?.split(" ")[0] || "boss" })}</h1>
+          {data.user?.business_name && (
+            <div className="mt-1.5 flex items-center gap-2">
+              <span className="font-display font-bold text-base sm:text-lg tracking-tight text-signal">{data.user.business_name}</span>
+              <span className="text-[10px] font-bold tracking-widest uppercase px-1.5 py-0.5 bg-emerald-50 text-signal border border-emerald-200" style={{ borderRadius: 3 }}>
+                {data.user.business_type || "business"}
+              </span>
+            </div>
+          )}
           <p className="text-slate-600 text-sm mt-1">{t("dash.subtitle")}</p>
         </div>
-        <Link to="/app/chat" className="btn-signal inline-flex items-center gap-2 self-start sm:self-auto">
-          <ChatCircleDots weight="fill" size={16} /> {t("dash.tellAI")}
-        </Link>
+        <div className="flex flex-col items-start sm:items-end gap-2">
+          {isProUser(data.user) && (
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200" style={{ borderRadius: 4 }}>
+              <Crown weight="fill" size={14} className="text-signal" />
+              <span className="text-[10px] font-bold tracking-widest uppercase text-signal">
+                {(data.user.plan || "vikas").toUpperCase()} Plan
+              </span>
+              {data.user.plan_expires_at && (
+                <span className="text-[9px] text-slate-500">
+                  {"\u00B7"} expires {new Date(data.user.plan_expires_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                </span>
+              )}
+            </div>
+          )}
+          <Link to="/app/chat" className="btn-signal inline-flex items-center gap-2 self-start sm:self-auto">
+            <ChatCircleDots weight="fill" size={16} /> {t("dash.tellAI")}
+          </Link>
+        </div>
       </div>
 
       {/* KPI strip */}
@@ -207,12 +231,12 @@ function fmt(n) {
 
 function Kpi({ label, value, accent, Icon, desc }) {
   return (
-    <div className="card-flat p-5">
+    <div className="card-flat p-4 sm:p-5">
       <div className="flex items-center justify-between">
         <div className="label-tiny text-slate-500">{label}</div>
         <Icon weight="duotone" size={18} className={accent} />
       </div>
-      <div className={`mt-2 font-display font-black text-3xl tracking-tighter ${accent}`}>{value}</div>
+      <div className={`mt-2 font-display font-black text-2xl sm:text-3xl tracking-tighter ${accent}`}>{value}</div>
       {desc && <div className="text-[11px] text-slate-400 mt-1.5 leading-snug">{desc}</div>}
     </div>
   );

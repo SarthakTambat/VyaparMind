@@ -18,7 +18,10 @@ build/
 Thumbs.db
 .DS_Store
 
-# Test images
-*.png
-*.jpg
-*.jpeg
+# Test images (keep logo files)
+# *.png
+# *.jpg
+# *.jpeg
+
+# Vercel
+.vercel

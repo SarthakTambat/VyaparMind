@@ -1,10 +1,18 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import ReactDOM from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
-import { Lightning, ArrowRight, Storefront, Stethoscope, Truck, Plant, Scissors, Wrench } from "@phosphor-icons/react";
+import { Lightning, ArrowRight, Storefront, Stethoscope, Truck, Plant, Scissors, Wrench, CheckCircle, XCircle } from "@phosphor-icons/react";
 import { useAuth } from "lib/auth";
 import { toast } from "sonner";
 import LoadingSplash from "components/LoadingSplash";
+
+const PASSWORD_RULES = [
+  { id: "length", label: "At least 8 characters", test: (p) => p.length >= 8 },
+  { id: "upper", label: "One uppercase letter (A-Z)", test: (p) => /[A-Z]/.test(p) },
+  { id: "lower", label: "One lowercase letter (a-z)", test: (p) => /[a-z]/.test(p) },
+  { id: "number", label: "One number (0-9)", test: (p) => /[0-9]/.test(p) },
+  { id: "special", label: "One special character (!@#$%...)", test: (p) => /[^A-Za-z0-9]/.test(p) },
+];
 
 const TYPES = [
   { id: "kirana", label: "Kirana / Retail", Icon: Storefront },
@@ -26,6 +34,19 @@ export default function Register() {
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
+  const passwordResults = useMemo(() => PASSWORD_RULES.map((r) => ({ ...r, pass: r.test(form.password) })), [form.password]);
+  const allPasswordValid = passwordResults.every((r) => r.pass);
+  const passwordTouched = form.password.length > 0;
+
+  const handleStep1Submit = (e) => {
+    e.preventDefault();
+    if (!allPasswordValid) {
+      toast.error("Please meet all password requirements before continuing.");
+      return;
+    }
+    setStep(2);
+  };
+
   const finish = () => {
     setBusy(true);
     formDataRef.current = { ...form };
@@ -38,7 +59,12 @@ export default function Register() {
         toast.success("Welcome to VyaparMind!");
         nav("/app");
       } catch (e) {
-        toast.error(e?.response?.data?.detail || "Could not create account");
+        const detail = e?.response?.data?.detail || "Could not create account";
+        if (detail.toLowerCase().includes("already")) {
+          toast.error("An account with this email already exists. Please sign in instead.", { duration: 5000 });
+        } else {
+          toast.error(detail);
+        }
         setShowSplash(false);
         setBusy(false);
       }
@@ -72,13 +98,23 @@ export default function Register() {
       <div className="flex items-center justify-center p-6 sm:p-12">
         <div className="w-full max-w-md">
           {step === 1 && (
-            <form onSubmit={(e)=>{e.preventDefault(); setStep(2);}}>
+            <form onSubmit={handleStep1Submit}>
               <div className="label-tiny mb-3">Create account</div>
               <h1 className="font-display font-black text-4xl tracking-tighter mb-8">Let's begin.</h1>
               <Field label="Your name" value={form.name} onChange={(v)=>set("name",v)} placeholder="Anita Sharma" required />
               <Field label="Email" type="email" value={form.email} onChange={(v)=>set("email",v)} placeholder="you@dukaan.com" required />
-              <Field label="Password" type="password" value={form.password} onChange={(v)=>set("password",v)} placeholder="At least 6 characters" required minLength={6} />
-              <button type="submit" className="mt-6 w-full btn-signal flex items-center justify-center gap-2">
+              <Field label="Password" type="password" value={form.password} onChange={(v)=>set("password",v)} placeholder="Create a strong password" required />
+              {passwordTouched && (
+                <div className="mt-3 p-3 rounded bg-slate-50 border border-slate-200 space-y-1.5">
+                  {passwordResults.map((r) => (
+                    <div key={r.id} className="flex items-center gap-2 text-xs">
+                      {r.pass ? <CheckCircle weight="fill" size={16} className="text-emerald-500 shrink-0" /> : <XCircle weight="fill" size={16} className="text-red-400 shrink-0" />}
+                      <span className={r.pass ? "text-emerald-700" : "text-slate-600"}>{r.label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button type="submit" disabled={!allPasswordValid && passwordTouched} className="mt-6 w-full btn-signal flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                 Next <ArrowRight weight="bold" size={16} />
               </button>
               <p className="mt-6 text-sm text-slate-600 text-center">

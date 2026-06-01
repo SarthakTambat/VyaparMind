@@ -5,7 +5,7 @@ import { useLanguage, LANGUAGES } from "lib/i18n";
 import {
   ChatCircleDots, Lightning, Camera, Microphone, ChartLineUp,
   Bell, Translate, ShieldCheck, ArrowRight, Check, WhatsappLogo,
-  Plus, Minus,
+  Plus, Minus, List, X,
 } from "@phosphor-icons/react";
 import * as Accordion from "@radix-ui/react-accordion";
 
@@ -37,13 +37,14 @@ export default function Landing() {
 function Header() {
   const { t, language, setLanguage } = useLanguage();
   const [langOpen, setLangOpen] = React.useState(false);
+  const [mobileNav, setMobileNav] = React.useState(false);
   const currentLang = LANGUAGES.find((l) => l.code === language);
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#090E17]/85 border-b border-white/10">
-      <div className="max-w-7xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded logo-zoom"><img src="/vyaparmind-logo.png" alt="VyaparMind" className="w-10 h-10" /></div>
-          <span className="text-white font-display font-black tracking-tighter text-xl">VyaparMind</span>
+    <header className="sticky top-0 z-40 bg-[#090E17]/85 border-b border-white/10 ios-blur" style={{ WebkitBackdropFilter: 'blur(20px)', backdropFilter: 'blur(20px)' }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2 shrink-0">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded logo-zoom"><img src="/vyaparmind-logo.png" alt="VyaparMind" className="w-8 h-8 sm:w-10 sm:h-10" /></div>
+          <span className="text-white font-display font-black tracking-tighter text-lg sm:text-xl">VyaparMind</span>
         </Link>
         <nav className="hidden md:flex items-center gap-8 text-sm text-white/75">
           <a href="#how" className="hover:text-white transition-colors">{t("landing.howItWorks")}</a>
@@ -51,19 +52,18 @@ function Header() {
           <a href="#pricing" className="hover:text-white transition-colors">{t("landing.pricing")}</a>
           <a href="#faq" className="hover:text-white transition-colors">{t("landing.faq")}</a>
         </nav>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           {/* Language Selector */}
           <div className="relative">
             <button
               onClick={() => setLangOpen(!langOpen)}
-              className="flex items-center gap-1.5 px-2.5 py-2 text-white/70 hover:text-white transition-colors text-sm"
+              className="flex items-center gap-1 px-2 py-2 text-white/70 hover:text-white transition-colors text-sm"
             >
               <Translate size={18} />
-              <span className="hidden sm:inline">{currentLang?.native}</span>
             </button>
             {langOpen && (
-              <div className="absolute top-full right-0 mt-2 w-64 bg-white border border-slate-200 shadow-2xl max-h-80 overflow-y-auto z-50" style={{ borderRadius: 8 }}>
-                <div className="p-2 border-b border-slate-100 sticky top-0 bg-white">
+              <div className="fixed sm:absolute top-auto sm:top-full right-4 sm:right-0 left-4 sm:left-auto mt-2 sm:w-64 bg-white border border-slate-200 shadow-2xl max-h-72 overflow-y-auto z-50 rounded-lg">
+                <div className="p-3 border-b border-slate-100 sticky top-0 bg-white rounded-t-lg">
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{t("lang.select")}</span>
                 </div>
                 <div className="p-1">
@@ -71,10 +71,9 @@ function Header() {
                     <button
                       key={lang.code}
                       onClick={() => { setLanguage(lang.code); setLangOpen(false); }}
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
+                      className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm transition-colors ${
                         language === lang.code ? "bg-[#00A884]/10 text-[#00A884] font-semibold" : "text-slate-700 hover:bg-slate-50"
-                      }`}
-                      style={{ borderRadius: 4 }}
+                      } rounded`}
                     >
                       <span className="flex-1 text-left">{lang.native}</span>
                       <span className="text-xs text-slate-400">{lang.name}</span>
@@ -84,10 +83,24 @@ function Header() {
               </div>
             )}
           </div>
-          <Link to="/login" className="text-white/80 hover:text-white text-sm px-3 py-2">{t("landing.login")}</Link>
-          <Link to="/register" className="btn-signal text-sm">{t("landing.getStarted")}</Link>
+          <Link to="/login" className="hidden sm:inline-block text-white/80 hover:text-white text-sm px-3 py-2">{t("landing.login")}</Link>
+          <Link to="/register" className="btn-signal text-xs sm:text-sm !px-3 !py-2 sm:!px-5 sm:!py-3 whitespace-nowrap">{t("landing.getStarted")}</Link>
+          {/* Mobile hamburger */}
+          <button onClick={() => setMobileNav(!mobileNav)} className="md:hidden p-2 text-white/70 hover:text-white">
+            {mobileNav ? <X size={22} weight="bold" /> : <List size={22} weight="bold" />}
+          </button>
         </div>
       </div>
+      {/* Mobile nav drawer */}
+      {mobileNav && (
+        <div className="md:hidden bg-[#090E17] border-t border-white/10 px-4 pb-4 pt-2 space-y-1 animate-slideUp">
+          <a href="#how" onClick={() => setMobileNav(false)} className="block px-3 py-2.5 text-sm text-white/75 hover:text-white">{t("landing.howItWorks")}</a>
+          <a href="#features" onClick={() => setMobileNav(false)} className="block px-3 py-2.5 text-sm text-white/75 hover:text-white">{t("landing.features")}</a>
+          <a href="#pricing" onClick={() => setMobileNav(false)} className="block px-3 py-2.5 text-sm text-white/75 hover:text-white">{t("landing.pricing")}</a>
+          <a href="#faq" onClick={() => setMobileNav(false)} className="block px-3 py-2.5 text-sm text-white/75 hover:text-white">{t("landing.faq")}</a>
+          <Link to="/login" onClick={() => setMobileNav(false)} className="block px-3 py-2.5 text-sm text-white/75 hover:text-white">{t("landing.login")}</Link>
+        </div>
+      )}
     </header>
   );
 }
@@ -102,7 +115,7 @@ function Hero() {
       />
       <div className="absolute inset-0 bg-gradient-to-r from-[#090E17] via-[#090E17]/85 to-transparent" />
 
-      <div className="relative max-w-7xl mx-auto px-5 sm:px-8 pt-20 sm:pt-28 pb-32 grid lg:grid-cols-12 gap-12 items-center">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-8 pt-14 sm:pt-28 pb-20 sm:pb-32 grid lg:grid-cols-12 gap-8 sm:gap-12 items-center">
         <div className="lg:col-span-7">
           <motion.div
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
@@ -115,7 +128,7 @@ function Hero() {
 
           <motion.h1
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
-            className="font-display font-black text-5xl sm:text-6xl lg:text-7xl tracking-tighter leading-[0.95]"
+            className="font-display font-black text-[2.5rem] sm:text-6xl lg:text-7xl tracking-tighter leading-[0.95]"
           >
             Your business <span className="text-signal">runs itself.</span><br />
             You just talk.
@@ -232,12 +245,12 @@ function HowItWorks() {
     { n: "03", icon: ChartLineUp, title: "Business runs itself", desc: "Ledger, stock, customer history and insights update automatically \u2014 no forms, ever." },
   ];
   return (
-    <section id="how" className="bg-white py-24 sm:py-32 border-y border-slate-200">
-      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+    <section id="how" className="bg-white py-16 sm:py-32 border-y border-slate-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div className="max-w-2xl">
             <div className="label-tiny mb-3">How it works</div>
-            <h2 className="font-display font-black text-4xl sm:text-5xl tracking-tighter leading-[1.02]">
+            <h2 className="font-display font-black text-3xl sm:text-5xl tracking-tighter leading-[1.02]">
               Three steps. <span className="text-signal">No setup.</span><br />No training. Just results.
             </h2>
           </div>
@@ -263,11 +276,11 @@ function HowItWorks() {
 
 function Bento() {
   return (
-    <section id="features" className="bg-[#F9FAFB] py-24 sm:py-32">
-      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+    <section id="features" className="bg-[#F9FAFB] py-16 sm:py-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="max-w-2xl mb-16">
           <div className="label-tiny mb-3">The platform</div>
-          <h2 className="font-display font-black text-4xl sm:text-5xl tracking-tighter leading-[1.02]">
+          <h2 className="font-display font-black text-3xl sm:text-5xl tracking-tighter leading-[1.02]">
             An AI employee for every micro-business in India.
           </h2>
         </div>
@@ -318,14 +331,14 @@ function FeatureCard({ icon: Icon, title, desc, cols }) {
 
 function SocialProof() {
   return (
-    <section className="bg-white py-24 sm:py-32 border-y border-slate-200">
-      <div className="max-w-7xl mx-auto px-5 sm:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-14">
+    <section className="bg-white py-16 sm:py-32 border-y border-slate-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 sm:gap-8 mb-14">
           <div>
             <div className="label-tiny mb-3">Owners who switched</div>
-            <h2 className="font-display font-black text-4xl sm:text-5xl tracking-tighter leading-[1.02]">5,000+ shops.<br/>One less worry.</h2>
+            <h2 className="font-display font-black text-3xl sm:text-5xl tracking-tighter leading-[1.02]">5,000+ shops.<br/>One less worry.</h2>
           </div>
-          <div className="grid grid-cols-3 gap-8 md:gap-12 text-right">
+          <div className="grid grid-cols-3 gap-4 sm:gap-8 md:gap-12 text-right">
             <Stat n="2.4h" l="saved daily" />
             <Stat n="₹18K" l="avg leak fixed / mo" />
             <Stat n="98%" l="AI accuracy" />
@@ -354,7 +367,7 @@ function SocialProof() {
 function Stat({ n, l }) {
   return (
     <div>
-      <div className="font-display font-black text-3xl sm:text-4xl tracking-tighter">{n}</div>
+      <div className="font-display font-black text-2xl sm:text-4xl tracking-tighter">{n}</div>
       <div className="label-tiny text-slate-500 mt-1">{l}</div>
     </div>
   );
@@ -383,11 +396,11 @@ function Pricing() {
     { name: "Samrajya", price: "Custom", per: "Enterprise", desc: "Chains, franchises, NBFCs.", features: ["Unlimited", "White-label", "SLA + on-premise", "Custom AI training"], cta: "Talk to sales", popular: false, link: "mailto:sales@vyaparmind.in" },
   ];
   return (
-    <section id="pricing" className="bg-[#F9FAFB] py-24 sm:py-32">
-      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+    <section id="pricing" className="bg-[#F9FAFB] py-16 sm:py-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="text-center max-w-2xl mx-auto mb-14">
           <div className="label-tiny mb-3">Pricing</div>
-          <h2 className="font-display font-black text-4xl sm:text-5xl tracking-tighter leading-[1.02]">Start free. Upgrade when you outgrow chaos.</h2>
+          <h2 className="font-display font-black text-3xl sm:text-5xl tracking-tighter leading-[1.02]">Start free. Upgrade when you outgrow chaos.</h2>
           <p className="mt-4 text-slate-600">No card. No demos. Just send a message.</p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -434,8 +447,8 @@ function Faq() {
     { q: "What if AI gets something wrong?", a: "You can edit or delete any auto-extracted row in one tap. AI confidence is shown for every parse." },
   ];
   return (
-    <section id="faq" className="bg-white py-24 sm:py-32 border-t border-slate-200">
-      <div className="max-w-3xl mx-auto px-5 sm:px-8">
+    <section id="faq" className="bg-white py-16 sm:py-32 border-t border-slate-200">
+      <div className="max-w-3xl mx-auto px-4 sm:px-8">
         <div className="text-center mb-12">
           <div className="label-tiny mb-3">FAQ</div>
           <h2 className="font-display font-black text-4xl tracking-tighter">Questions, answered.</h2>
@@ -464,7 +477,7 @@ function Faq() {
 function Footer() {
   return (
     <footer className="bg-[#090E17] text-white border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-5 sm:px-8 py-16 grid md:grid-cols-4 gap-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12 sm:py-16 grid md:grid-cols-4 gap-10">
         <div className="md:col-span-2">
           <div className="flex items-center gap-2.5 mb-4">
             <div className="w-10 h-10 rounded logo-zoom"><img src="/vyaparmind-logo.png" alt="VyaparMind" className="w-10 h-10" /></div>

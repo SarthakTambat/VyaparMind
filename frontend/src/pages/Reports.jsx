@@ -201,6 +201,7 @@ export default function Reports() {
           {gstMonths.length > 0 && (
             <div className="bg-white border border-slate-200 rounded-xl p-5">
               <h3 className="text-sm font-bold text-slate-800 mb-4">Monthly GST Summary</h3>
+              <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 text-slate-500 text-xs">
@@ -224,6 +225,7 @@ export default function Reports() {
                   })}
                 </tbody>
               </table>
+              </div>
             </div>
           )}
 

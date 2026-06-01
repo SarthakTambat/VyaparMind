@@ -6,6 +6,7 @@ import {
   House, ChatCircleDots, Receipt, Package, Users, ChartLineUp,
   Lightning, Gear, SignOut, Newspaper, FileImage, HandCoins,
   Invoice, UsersThree, ChartBar, Storefront, Crown, Translate,
+  List, X,
 } from "@phosphor-icons/react";
 
 const NAV_ITEMS = [
@@ -30,6 +31,7 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [langOpen, setLangOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const langRef = useRef(null);
 
   const handleLogout = () => { logout(); navigate("/"); };
@@ -46,7 +48,7 @@ export default function DashboardLayout() {
   }, []);
 
   return (
-    <div className="flex h-screen bg-[#F9FAFB]">
+    <div className="flex h-screen-ios bg-[#F9FAFB]" style={{ height: '100dvh' }}>
       {/* Sidebar */}
       <aside className="hidden lg:flex w-[260px] bg-white border-r border-slate-200 flex-col">
         <div className="px-5 py-5 border-b border-slate-200 flex items-center gap-2.5">
@@ -147,12 +149,100 @@ export default function DashboardLayout() {
         </div>
       </aside>
 
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden" style={{ touchAction: 'none' }}>
+          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[75vh] overflow-y-auto animate-slideUp ios-overlay" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <div className="sticky top-0 bg-white px-5 py-4 border-b border-slate-200 flex items-center justify-between rounded-t-2xl">
+              <span className="font-display font-bold text-lg text-slate-900">{t("nav.menu") || "Menu"}</span>
+              <button onClick={() => setMobileMenuOpen(false)} className="p-2 text-slate-500 hover:text-slate-900">
+                <X size={22} weight="bold" />
+              </button>
+            </div>
+            <nav className="p-3 space-y-1">
+              {NAV_ITEMS.map((n) => (
+                <NavLink
+                  key={n.to}
+                  to={n.to}
+                  end={n.end}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors rounded-lg ${
+                      isActive ? "bg-slate-900 text-white" : "text-slate-700 hover:bg-slate-100"
+                    }`
+                  }
+                >
+                  <n.icon weight="duotone" size={20} />
+                  {t(n.labelKey)}
+                </NavLink>
+              ))}
+              <NavLink
+                to="/app/upgrade"
+                onClick={() => setMobileMenuOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-3 text-sm font-bold transition-all rounded-lg ${
+                    isActive
+                      ? "bg-gradient-to-r from-[#00A884] to-[#00C896] text-white shadow-md"
+                      : "bg-gradient-to-r from-[#00A884]/10 to-[#00C896]/10 text-[#00A884]"
+                  }`
+                }
+              >
+                <Crown weight="fill" size={20} />
+                {t("nav.upgradePro")}
+              </NavLink>
+            </nav>
+            <div className="p-4 border-t border-slate-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-9 h-9 bg-slate-900 text-white grid place-items-center font-display font-bold text-sm rounded">
+                  {initial}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-slate-900 truncate">{user?.name || "User"}</p>
+                  <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
+                className="flex items-center gap-2 text-sm text-slate-500 hover:text-rose-600 transition-colors"
+              >
+                <SignOut size={16} /> {t("nav.signOut")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto pb-16 lg:pb-0" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
         <div key={location.pathname} className="animate-pageSlideIn">
           <Outlet />
         </div>
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex items-center justify-around px-1 py-1.5 z-40 lg:hidden safe-bottom ios-fixed-bottom" style={{ paddingBottom: 'max(6px, env(safe-area-inset-bottom, 0px))' }}>
+        <NavLink to="/app" end className={({ isActive }) => `flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg min-w-[56px] ${isActive ? "text-[#00A884]" : "text-slate-500"}`}>
+          <House weight="duotone" size={22} />
+          <span className="text-[10px] font-medium">{t("nav.dashboard")}</span>
+        </NavLink>
+        <NavLink to="/app/chat" className={({ isActive }) => `flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg min-w-[56px] ${isActive ? "text-[#00A884]" : "text-slate-500"}`}>
+          <ChatCircleDots weight="duotone" size={22} />
+          <span className="text-[10px] font-medium">{t("nav.aiChat")}</span>
+        </NavLink>
+        <NavLink to="/app/transactions" className={({ isActive }) => `flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg min-w-[56px] ${isActive ? "text-[#00A884]" : "text-slate-500"}`}>
+          <Receipt weight="duotone" size={22} />
+          <span className="text-[10px] font-medium">{t("nav.transactions")}</span>
+        </NavLink>
+        <NavLink to="/app/inventory" className={({ isActive }) => `flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg min-w-[56px] ${isActive ? "text-[#00A884]" : "text-slate-500"}`}>
+          <Package weight="duotone" size={22} />
+          <span className="text-[10px] font-medium">{t("nav.inventory")}</span>
+        </NavLink>
+        <button onClick={() => setMobileMenuOpen(true)} className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg min-w-[56px] text-slate-500">
+          <List weight="bold" size={22} />
+          <span className="text-[10px] font-medium">{t("nav.more") || "More"}</span>
+        </button>
+      </nav>
     </div>
   );
 }

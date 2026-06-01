@@ -12,6 +12,24 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
   background: #F9FAFB;
   color: #111827;
+  /* iOS Safari: prevent text resize on orientation change */
+  -webkit-text-size-adjust: 100%;
+  /* iOS: disable tap highlight */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* iOS Safari 100vh fix: use dvh where supported, fallback to -webkit-fill-available */
+.h-screen-ios {
+  height: 100vh;
+  height: -webkit-fill-available;
+  height: 100dvh;
+}
+
+/* Prevent horizontal overflow on mobile */
+#root {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
 }
 
 @layer base {

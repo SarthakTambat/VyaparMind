@@ -5,6 +5,46 @@
 
 .glass-card {
   background: rgba(255, 255, 255, 0.85);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile menu slide-up animation */
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Safe area for bottom nav on iOS notched phones */
+.safe-bottom {
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
+  padding-bottom: max(6px, constant(safe-area-inset-bottom));
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
+}
+
+/* iOS fixed bottom bar fix */
+.ios-fixed-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  /* iOS Safari: prevent bounce scroll from revealing gap */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* iOS: prevent rubber-band scroll on fixed overlays */
+.ios-overlay {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* iOS Safari backdrop-filter support */
+.ios-blur {
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
 }
