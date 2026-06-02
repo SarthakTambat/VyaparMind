@@ -539,7 +539,7 @@ function ContactUs() {
                   </div>
                   <div>
                     <div className="text-xs uppercase tracking-wider text-white/40 mb-1">Email</div>
-                    <a href="mailto:vyapaarminds@gmail.com" className="text-white hover:text-[#00A884] transition-colors font-medium">vyapaarminds@gmail.com</a>
+                    <a href="mailto:sarthak.tambat@vyaparmind.com" className="text-white hover:text-[#00A884] transition-colors font-medium">Email Us</a>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
