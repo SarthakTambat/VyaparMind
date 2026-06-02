@@ -3506,7 +3506,7 @@ async def contact_form(body: ContactFormIn):
         "message": body.message,
         "created_at": now_iso(),
     }
-    db.insert("contact_messages", contact_data)
+    await db.contact_messages.insert_one(contact_data)
 
     notify_email = os.environ.get("CONTACT_NOTIFY_EMAIL", "sarthak.tambat@vyaparmind.com")
     
