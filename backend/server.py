@@ -3541,7 +3541,7 @@ async def contact_form(body: ContactFormIn):
         try:
             import resend
             resend.api_key = resend_api_key
-            from_email = os.environ.get("RESEND_FROM_EMAIL", "VyaparMind <onboarding@resend.dev>")
+            from_email = os.environ.get("VyaparMind <contact@vyaparmind.com>", "VyaparMind <onboarding@resend.dev>")
             resend.Emails.send({
                 "from": from_email,
                 "to": [notify_email],
