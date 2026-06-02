@@ -3483,6 +3483,103 @@ async def payment_history(user: Dict[str, Any] = Depends(get_current_user)):
     return {"payments": payments}
 
 
+# ------------------- Contact Form -------------------
+class ContactFormIn(BaseModel):
+    name: str
+    email: EmailStr
+    subject: str
+    message: str
+
+@api.post("/contact")
+async def contact_form(body: ContactFormIn):
+    """Receive contact form submission and send email notification."""
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    # Store in database
+    contact_data = {
+        "id": str(uuid.uuid4()),
+        "name": body.name,
+        "email": body.email,
+        "subject": body.subject,
+        "message": body.message,
+        "created_at": now_iso(),
+    }
+    db.insert("contact_messages", contact_data)
+
+    notify_email = os.environ.get("CONTACT_NOTIFY_EMAIL", "sarthak.tambat@vyaparmind.com")
+    
+    html_body = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #090E17; padding: 20px; border-radius: 8px 8px 0 0;">
+            <h2 style="color: #00A884; margin: 0;">New Contact Form Submission</h2>
+        </div>
+        <div style="background: #f9fafb; padding: 20px; border: 1px solid #e2e8f0; border-radius: 0 0 8px 8px;">
+            <p><strong>Name:</strong> {body.name}</p>
+            <p><strong>Email:</strong> <a href="mailto:{body.email}">{body.email}</a></p>
+            <p><strong>Subject:</strong> {body.subject}</p>
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 16px 0;">
+            <p><strong>Message:</strong></p>
+            <p style="white-space: pre-wrap; background: white; padding: 12px; border-radius: 4px; border: 1px solid #e2e8f0;">{body.message}</p>
+        </div>
+        <div style="padding: 12px; text-align: center; color: #64748b; font-size: 12px;">
+            <p>This message was sent from the VyaparMind contact form.</p>
+            <p>Reply directly to <a href="mailto:{body.email}">{body.email}</a></p>
+        </div>
+    </div>
+    """
+
+    email_sent = False
+
+    # Method 1: Resend API (preferred for Vercel serverless)
+    resend_api_key = os.environ.get("RESEND_API_KEY", "")
+    if resend_api_key and not email_sent:
+        try:
+            import resend
+            resend.api_key = resend_api_key
+            from_email = os.environ.get("RESEND_FROM_EMAIL", "VyaparMind <onboarding@resend.dev>")
+            resend.Emails.send({
+                "from": from_email,
+                "to": [notify_email],
+                "subject": f"[VyaparMind Contact] {body.subject}",
+                "html": html_body,
+                "reply_to": body.email,
+            })
+            email_sent = True
+            logging.info(f"Contact email sent via Resend to {notify_email}")
+        except Exception as e:
+            logging.error(f"Resend failed: {e}")
+
+    # Method 2: SMTP fallback
+    smtp_user = os.environ.get("SMTP_USER", "")
+    smtp_pass = os.environ.get("SMTP_PASS", "")
+    if smtp_user and smtp_pass and not email_sent:
+        try:
+            smtp_host = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+            smtp_port = int(os.environ.get("SMTP_PORT", "587"))
+            msg = MIMEMultipart()
+            msg["From"] = smtp_user
+            msg["To"] = notify_email
+            msg["Reply-To"] = body.email
+            msg["Subject"] = f"[VyaparMind Contact] {body.subject}"
+            msg.attach(MIMEText(html_body, "html"))
+
+            with smtplib.SMTP(smtp_host, smtp_port) as server:
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+            
+            email_sent = True
+            logging.info(f"Contact email sent via SMTP to {notify_email}")
+        except Exception as e:
+            logging.error(f"SMTP failed: {e}")
+
+    if not email_sent:
+        logging.warning("No email method configured or all failed - contact message saved to DB only")
+
+    return {"ok": True, "message": "Message received. We'll get back to you shortly."}
+
 @api.get("/health")
 async def health():
     return {"ok": True, "ai_key_present": bool(OPENAI_API_KEY), "time": now_iso()}

@@ -507,15 +507,23 @@ function ContactUs() {
   const [submitted, setSubmitted] = React.useState(false);
   const [sending, setSending] = React.useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSending(true);
-    // Simulate form submission
-    setTimeout(() => {
-      setSending(false);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error("Failed");
       setSubmitted(true);
       setForm({ name: "", email: "", subject: "", message: "" });
-    }, 1500);
+    } catch {
+      alert("Something went wrong. Please try again or email us directly.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
