@@ -548,7 +548,7 @@ function ContactUs() {
                   </div>
                   <div>
                     <div className="text-xs uppercase tracking-wider text-white/40 mb-1">Location</div>
-                    <p className="text-white/80 font-medium">Bengaluru, Karnataka, India</p>
+                    <p className="text-white/80 font-medium">Hyderabad, Telangana, India</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
