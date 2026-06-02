@@ -519,27 +519,27 @@ function ContactUs() {
   };
 
   return (
-    <section id="contact" className="bg-[#090E17] py-16 sm:py-32 border-t border-white/5">
+    <section id="contact" className="bg-white py-16 sm:py-32 border-t border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="text-center mb-14">
           <div className="label-tiny text-[#00A884] mb-3">GET IN TOUCH</div>
-          <h2 className="font-display font-black text-4xl sm:text-5xl tracking-tighter text-white">Contact Us</h2>
-          <p className="mt-4 text-white/55 max-w-lg mx-auto">Have questions or want to partner with us? We'd love to hear from you.</p>
+          <h2 className="font-display font-black text-4xl sm:text-5xl tracking-tighter text-slate-900">Contact Us</h2>
+          <p className="mt-4 text-slate-500 max-w-lg mx-auto">Have questions or want to partner with us? We'd love to hear from you.</p>
         </div>
 
         <div className="grid lg:grid-cols-5 gap-10 lg:gap-14">
           {/* Contact Info */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white/[0.03] border border-white/10 p-6 sm:p-8" style={{borderRadius: 10}}>
-              <h3 className="font-display font-bold text-xl text-white mb-6">Reach out to us</h3>
+            <div className="bg-[#F9FAFB] border border-slate-200 p-6 sm:p-8" style={{borderRadius: 10}}>
+              <h3 className="font-display font-bold text-xl text-slate-900 mb-6">Reach out to us</h3>
               <div className="space-y-5">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-lg bg-[#00A884]/10 flex items-center justify-center flex-shrink-0">
                     <EnvelopeSimple weight="fill" size={20} className="text-[#00A884]" />
                   </div>
                   <div>
-                    <div className="text-xs uppercase tracking-wider text-white/40 mb-1">Email</div>
-                    <a href="mailto:sarthak.tambat@vyaparmind.com" className="text-white hover:text-[#00A884] transition-colors font-medium">Email Us</a>
+                    <div className="text-xs uppercase tracking-wider text-slate-400 mb-1">Email</div>
+                    <a href="mailto:sarthak.tambat@vyaparmind.com" className="text-slate-900 hover:text-[#00A884] transition-colors font-medium">Email Us</a>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -547,8 +547,8 @@ function ContactUs() {
                     <MapPin weight="fill" size={20} className="text-[#00A884]" />
                   </div>
                   <div>
-                    <div className="text-xs uppercase tracking-wider text-white/40 mb-1">Location</div>
-                    <p className="text-white/80 font-medium">Hyderabad, Telangana, India</p>
+                    <div className="text-xs uppercase tracking-wider text-slate-400 mb-1">Location</div>
+                    <p className="text-slate-700 font-medium">Hyderabad, Telangana, India</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -556,75 +556,75 @@ function ContactUs() {
                     <ChatCircleDots weight="fill" size={20} className="text-[#00A884]" />
                   </div>
                   <div>
-                    <div className="text-xs uppercase tracking-wider text-white/40 mb-1">Support Hours</div>
-                    <p className="text-white/80 font-medium">Mon – Sat, 9 AM – 7 PM IST</p>
+                    <div className="text-xs uppercase tracking-wider text-slate-400 mb-1">Support Hours</div>
+                    <p className="text-slate-700 font-medium">Mon – Sat, 9 AM – 7 PM IST</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Social / trust badge */}
-            <div className="bg-gradient-to-br from-[#00A884]/10 to-transparent border border-[#00A884]/20 p-5" style={{borderRadius: 10}}>
+            <div className="bg-gradient-to-br from-[#00A884]/5 to-transparent border border-[#00A884]/20 p-5" style={{borderRadius: 10}}>
               <div className="flex items-center gap-3 mb-3">
                 <ShieldCheck weight="fill" size={24} className="text-[#00A884]" />
-                <span className="font-semibold text-white text-sm">Your data is safe with us</span>
+                <span className="font-semibold text-slate-900 text-sm">Your data is safe with us</span>
               </div>
-              <p className="text-white/50 text-xs leading-relaxed">We never share your information with third parties. All communications are encrypted.</p>
+              <p className="text-slate-500 text-xs leading-relaxed">We never share your information with third parties. All communications are encrypted.</p>
             </div>
           </div>
 
           {/* Contact Form */}
           <div className="lg:col-span-3">
-            <div className="bg-white/[0.03] border border-white/10 p-6 sm:p-8" style={{borderRadius: 10}}>
+            <div className="bg-[#F9FAFB] border border-slate-200 p-6 sm:p-8" style={{borderRadius: 10}}>
               {submitted ? (
                 <div className="text-center py-12">
                   <div className="w-16 h-16 rounded-full bg-[#00A884]/10 flex items-center justify-center mx-auto mb-5">
                     <Check weight="bold" size={32} className="text-[#00A884]" />
                   </div>
-                  <h3 className="font-display font-bold text-2xl text-white mb-2">Message Sent!</h3>
-                  <p className="text-white/55 mb-6">Thank you for reaching out. We'll get back to you within 24 hours.</p>
+                  <h3 className="font-display font-bold text-2xl text-slate-900 mb-2">Message Sent!</h3>
+                  <p className="text-slate-500 mb-6">Thank you for reaching out. We'll get back to you within 24 hours.</p>
                   <button onClick={() => setSubmitted(false)} className="text-[#00A884] font-semibold text-sm hover:underline">Send another message</button>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  <h3 className="font-display font-bold text-xl text-white mb-2">Send us a message</h3>
-                  <p className="text-white/45 text-sm mb-6">Fill out the form and our team will reach out to you shortly.</p>
+                  <h3 className="font-display font-bold text-xl text-slate-900 mb-2">Send us a message</h3>
+                  <p className="text-slate-500 text-sm mb-6">Fill out the form and our team will reach out to you shortly.</p>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-white/40 mb-1.5">Full Name</label>
+                      <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1.5">Full Name</label>
                       <input
                         type="text" required value={form.name} onChange={(e) => setForm({...form, name: e.target.value})}
                         placeholder="John Doe"
-                        className="w-full px-4 py-3 bg-white/[0.04] border border-white/10 text-white placeholder:text-white/25 focus:border-[#00A884] focus:ring-1 focus:ring-[#00A884]/30 outline-none text-sm transition-colors"
+                        className="w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#00A884] focus:ring-1 focus:ring-[#00A884]/30 outline-none text-sm transition-colors"
                         style={{borderRadius: 6}}
                       />
                     </div>
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-white/40 mb-1.5">Email</label>
+                      <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1.5">Email</label>
                       <input
                         type="email" required value={form.email} onChange={(e) => setForm({...form, email: e.target.value})}
                         placeholder="you@business.com"
-                        className="w-full px-4 py-3 bg-white/[0.04] border border-white/10 text-white placeholder:text-white/25 focus:border-[#00A884] focus:ring-1 focus:ring-[#00A884]/30 outline-none text-sm transition-colors"
+                        className="w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#00A884] focus:ring-1 focus:ring-[#00A884]/30 outline-none text-sm transition-colors"
                         style={{borderRadius: 6}}
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-white/40 mb-1.5">Subject</label>
+                    <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1.5">Subject</label>
                     <input
                       type="text" required value={form.subject} onChange={(e) => setForm({...form, subject: e.target.value})}
                       placeholder="How can we help?"
-                      className="w-full px-4 py-3 bg-white/[0.04] border border-white/10 text-white placeholder:text-white/25 focus:border-[#00A884] focus:ring-1 focus:ring-[#00A884]/30 outline-none text-sm transition-colors"
+                      className="w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#00A884] focus:ring-1 focus:ring-[#00A884]/30 outline-none text-sm transition-colors"
                       style={{borderRadius: 6}}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-white/40 mb-1.5">Message</label>
+                    <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1.5">Message</label>
                     <textarea
                       required value={form.message} onChange={(e) => setForm({...form, message: e.target.value})}
                       rows={5}
                       placeholder="Tell us about your requirements..."
-                      className="w-full px-4 py-3 bg-white/[0.04] border border-white/10 text-white placeholder:text-white/25 focus:border-[#00A884] focus:ring-1 focus:ring-[#00A884]/30 outline-none text-sm transition-colors resize-none"
+                      className="w-full px-4 py-3 bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#00A884] focus:ring-1 focus:ring-[#00A884]/30 outline-none text-sm transition-colors resize-none"
                       style={{borderRadius: 6}}
                     />
                   </div>
