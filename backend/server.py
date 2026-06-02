@@ -3497,7 +3497,7 @@ async def contact_form(body: ContactFormIn):
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
 
-    # Store in database
+    # Store in database (best-effort on serverless)
     contact_data = {
         "id": str(uuid.uuid4()),
         "name": body.name,
@@ -3506,7 +3506,10 @@ async def contact_form(body: ContactFormIn):
         "message": body.message,
         "created_at": now_iso(),
     }
-    await db.contact_messages.insert_one(contact_data)
+    try:
+        await db.contact_messages.insert_one(contact_data)
+    except Exception as e:
+        logging.warning(f"Could not save contact to filedb: {e}")
 
     notify_email = os.environ.get("CONTACT_NOTIFY_EMAIL", "sarthak.tambat@vyaparmind.com")
     
