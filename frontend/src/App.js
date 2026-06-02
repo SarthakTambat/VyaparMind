@@ -28,6 +28,7 @@ import Payment from "pages/Payment";
 import Upgrade from "pages/Upgrade";
 import Settings from "pages/Settings";
 import Demo from "pages/Demo";
+import Services from "pages/Services";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -69,6 +70,7 @@ function App() {
           />
           <Route path="/payment" element={<Payment />} />
           <Route path="/demo" element={<Demo />} />
+          <Route path="/services" element={<Services />} />
           <Route
             path="/app"
             element={

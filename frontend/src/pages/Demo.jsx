@@ -277,6 +277,7 @@ export default function Demo() {
   const [current, setCurrent] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [touchStart, setTouchStart] = useState(null);
 
   const DURATION = 6000; // 6 seconds per slide
 
@@ -289,6 +290,20 @@ export default function Demo() {
     setCurrent((c) => (c - 1 + SLIDES.length) % SLIDES.length);
     setProgress(0);
   }, []);
+
+  // Swipe gestures for mobile
+  const handleTouchStart = (e) => {
+    setTouchStart(e.touches[0].clientX);
+  };
+  const handleTouchEnd = (e) => {
+    if (touchStart === null) return;
+    const diff = touchStart - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) next();
+      else prev();
+    }
+    setTouchStart(null);
+  };
 
   useEffect(() => {
     if (!playing) return;
@@ -308,33 +323,33 @@ export default function Demo() {
   const Icon = slide.icon;
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#090E17] flex flex-col">
+    <div className="fixed inset-0 z-[9999] bg-[#090E17] flex flex-col overflow-hidden">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 sm:px-8 py-4 border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <img src="/vyaparmind-logo.png" alt="VyaparMind" className="w-8 h-8" />
-          <span className="font-display font-black text-white text-lg tracking-tighter">VyaparMind Demo</span>
+      <div className="flex items-center justify-between px-4 sm:px-8 py-3 border-b border-white/10 shrink-0">
+        <div className="flex items-center gap-2">
+          <img src="/vyaparmind-logo.png" alt="VyaparMind" className="w-7 h-7 sm:w-8 sm:h-8" />
+          <span className="font-display font-black text-white text-base sm:text-lg tracking-tighter">VyaparMind Demo</span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <Link
             to="/register"
             className="hidden sm:inline-flex items-center gap-2 bg-[#00A884] text-white font-bold text-sm px-4 py-2 rounded-lg hover:bg-[#008f6f] transition-colors"
           >
             Start Free <ArrowRight weight="bold" size={14} />
           </Link>
-          <Link to="/" className="w-9 h-9 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
-            <X size={18} className="text-white" weight="bold" />
+          <Link to="/" className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+            <X size={16} className="text-white" weight="bold" />
           </Link>
         </div>
       </div>
 
       {/* Progress dots */}
-      <div className="flex items-center gap-1.5 px-4 sm:px-8 pt-4">
+      <div className="flex items-center gap-1 px-4 sm:px-8 pt-3 shrink-0">
         {SLIDES.map((s, i) => (
           <button
             key={s.id}
             onClick={() => { setCurrent(i); setProgress(0); }}
-            className="flex-1 h-1 rounded-full overflow-hidden bg-white/10 transition-all"
+            className="flex-1 h-[3px] rounded-full overflow-hidden bg-white/10 transition-all"
           >
             <div
               className="h-full rounded-full transition-all duration-100"
@@ -347,34 +362,51 @@ export default function Demo() {
         ))}
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-8 py-6 overflow-hidden">
+      {/* Main content - scrollable on mobile */}
+      <div
+        className="flex-1 overflow-y-auto overflow-x-hidden px-4 sm:px-8 py-4 sm:py-6"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <AnimatePresence mode="wait">
           <motion.div
             key={slide.id}
-            initial={{ opacity: 0, x: 60 }}
+            initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -60 }}
-            transition={{ duration: 0.35 }}
-            className="w-full max-w-5xl grid lg:grid-cols-2 gap-8 items-center"
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ duration: 0.3 }}
+            className="w-full max-w-5xl mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-5 sm:gap-8 lg:items-center min-h-full"
           >
-            {/* Left - Text */}
-            <div className="order-2 lg:order-1">
-              <div className="flex items-center gap-3 mb-4">
+            {/* Mockup - shows first on mobile */}
+            <div className="flex items-center justify-center lg:order-2">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1, duration: 0.35 }}
+                className="w-full max-w-[320px] sm:max-w-sm lg:max-w-md transform scale-[0.85] sm:scale-100 origin-top"
+              >
+                {slide.mockup}
+              </motion.div>
+            </div>
+
+            {/* Text content */}
+            <div className="lg:order-1">
+              <div className="flex items-center gap-3 mb-3">
                 <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center"
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0"
                   style={{ background: slide.color + "20" }}
                 >
-                  <Icon size={22} weight="fill" style={{ color: slide.color }} />
+                  <Icon size={20} weight="fill" style={{ color: slide.color }} />
                 </div>
                 <div>
-                  <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">{slide.title}</h2>
-                  <p className="text-sm text-white/50">{slide.subtitle}</p>
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight leading-tight">{slide.title}</h2>
+                  <p className="text-xs sm:text-sm text-white/50">{slide.subtitle}</p>
                 </div>
               </div>
-              <p className="text-lg text-white/70 leading-relaxed max-w-lg">{slide.description}</p>
+              <p className="text-sm sm:text-base lg:text-lg text-white/70 leading-relaxed">{slide.description}</p>
 
-              <div className="mt-8 flex items-center gap-6">
+              {/* Controls */}
+              <div className="mt-5 sm:mt-8 flex items-center gap-4 sm:gap-6">
                 <div className="flex items-center gap-1 text-white/40 text-sm">
                   <span className="font-bold text-white">{current + 1}</span>
                   <span>/</span>
@@ -383,47 +415,36 @@ export default function Demo() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={prev}
-                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 flex items-center justify-center transition-colors"
                   >
                     <ArrowLeft size={16} className="text-white" weight="bold" />
                   </button>
                   <button
                     onClick={() => setPlaying(!playing)}
-                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 flex items-center justify-center transition-colors"
                   >
                     {playing ? <Pause size={16} className="text-white" weight="fill" /> : <Play size={16} className="text-white" weight="fill" />}
                   </button>
                   <button
                     onClick={next}
-                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 flex items-center justify-center transition-colors"
                   >
                     <ArrowRight size={16} className="text-white" weight="bold" />
                   </button>
                 </div>
               </div>
             </div>
-
-            {/* Right - Mockup */}
-            <div className="order-1 lg:order-2 flex items-center justify-center">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ delay: 0.15, duration: 0.4 }}
-              >
-                {slide.mockup}
-              </motion.div>
-            </div>
           </motion.div>
         </AnimatePresence>
       </div>
 
       {/* Bottom CTA */}
-      <div className="px-4 sm:px-8 py-4 border-t border-white/10 flex items-center justify-between">
+      <div className="px-4 sm:px-8 py-3 sm:py-4 border-t border-white/10 flex items-center justify-between shrink-0 safe-area-bottom">
         <p className="text-sm text-white/40 hidden sm:block">See how VyaparMind transforms Indian businesses</p>
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <Link
             to="/register"
-            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-[#00A884] text-white font-bold text-sm px-6 py-3 rounded-lg hover:bg-[#008f6f] transition-colors"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-[#00A884] text-white font-bold text-sm px-6 py-3 rounded-lg hover:bg-[#008f6f] active:scale-[0.97] transition-all"
           >
             Start Free Now <ArrowRight weight="bold" size={16} />
           </Link>
