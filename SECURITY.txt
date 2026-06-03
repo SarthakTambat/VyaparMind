@@ -1,0 +1,35 @@
+﻿# VyaparMind Security Policy
+# https://vyaparmind.com
+
+Contact: mailto:security@vyaparmind.com
+Contact: https://vyaparmind.com/#contact
+Expires: 2027-06-03T00:00:00.000Z
+Canonical: https://vyaparmind.com/.well-known/security.txt
+Policy: https://vyaparmind.com/security
+Preferred-Languages: en, hi
+
+## Reporting a Vulnerability
+Email security@vyaparmind.com with subject "VyaparMind Security Report".
+We acknowledge within 48 hours and resolve critical issues within 7 days.
+Please allow 90 days for coordinated disclosure before going public.
+
+## Scope (In)
+- https://vyaparmind.com — production API + frontend
+- Authentication, authorization, payment, AI chat endpoints
+- https://github.com/SarthakTambat/VyaparMind
+
+## Scope (Out)
+- Social engineering, physical attacks
+- Third-party services: Supabase, Razorpay, Resend, Groq, Gemini
+
+## Security Measures
+- JWT stored in HttpOnly; Secure; SameSite=Lax cookies (never localStorage)
+- bcrypt password hashing
+- Rate limiting on auth + contact endpoints (slowapi)
+- Restricted CORS — specific origins only, no wildcard
+- HSTS, X-Frame-Options, X-Content-Type-Options headers
+- Server-side plan enforcement on premium endpoints
+- Input validation via Pydantic with max_length constraints
+- HTML-escaped email templates
+- Opaque error responses (error ID only)
+- No credentials in source code (Vercel encrypted env vars)

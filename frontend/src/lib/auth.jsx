@@ -3,7 +3,7 @@ import { api } from "lib/api";
 
 const AuthContext = createContext(null);
 
-const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes for activity-based session expiry
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -11,17 +11,9 @@ export function AuthProvider({ children }) {
   const timerRef = useRef(null);
 
   const clearSession = useCallback(() => {
-    localStorage.removeItem("vm_token");
     localStorage.removeItem("vm_user");
     localStorage.removeItem("vm_session_ts");
     setUser(null);
-  }, []);
-
-  // Check if session has expired
-  const isSessionExpired = useCallback(() => {
-    const ts = localStorage.getItem("vm_session_ts");
-    if (!ts) return true;
-    return Date.now() - parseInt(ts, 10) > SESSION_TIMEOUT_MS;
   }, []);
 
   // Reset activity timer on user interaction
@@ -47,40 +39,28 @@ export function AuthProvider({ children }) {
   }, [user, resetTimer]);
 
   useEffect(() => {
-    const token = localStorage.getItem("vm_token");
+    // Restore cached user object for instant render (non-sensitive)
     const stored = localStorage.getItem("vm_user");
-
-    // If session expired, clear everything
-    if (token && isSessionExpired()) {
-      clearSession();
-      setLoading(false);
-      return;
+    if (stored) {
+      try { setUser(JSON.parse(stored)); } catch {}
     }
-
-    if (token && stored) {
-      try {
-        setUser(JSON.parse(stored));
-      } catch {}
-      // verify token is still valid on server
-      api
-        .get("/api/auth/me")
-        .then((r) => {
-          setUser(r.data);
-          localStorage.setItem("vm_user", JSON.stringify(r.data));
-          localStorage.setItem("vm_session_ts", Date.now().toString());
-        })
-        .catch(() => {
-          clearSession();
-        })
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
-  }, [clearSession, isSessionExpired]);
+    // Auth is via HttpOnly cookie — verify with server (no token in localStorage)
+    api
+      .get("/api/auth/me")
+      .then((r) => {
+        setUser(r.data);
+        localStorage.setItem("vm_user", JSON.stringify(r.data));
+        localStorage.setItem("vm_session_ts", Date.now().toString());
+      })
+      .catch(() => {
+        clearSession();
+      })
+      .finally(() => setLoading(false));
+  }, [clearSession]);
 
   const login = async (email, password) => {
     const res = await api.post("/api/auth/login", { email, password });
-    localStorage.setItem("vm_token", res.data.access_token);
+    // Token stored as HttpOnly cookie by server — never in localStorage
     localStorage.setItem("vm_user", JSON.stringify(res.data.user));
     localStorage.setItem("vm_session_ts", Date.now().toString());
     setUser(res.data.user);
@@ -89,14 +69,15 @@ export function AuthProvider({ children }) {
 
   const register = async (data) => {
     const res = await api.post("/api/auth/register", data);
-    localStorage.setItem("vm_token", res.data.access_token);
+    // Token stored as HttpOnly cookie by server — never in localStorage
     localStorage.setItem("vm_user", JSON.stringify(res.data.user));
     localStorage.setItem("vm_session_ts", Date.now().toString());
     setUser(res.data.user);
     return res.data.user;
   };
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    try { await api.post("/api/auth/logout"); } catch {}
     clearSession();
   }, [clearSession]);
 

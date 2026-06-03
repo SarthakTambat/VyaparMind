@@ -1,27 +1,16 @@
 import axios from "axios";
 
-// In development, requests go through the React dev server proxy (package.json "proxy")
-// In production, set REACT_APP_BACKEND_URL to the actual backend URL
 const BASE = process.env.REACT_APP_BACKEND_URL || "";
 
-export const api = axios.create({ baseURL: BASE });
+export const api = axios.create({ baseURL: BASE, withCredentials: true });
 
-// Inject JWT token into every request
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("vm_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// On 401, clear stored credentials and redirect
+// On 401, clear cached user data and redirect to login
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response && err.response.status === 401) {
-      localStorage.removeItem("vm_token");
       localStorage.removeItem("vm_user");
+      localStorage.removeItem("vm_session_ts");
       if (window.location.pathname !== "/login") {
         window.location.href = "/login";
       }
