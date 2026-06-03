@@ -19,7 +19,8 @@ if platform.system() == "Windows":
         import truststore
         truststore.inject_into_ssl()
     except Exception:
-        ssl._create_default_https_context = ssl._create_unverified_context
+        import logging
+        logging.warning("truststore not available - using default SSL context. Install truststore for corporate proxy support.")
 
 load_dotenv(Path(__file__).parent / '.env')
 

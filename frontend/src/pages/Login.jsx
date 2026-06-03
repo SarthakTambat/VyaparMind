@@ -30,7 +30,8 @@ export default function Login() {
         await login(credRef.current.email, credRef.current.password);
         toast.success("Welcome back!");
         const redirect = searchParams.get("redirect");
-        nav(redirect || "/app");
+        const safePath = redirect && redirect.startsWith("/") && !redirect.startsWith("//") ? redirect : "/app";
+        nav(safePath);
       } catch (err) {
         toast.error(err?.response?.data?.detail || "Login failed");
         setShowSplash(false);

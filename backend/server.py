@@ -1,6 +1,7 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File, Form, Header
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File, Form, Header, Request
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 import os
 import logging
 import io
@@ -9,6 +10,7 @@ import base64
 import uuid
 import re
 import ssl
+import html as html_mod
 import httpx
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -17,6 +19,9 @@ from typing import List, Optional, Literal, Any, Dict
 from datetime import datetime, timezone, timedelta
 import bcrypt
 import jwt as pyjwt
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 try:
     from openai import AsyncOpenAI
@@ -31,7 +36,9 @@ load_dotenv(ROOT_DIR / '.env')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '') or os.environ.get('EMERGENT_LLM_KEY', '')
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
-JWT_SECRET = os.environ.get('JWT_SECRET', 'dev-secret')
+JWT_SECRET = os.environ.get('JWT_SECRET')
+if not JWT_SECRET:
+    raise RuntimeError("JWT_SECRET environment variable is required and not set.")
 JWT_ALG = "HS256"
 JWT_EXPIRE_DAYS = 30
 
@@ -42,6 +49,9 @@ else:
     from filedb import db
 
 app = FastAPI(title="VyaparMind API")
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 api = APIRouter(prefix="/api")
 
 # ------------------- Models -------------------
@@ -87,8 +97,8 @@ class TransactionIn(BaseModel):
     description: Optional[str] = None
 
 class ChatMessageIn(BaseModel):
-    text: str
-    language: Optional[str] = "en"
+    text: str = Field(..., min_length=1, max_length=2000)
+    language: Optional[str] = Field("en", max_length=10)
 
 class AutomationIn(BaseModel):
     name: str
@@ -142,7 +152,8 @@ def user_public(u: Dict[str, Any]) -> Dict[str, Any]:
 
 # ------------------- Auth Routes -------------------
 @api.post("/auth/register", response_model=TokenOut)
-async def register(body: RegisterIn):
+@limiter.limit("3/minute")
+async def register(request: Request, body: RegisterIn):
     # Password policy enforcement
     pwd = body.password
     if len(pwd) < 8:
@@ -176,7 +187,8 @@ async def register(body: RegisterIn):
     return TokenOut(access_token=token, user=user_public(user_doc))
 
 @api.post("/auth/login", response_model=TokenOut)
-async def login(body: LoginIn):
+@limiter.limit("5/minute")
+async def login(request: Request, body: LoginIn):
     user = await db.users.find_one({"email": body.email.lower()})
     if not user or not verify_password(body.password, user["password_hash"]):
         raise HTTPException(401, "Invalid email or password")
@@ -335,16 +347,13 @@ async def llm_parse(user_id: str, text: str, image_b64: Optional[str] = None, la
     """Call AI to parse a business message. Priority: Groq (free) → Gemini (free) → OpenAI → fallback."""
     system_content = SYSTEM_PARSER + ("\n\nCONTEXT:\n" + context if context else "")
 
-    # SSL context for corporate proxy environments
-    _http_client = httpx.AsyncClient(verify=False, timeout=20)
-
     # --- Try Groq first (free, fast, OpenAI-compatible API) ---
     if GROQ_API_KEY and HAS_OPENAI:
         try:
             client = AsyncOpenAI(
                 api_key=GROQ_API_KEY,
                 base_url="https://api.groq.com/openai/v1",
-                http_client=httpx.AsyncClient(verify=False, timeout=20)
+                http_client=httpx.AsyncClient(timeout=20)
             )
             messages = [{"role": "system", "content": system_content}]
             if image_b64:
@@ -383,7 +392,7 @@ async def llm_parse(user_id: str, text: str, image_b64: Optional[str] = None, la
                 "contents": [{"parts": parts}],
                 "generationConfig": {"temperature": 0.15, "maxOutputTokens": 1024}
             }
-            async with httpx.AsyncClient(timeout=20, verify=False) as http:
+            async with httpx.AsyncClient(timeout=20) as http:
                 r = await http.post(url, json=payload)
             if r.status_code == 200:
                 data = r.json()
@@ -3491,7 +3500,8 @@ class ContactFormIn(BaseModel):
     message: str
 
 @api.post("/contact")
-async def contact_form(body: ContactFormIn):
+@limiter.limit("3/hour")
+async def contact_form(request: Request, body: ContactFormIn):
     """Receive contact form submission and send email notification."""
     import smtplib
     from email.mime.text import MIMEText
@@ -3513,22 +3523,27 @@ async def contact_form(body: ContactFormIn):
 
     notify_email = os.environ.get("CONTACT_NOTIFY_EMAIL", "sarthak.tambat@vyaparmind.com")
     
+    safe_name = html_mod.escape(body.name)
+    safe_email = html_mod.escape(body.email)
+    safe_subject = html_mod.escape(body.subject)
+    safe_message = html_mod.escape(body.message)
+
     html_body = f"""
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #090E17; padding: 20px; border-radius: 8px 8px 0 0;">
             <h2 style="color: #00A884; margin: 0;">New Contact Form Submission</h2>
         </div>
         <div style="background: #f9fafb; padding: 20px; border: 1px solid #e2e8f0; border-radius: 0 0 8px 8px;">
-            <p><strong>Name:</strong> {body.name}</p>
-            <p><strong>Email:</strong> <a href="mailto:{body.email}">{body.email}</a></p>
-            <p><strong>Subject:</strong> {body.subject}</p>
+            <p><strong>Name:</strong> {safe_name}</p>
+            <p><strong>Email:</strong> <a href="mailto:{safe_email}">{safe_email}</a></p>
+            <p><strong>Subject:</strong> {safe_subject}</p>
             <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 16px 0;">
             <p><strong>Message:</strong></p>
-            <p style="white-space: pre-wrap; background: white; padding: 12px; border-radius: 4px; border: 1px solid #e2e8f0;">{body.message}</p>
+            <p style="white-space: pre-wrap; background: white; padding: 12px; border-radius: 4px; border: 1px solid #e2e8f0;">{safe_message}</p>
         </div>
         <div style="padding: 12px; text-align: center; color: #64748b; font-size: 12px;">
             <p>This message was sent from the VyaparMind contact form.</p>
-            <p>Reply directly to <a href="mailto:{body.email}">{body.email}</a></p>
+            <p>Reply directly to <a href="mailto:{safe_email}">{safe_email}</a></p>
         </div>
     </div>
     """
@@ -3588,23 +3603,40 @@ async def health():
     return {"ok": True, "ai_key_present": bool(OPENAI_API_KEY), "time": now_iso()}
 
 app.include_router(api)
+
+# --- Security Headers Middleware ---
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(self), geolocation=()"
+        return response
+
+app.add_middleware(SecurityHeadersMiddleware)
+
+# --- CORS (restricted to known origins) ---
+_cors_origins = [o.strip() for o in os.environ.get('CORS_ORIGINS', '').split(',') if o.strip()]
+if not _cors_origins or '*' in _cors_origins:
+    _cors_origins = ["https://vyaparmind.com", "https://www.vyaparmind.com", "http://localhost:3000"]
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_cors_origins,
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("vyaparmind")
 
 import traceback as _tb
-from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 @app.exception_handler(Exception)
 async def _unhandled_exception_handler(request: Request, exc: Exception):
-    logger.error(f"Unhandled error on {request.method} {request.url.path}: {exc}")
-    _tb.print_exc()
-    return JSONResponse(status_code=500, content={"detail": str(exc)})
+    error_id = str(uuid.uuid4())[:8]
+    logger.error(f"Unhandled error [{error_id}] on {request.method} {request.url.path}: {exc}", exc_info=True)
+    return JSONResponse(status_code=500, content={"detail": f"An unexpected error occurred. Reference: {error_id}"})
