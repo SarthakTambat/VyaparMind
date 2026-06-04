@@ -77,7 +77,10 @@ export default function Login() {
               style={{borderRadius:4}}
               placeholder="you@dukaan.com"
             />
-            <label className="label-tiny block mt-4 mb-1.5">Password</label>
+            <div className="flex items-center justify-between mt-4 mb-1.5">
+              <label className="label-tiny">Password</label>
+              <Link to="/forgot-password" className="text-xs text-signal hover:underline font-semibold">Forgot password?</Link>
+            </div>
             <input
               type="password" required value={password} onChange={(e)=>setPassword(e.target.value)}
               className="w-full px-3.5 py-3 bg-white border border-slate-300 focus:ring-1 focus:ring-signal focus:border-signal outline-none text-sm"

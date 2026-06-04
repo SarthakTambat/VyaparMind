@@ -29,6 +29,7 @@ import Upgrade from "pages/Upgrade";
 import Settings from "pages/Settings";
 import Demo from "pages/Demo";
 import Services from "pages/Services";
+import ForgotPassword from "pages/ForgotPassword";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -71,6 +72,7 @@ function App() {
           <Route path="/payment" element={<Payment />} />
           <Route path="/demo" element={<Demo />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route
             path="/app"
             element={

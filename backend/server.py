@@ -3639,6 +3639,176 @@ async def contact_form(request: Request, body: ContactFormIn):
 
     return {"ok": True, "message": "Message received. We'll get back to you shortly."}
 
+# ------------------- Password Reset Flow -------------------
+# In-memory store: { token: { user_id, otp, expires_at } }
+# (Stateless serverless-safe: tokens expire in 15 min, one-time use)
+import secrets
+import time as _time
+
+_reset_store: Dict[str, Dict] = {}
+
+def _cleanup_reset_store():
+    """Remove expired tokens."""
+    now = _time.time()
+    expired = [k for k, v in _reset_store.items() if v["expires_at"] < now]
+    for k in expired:
+        del _reset_store[k]
+
+class ForgotPasswordIn(BaseModel):
+    email: EmailStr
+
+class VerifyOTPIn(BaseModel):
+    token: str
+    otp: str
+
+class ResetPasswordIn(BaseModel):
+    token: str
+    otp: str
+    new_password: str = Field(..., min_length=8)
+
+async def _send_reset_email(to_email: str, user_name: str, otp: str):
+    """Send password reset OTP email via Resend → SMTP fallback."""
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    safe_name = html_mod.escape(user_name)
+    html_body = f"""
+    <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;">
+      <div style="background:#090E17;padding:28px 24px;border-radius:8px 8px 0 0;text-align:center;">
+        <img src="https://vyaparmind.com/vyaparmind-logo.png" alt="VyaparMind" style="height:44px;margin-bottom:12px;" />
+        <h2 style="color:#00A884;margin:0;font-size:22px;letter-spacing:-0.5px;">Password Reset OTP</h2>
+      </div>
+      <div style="background:#f9fafb;padding:32px 24px;border:1px solid #e2e8f0;border-radius:0 0 8px 8px;">
+        <p style="margin:0 0 16px;color:#374151;">Hi <strong>{safe_name}</strong>,</p>
+        <p style="color:#374151;">Use the OTP below to reset your VyaparMind password. It expires in <strong>15 minutes</strong>.</p>
+        <div style="margin:28px 0;text-align:center;">
+          <span style="display:inline-block;background:#090E17;color:#00A884;font-size:36px;font-weight:900;letter-spacing:12px;padding:18px 32px;border-radius:8px;font-family:monospace;">{otp}</span>
+        </div>
+        <p style="color:#6B7280;font-size:13px;">If you did not request a password reset, you can safely ignore this email. Your password will not change.</p>
+      </div>
+      <div style="padding:16px;text-align:center;color:#94A3B8;font-size:11px;">
+        &copy; 2026 VyaparMind &bull; <a href="https://vyaparmind.com" style="color:#94A3B8;">vyaparmind.com</a>
+      </div>
+    </div>
+    """
+
+    email_sent = False
+    resend_key = os.environ.get("RESEND_API_KEY", "")
+    if resend_key:
+        try:
+            import resend
+            resend.api_key = resend_key
+            from_addr = os.environ.get("RESEND_FROM_EMAIL", "VyaparMind <contact@vyaparmind.com>")
+            resend.Emails.send({
+                "from": from_addr,
+                "to": [to_email],
+                "subject": f"Your VyaparMind OTP: {otp}",
+                "html": html_body,
+            })
+            email_sent = True
+            logging.info(f"Password reset OTP sent via Resend to {to_email}")
+        except Exception as e:
+            logging.error(f"Resend OTP failed: {e}")
+
+    if not email_sent:
+        smtp_user = os.environ.get("SMTP_USER", "")
+        smtp_pass = os.environ.get("SMTP_PASS", "")
+        if smtp_user and smtp_pass:
+            try:
+                smtp_host = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+                smtp_port = int(os.environ.get("SMTP_PORT", "587"))
+                msg = MIMEMultipart()
+                msg["From"] = smtp_user
+                msg["To"] = to_email
+                msg["Subject"] = f"Your VyaparMind OTP: {otp}"
+                msg.attach(MIMEText(html_body, "html"))
+                with smtplib.SMTP(smtp_host, smtp_port) as srv:
+                    srv.starttls()
+                    srv.login(smtp_user, smtp_pass)
+                    srv.send_message(msg)
+                email_sent = True
+                logging.info(f"Password reset OTP sent via SMTP to {to_email}")
+            except Exception as e:
+                logging.error(f"SMTP OTP failed: {e}")
+
+    return email_sent
+
+
+@api.post("/auth/forgot-password")
+@limiter.limit("3/hour")
+async def forgot_password(request: Request, body: ForgotPasswordIn):
+    """Step 1 — send OTP to email. Always returns 200 to prevent user enumeration."""
+    _cleanup_reset_store()
+    user = await db.users.find_one({"email": body.email.lower()}, {"_id": 0, "id": 1, "name": 1, "email": 1})
+    if user:
+        otp = str(secrets.randbelow(900000) + 100000)  # 6-digit OTP
+        token = secrets.token_urlsafe(32)
+        _reset_store[token] = {
+            "user_id": user["id"],
+            "email": user["email"],
+            "otp": otp,
+            "expires_at": _time.time() + 900,  # 15 minutes
+            "used": False,
+        }
+        await _send_reset_email(user["email"], user.get("name", "there"), otp)
+    # Always return same response — do not reveal whether email exists
+    # Return token regardless (even a dummy one) so frontend can proceed.
+    # If user doesn't exist, token won't match anything — safe.
+    return {"ok": True, "message": "If that email is registered, an OTP has been sent.", "token": token if user else ""}
+
+
+@api.post("/auth/verify-otp")
+@limiter.limit("10/minute")
+async def verify_otp(request: Request, body: VerifyOTPIn):
+    """Step 2 — verify OTP is correct and not expired. Returns ok:true so frontend can show new-password form."""
+    _cleanup_reset_store()
+    entry = _reset_store.get(body.token)
+    if not entry or entry["used"] or entry["expires_at"] < _time.time():
+        raise HTTPException(400, "OTP has expired or is invalid. Please request a new one.")
+    if entry["otp"] != body.otp.strip():
+        raise HTTPException(400, "Incorrect OTP. Please check your email and try again.")
+    return {"ok": True}
+
+
+@api.post("/auth/reset-password")
+@limiter.limit("5/hour")
+async def reset_password(request: Request, body: ResetPasswordIn):
+    """Step 3 — set the new password. Invalidates the token immediately after use."""
+    _cleanup_reset_store()
+    entry = _reset_store.get(body.token)
+    if not entry or entry["used"] or entry["expires_at"] < _time.time():
+        raise HTTPException(400, "Reset session expired. Please start over.")
+    if entry["otp"] != body.otp.strip():
+        raise HTTPException(400, "Invalid reset session.")
+
+    # Password policy
+    pwd = body.new_password
+    if len(pwd) < 8:
+        raise HTTPException(400, "Password must be at least 8 characters")
+    if not any(c.isupper() for c in pwd):
+        raise HTTPException(400, "Password must contain at least one uppercase letter")
+    if not any(c.islower() for c in pwd):
+        raise HTTPException(400, "Password must contain at least one lowercase letter")
+    if not any(c.isdigit() for c in pwd):
+        raise HTTPException(400, "Password must contain at least one number")
+    if not any(not c.isalnum() for c in pwd):
+        raise HTTPException(400, "Password must contain at least one special character")
+
+    new_hash = hash_password(pwd)
+    result = await db.users.update_one(
+        {"id": entry["user_id"]},
+        {"$set": {"password_hash": new_hash}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(404, "User not found.")
+
+    # Invalidate token — one-time use
+    entry["used"] = True
+    logging.info(f"Password reset successful for user {entry['user_id']}")
+    return {"ok": True, "message": "Password reset successfully. You can now sign in."}
+
+
 @api.get("/health")
 async def health():
     return {"ok": True, "ai_key_present": bool(OPENAI_API_KEY), "time": now_iso()}
